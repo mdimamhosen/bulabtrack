@@ -16,6 +16,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_a
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppDevicesIndexRouteImport } from './routes/_authenticated/_app/devices.index'
 import { Route as AuthenticatedAppDevicesNewRouteImport } from './routes/_authenticated/_app/devices.new'
+import { Route as AuthenticatedAppDevicesIdEditRouteImport } from './routes/_authenticated/_app/devices.$id.edit'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -53,6 +54,12 @@ const AuthenticatedAppDevicesNewRoute =
     path: '/devices/new',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppDevicesIdEditRoute =
+  AuthenticatedAppDevicesIdEditRouteImport.update({
+    id: '/devices/$id/edit',
+    path: '/devices/$id/edit',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
+  '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +75,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
+  '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,12 +86,25 @@ export interface FileRoutesById {
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
+  '/_authenticated/_app/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/devices/new' | '/devices/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/devices/new'
+    | '/devices/'
+    | '/devices/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/devices/new' | '/devices'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/devices/new'
+    | '/devices'
+    | '/devices/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -92,6 +114,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/devices/new'
     | '/_authenticated/_app/devices/'
+    | '/_authenticated/_app/devices/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDevicesNewRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/devices/$id/edit': {
+      id: '/_authenticated/_app/devices/$id/edit'
+      path: '/devices/$id/edit'
+      fullPath: '/devices/$id/edit'
+      preLoaderRoute: typeof AuthenticatedAppDevicesIdEditRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
@@ -158,12 +188,14 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppDevicesNewRoute: typeof AuthenticatedAppDevicesNewRoute
   AuthenticatedAppDevicesIndexRoute: typeof AuthenticatedAppDevicesIndexRoute
+  AuthenticatedAppDevicesIdEditRoute: typeof AuthenticatedAppDevicesIdEditRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppDevicesNewRoute: AuthenticatedAppDevicesNewRoute,
   AuthenticatedAppDevicesIndexRoute: AuthenticatedAppDevicesIndexRoute,
+  AuthenticatedAppDevicesIdEditRoute: AuthenticatedAppDevicesIdEditRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
