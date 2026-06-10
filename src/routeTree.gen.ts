@@ -17,6 +17,7 @@ import { Route as AuthenticatedAppUsersRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/_app/reports'
 import { Route as AuthenticatedAppMaintenanceRouteImport } from './routes/_authenticated/_app/maintenance'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
+import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/_app/activity'
 import { Route as AuthenticatedAppDevicesIndexRouteImport } from './routes/_authenticated/_app/devices.index'
 import { Route as AuthenticatedAppDevicesNewRouteImport } from './routes/_authenticated/_app/devices.new'
 import { Route as AuthenticatedAppDevicesIdEditRouteImport } from './routes/_authenticated/_app/devices.$id.edit'
@@ -61,6 +62,12 @@ const AuthenticatedAppDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppActivityRoute =
+  AuthenticatedAppActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppDevicesIndexRoute =
   AuthenticatedAppDevicesIndexRouteImport.update({
     id: '/devices/',
@@ -83,6 +90,7 @@ const AuthenticatedAppDevicesIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/activity': typeof AuthenticatedAppActivityRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/maintenance': typeof AuthenticatedAppMaintenanceRoute
   '/reports': typeof AuthenticatedAppReportsRoute
@@ -94,6 +102,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/activity': typeof AuthenticatedAppActivityRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/maintenance': typeof AuthenticatedAppMaintenanceRoute
   '/reports': typeof AuthenticatedAppReportsRoute
@@ -108,6 +117,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/_app/activity': typeof AuthenticatedAppActivityRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/maintenance': typeof AuthenticatedAppMaintenanceRoute
   '/_authenticated/_app/reports': typeof AuthenticatedAppReportsRoute
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/activity'
     | '/dashboard'
     | '/maintenance'
     | '/reports'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/activity'
     | '/dashboard'
     | '/maintenance'
     | '/reports'
@@ -145,6 +157,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/_app'
+    | '/_authenticated/_app/activity'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/maintenance'
     | '/_authenticated/_app/reports'
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/activity': {
+      id: '/_authenticated/_app/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof AuthenticatedAppActivityRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/devices/': {
       id: '/_authenticated/_app/devices/'
       path: '/devices'
@@ -243,6 +263,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppActivityRoute: typeof AuthenticatedAppActivityRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppMaintenanceRoute: typeof AuthenticatedAppMaintenanceRoute
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
@@ -253,6 +274,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppActivityRoute: AuthenticatedAppActivityRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppMaintenanceRoute: AuthenticatedAppMaintenanceRoute,
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
