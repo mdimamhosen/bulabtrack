@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as AuthenticatedAppUsersRouteImport } from './routes/_authenticated/_app/users'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/_app/reports'
 import { Route as AuthenticatedAppMaintenanceRouteImport } from './routes/_authenticated/_app/maintenance'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
@@ -37,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppUsersRoute = AuthenticatedAppUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppReportsRoute = AuthenticatedAppReportsRouteImport.update({
   id: '/reports',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/maintenance': typeof AuthenticatedAppMaintenanceRoute
   '/reports': typeof AuthenticatedAppReportsRoute
+  '/users': typeof AuthenticatedAppUsersRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/maintenance': typeof AuthenticatedAppMaintenanceRoute
   '/reports': typeof AuthenticatedAppReportsRoute
+  '/users': typeof AuthenticatedAppUsersRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/maintenance': typeof AuthenticatedAppMaintenanceRoute
   '/_authenticated/_app/reports': typeof AuthenticatedAppReportsRoute
+  '/_authenticated/_app/users': typeof AuthenticatedAppUsersRoute
   '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/_authenticated/_app/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/maintenance'
     | '/reports'
+    | '/users'
     | '/devices/new'
     | '/devices/'
     | '/devices/$id/edit'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/maintenance'
     | '/reports'
+    | '/users'
     | '/devices/new'
     | '/devices'
     | '/devices/$id/edit'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/maintenance'
     | '/_authenticated/_app/reports'
+    | '/_authenticated/_app/users'
     | '/_authenticated/_app/devices/new'
     | '/_authenticated/_app/devices/'
     | '/_authenticated/_app/devices/$id/edit'
@@ -177,6 +189,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_app/users': {
+      id: '/_authenticated/_app/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedAppUsersRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/_app/reports': {
       id: '/_authenticated/_app/reports'
@@ -227,6 +246,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppMaintenanceRoute: typeof AuthenticatedAppMaintenanceRoute
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
+  AuthenticatedAppUsersRoute: typeof AuthenticatedAppUsersRoute
   AuthenticatedAppDevicesNewRoute: typeof AuthenticatedAppDevicesNewRoute
   AuthenticatedAppDevicesIndexRoute: typeof AuthenticatedAppDevicesIndexRoute
   AuthenticatedAppDevicesIdEditRoute: typeof AuthenticatedAppDevicesIdEditRoute
@@ -236,6 +256,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppMaintenanceRoute: AuthenticatedAppMaintenanceRoute,
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
+  AuthenticatedAppUsersRoute: AuthenticatedAppUsersRoute,
   AuthenticatedAppDevicesNewRoute: AuthenticatedAppDevicesNewRoute,
   AuthenticatedAppDevicesIndexRoute: AuthenticatedAppDevicesIndexRoute,
   AuthenticatedAppDevicesIdEditRoute: AuthenticatedAppDevicesIdEditRoute,
