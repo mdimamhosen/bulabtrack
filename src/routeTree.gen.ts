@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppDevicesIndexRouteImport } from './routes/_authenticated/_app/devices.index'
+import { Route as AuthenticatedAppDevicesNewRouteImport } from './routes/_authenticated/_app/devices.new'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -46,17 +47,25 @@ const AuthenticatedAppDevicesIndexRoute =
     path: '/devices/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppDevicesNewRoute =
+  AuthenticatedAppDevicesNewRouteImport.update({
+    id: '/devices/new',
+    path: '/devices/new',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
 }
 export interface FileRoutesById {
@@ -66,13 +75,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/devices/'
+  fullPaths: '/' | '/auth' | '/dashboard' | '/devices/new' | '/devices/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/devices'
+  to: '/' | '/auth' | '/dashboard' | '/devices/new' | '/devices'
   id:
     | '__root__'
     | '/'
@@ -80,6 +90,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/_app'
     | '/_authenticated/_app/dashboard'
+    | '/_authenticated/_app/devices/new'
     | '/_authenticated/_app/devices/'
   fileRoutesById: FileRoutesById
 }
@@ -133,16 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDevicesIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/devices/new': {
+      id: '/_authenticated/_app/devices/new'
+      path: '/devices/new'
+      fullPath: '/devices/new'
+      preLoaderRoute: typeof AuthenticatedAppDevicesNewRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
+  AuthenticatedAppDevicesNewRoute: typeof AuthenticatedAppDevicesNewRoute
   AuthenticatedAppDevicesIndexRoute: typeof AuthenticatedAppDevicesIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
+  AuthenticatedAppDevicesNewRoute: AuthenticatedAppDevicesNewRoute,
   AuthenticatedAppDevicesIndexRoute: AuthenticatedAppDevicesIndexRoute,
 }
 
@@ -168,3 +188,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
