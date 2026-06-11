@@ -10,12 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicTermsRouteImport } from './routes/_public/terms'
+import { Route as PublicProductsRouteImport } from './routes/_public/products'
+import { Route as PublicPrivacyRouteImport } from './routes/_public/privacy'
+import { Route as PublicFaqRouteImport } from './routes/_public/faq'
+import { Route as PublicContactRouteImport } from './routes/_public/contact'
+import { Route as PublicCheckoutRouteImport } from './routes/_public/checkout'
+import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as PublicProductsIdRouteImport } from './routes/_public/products.$id'
+import { Route as PublicOrderSuccessOrderNumberRouteImport } from './routes/_public/order-success.$orderNumber'
 import { Route as AuthenticatedAppUsersRouteImport } from './routes/_authenticated/_app/users'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/_app/reports'
+import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/_app/orders'
 import { Route as AuthenticatedAppMaintenanceRouteImport } from './routes/_authenticated/_app/maintenance'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/_app/activity'
@@ -28,19 +39,69 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicTermsRoute = PublicTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicProductsRoute = PublicProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPrivacyRoute = PublicPrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicFaqRoute = PublicFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicContactRoute = PublicContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCheckoutRoute = PublicCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAboutRoute = PublicAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => PublicRoute,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const PublicProductsIdRoute = PublicProductsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PublicProductsRoute,
+} as any)
+const PublicOrderSuccessOrderNumberRoute =
+  PublicOrderSuccessOrderNumberRouteImport.update({
+    id: '/order-success/$orderNumber',
+    path: '/order-success/$orderNumber',
+    getParentRoute: () => PublicRoute,
+  } as any)
 const AuthenticatedAppUsersRoute = AuthenticatedAppUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -55,6 +116,11 @@ const AuthenticatedAppSettingsRoute =
 const AuthenticatedAppReportsRoute = AuthenticatedAppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppOrdersRoute = AuthenticatedAppOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppMaintenanceRoute =
@@ -95,43 +161,74 @@ const AuthenticatedAppDevicesIdEditRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof PublicIndexRoute
   '/auth': typeof AuthRoute
+  '/about': typeof PublicAboutRoute
+  '/checkout': typeof PublicCheckoutRoute
+  '/contact': typeof PublicContactRoute
+  '/faq': typeof PublicFaqRoute
+  '/privacy': typeof PublicPrivacyRoute
+  '/products': typeof PublicProductsRouteWithChildren
+  '/terms': typeof PublicTermsRoute
   '/activity': typeof AuthenticatedAppActivityRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/maintenance': typeof AuthenticatedAppMaintenanceRoute
+  '/orders': typeof AuthenticatedAppOrdersRoute
   '/reports': typeof AuthenticatedAppReportsRoute
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/users': typeof AuthenticatedAppUsersRoute
+  '/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
+  '/products/$id': typeof PublicProductsIdRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof PublicIndexRoute
   '/auth': typeof AuthRoute
+  '/about': typeof PublicAboutRoute
+  '/checkout': typeof PublicCheckoutRoute
+  '/contact': typeof PublicContactRoute
+  '/faq': typeof PublicFaqRoute
+  '/privacy': typeof PublicPrivacyRoute
+  '/products': typeof PublicProductsRouteWithChildren
+  '/terms': typeof PublicTermsRoute
   '/activity': typeof AuthenticatedAppActivityRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/maintenance': typeof AuthenticatedAppMaintenanceRoute
+  '/orders': typeof AuthenticatedAppOrdersRoute
   '/reports': typeof AuthenticatedAppReportsRoute
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/users': typeof AuthenticatedAppUsersRoute
+  '/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
+  '/products/$id': typeof PublicProductsIdRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/checkout': typeof PublicCheckoutRoute
+  '/_public/contact': typeof PublicContactRoute
+  '/_public/faq': typeof PublicFaqRoute
+  '/_public/privacy': typeof PublicPrivacyRoute
+  '/_public/products': typeof PublicProductsRouteWithChildren
+  '/_public/terms': typeof PublicTermsRoute
+  '/_public/': typeof PublicIndexRoute
   '/_authenticated/_app/activity': typeof AuthenticatedAppActivityRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/maintenance': typeof AuthenticatedAppMaintenanceRoute
+  '/_authenticated/_app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/_app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/_app/users': typeof AuthenticatedAppUsersRoute
+  '/_public/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
+  '/_public/products/$id': typeof PublicProductsIdRoute
   '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/_authenticated/_app/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -141,12 +238,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/about'
+    | '/checkout'
+    | '/contact'
+    | '/faq'
+    | '/privacy'
+    | '/products'
+    | '/terms'
     | '/activity'
     | '/dashboard'
     | '/maintenance'
+    | '/orders'
     | '/reports'
     | '/settings'
     | '/users'
+    | '/order-success/$orderNumber'
+    | '/products/$id'
     | '/devices/new'
     | '/devices/'
     | '/devices/$id/edit'
@@ -154,35 +261,56 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/about'
+    | '/checkout'
+    | '/contact'
+    | '/faq'
+    | '/privacy'
+    | '/products'
+    | '/terms'
     | '/activity'
     | '/dashboard'
     | '/maintenance'
+    | '/orders'
     | '/reports'
     | '/settings'
     | '/users'
+    | '/order-success/$orderNumber'
+    | '/products/$id'
     | '/devices/new'
     | '/devices'
     | '/devices/$id/edit'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
+    | '/_public'
     | '/auth'
     | '/_authenticated/_app'
+    | '/_public/about'
+    | '/_public/checkout'
+    | '/_public/contact'
+    | '/_public/faq'
+    | '/_public/privacy'
+    | '/_public/products'
+    | '/_public/terms'
+    | '/_public/'
     | '/_authenticated/_app/activity'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/maintenance'
+    | '/_authenticated/_app/orders'
     | '/_authenticated/_app/reports'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/users'
+    | '/_public/order-success/$orderNumber'
+    | '/_public/products/$id'
     | '/_authenticated/_app/devices/new'
     | '/_authenticated/_app/devices/'
     | '/_authenticated/_app/devices/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
   AuthRoute: typeof AuthRoute
 }
 
@@ -195,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -202,12 +337,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_public/': {
+      id: '/_public/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/terms': {
+      id: '/_public/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof PublicTermsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/products': {
+      id: '/_public/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof PublicProductsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/privacy': {
+      id: '/_public/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PublicPrivacyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/faq': {
+      id: '/_public/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof PublicFaqRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/contact': {
+      id: '/_public/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/checkout': {
+      id: '/_public/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof PublicCheckoutRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/_authenticated/_app': {
       id: '/_authenticated/_app'
@@ -215,6 +399,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_public/products/$id': {
+      id: '/_public/products/$id'
+      path: '/$id'
+      fullPath: '/products/$id'
+      preLoaderRoute: typeof PublicProductsIdRouteImport
+      parentRoute: typeof PublicProductsRoute
+    }
+    '/_public/order-success/$orderNumber': {
+      id: '/_public/order-success/$orderNumber'
+      path: '/order-success/$orderNumber'
+      fullPath: '/order-success/$orderNumber'
+      preLoaderRoute: typeof PublicOrderSuccessOrderNumberRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/_authenticated/_app/users': {
       id: '/_authenticated/_app/users'
@@ -235,6 +433,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AuthenticatedAppReportsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/orders': {
+      id: '/_authenticated/_app/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AuthenticatedAppOrdersRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/_app/maintenance': {
@@ -286,6 +491,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppActivityRoute: typeof AuthenticatedAppActivityRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppMaintenanceRoute: typeof AuthenticatedAppMaintenanceRoute
+  AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppUsersRoute: typeof AuthenticatedAppUsersRoute
@@ -298,6 +504,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppActivityRoute: AuthenticatedAppActivityRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppMaintenanceRoute: AuthenticatedAppMaintenanceRoute,
+  AuthenticatedAppOrdersRoute: AuthenticatedAppOrdersRoute,
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppUsersRoute: AuthenticatedAppUsersRoute,
@@ -320,21 +527,50 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface PublicProductsRouteChildren {
+  PublicProductsIdRoute: typeof PublicProductsIdRoute
+}
+
+const PublicProductsRouteChildren: PublicProductsRouteChildren = {
+  PublicProductsIdRoute: PublicProductsIdRoute,
+}
+
+const PublicProductsRouteWithChildren = PublicProductsRoute._addFileChildren(
+  PublicProductsRouteChildren,
+)
+
+interface PublicRouteChildren {
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicCheckoutRoute: typeof PublicCheckoutRoute
+  PublicContactRoute: typeof PublicContactRoute
+  PublicFaqRoute: typeof PublicFaqRoute
+  PublicPrivacyRoute: typeof PublicPrivacyRoute
+  PublicProductsRoute: typeof PublicProductsRouteWithChildren
+  PublicTermsRoute: typeof PublicTermsRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicOrderSuccessOrderNumberRoute: typeof PublicOrderSuccessOrderNumberRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAboutRoute: PublicAboutRoute,
+  PublicCheckoutRoute: PublicCheckoutRoute,
+  PublicContactRoute: PublicContactRoute,
+  PublicFaqRoute: PublicFaqRoute,
+  PublicPrivacyRoute: PublicPrivacyRoute,
+  PublicProductsRoute: PublicProductsRouteWithChildren,
+  PublicTermsRoute: PublicTermsRoute,
+  PublicIndexRoute: PublicIndexRoute,
+  PublicOrderSuccessOrderNumberRoute: PublicOrderSuccessOrderNumberRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
   AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
