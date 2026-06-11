@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           brand: string
@@ -77,6 +104,99 @@ export type Database = {
           supplier?: string | null
           updated_at?: string
           warranty_expiry?: string | null
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          device_name: string
+          id: string
+          order_id: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          device_name: string
+          id?: string
+          order_id: string
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          device_name?: string
+          id?: string
+          order_id?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          customer_name: string
+          email: string
+          id: string
+          notes: string | null
+          order_number: string
+          phone: string
+          postal_code: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          customer_name: string
+          email: string
+          id?: string
+          notes?: string | null
+          order_number: string
+          phone: string
+          postal_code?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          customer_name?: string
+          email?: string
+          id?: string
+          notes?: string | null
+          order_number?: string
+          phone?: string
+          postal_code?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          total?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -147,6 +267,13 @@ export type Database = {
         | "Under Maintenance"
         | "Damaged"
         | "Disposed"
+      order_status:
+        | "Pending"
+        | "Confirmed"
+        | "Processing"
+        | "Shipped"
+        | "Delivered"
+        | "Cancelled"
       user_status: "active" | "inactive"
     }
     CompositeTypes: {
@@ -283,6 +410,14 @@ export const Constants = {
         "Under Maintenance",
         "Damaged",
         "Disposed",
+      ],
+      order_status: [
+        "Pending",
+        "Confirmed",
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled",
       ],
       user_status: ["active", "inactive"],
     },
