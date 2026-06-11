@@ -2,7 +2,7 @@ import { Link, Outlet, useNavigate, useRouterState, createFileRoute } from "@tan
 import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard, Cpu, Wrench, BarChart3, Users, Activity,
-  Settings, LogOut, Menu, X, Boxes,
+  Settings, LogOut, Menu, X, Boxes, ShoppingBag, Globe,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchUserRole, type Role } from "@/lib/roles";
@@ -19,6 +19,7 @@ type NavItem = { to: string; label: string; icon: typeof Cpu; adminOnly?: boolea
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/devices", label: "Devices", icon: Cpu },
+  { to: "/orders", label: "Orders", icon: ShoppingBag, adminOnly: true },
   { to: "/maintenance", label: "Maintenance", icon: Wrench },
   { to: "/reports", label: "Reports", icon: BarChart3 },
   { to: "/users", label: "Users", icon: Users, adminOnly: true },
