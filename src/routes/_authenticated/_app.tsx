@@ -7,7 +7,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { fetchUserRole, type Role } from "@/lib/roles";
 import { ThemeToggle } from "@/components/theme";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -30,7 +30,7 @@ const NAV: NavItem[] = [
 function AppShell() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role | null>(null);
-  const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
+  const [profile, setProfile] = useState<{ name: string; email: string; avatar_url: string | null } | null>(null);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -40,7 +40,7 @@ function AppShell() {
       if (!data.user) return;
       const [r, p] = await Promise.all([
         fetchUserRole(data.user.id),
-        supabase.from("profiles").select("name,email").eq("id", data.user.id).maybeSingle(),
+        supabase.from("profiles").select("name,email,avatar_url").eq("id", data.user.id).maybeSingle(),
       ]);
       setRole(r);
       if (p.data) setProfile(p.data);
@@ -95,6 +95,7 @@ function AppShell() {
         <div className="absolute bottom-0 w-full border-t border-sidebar-border p-3">
           <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent p-3">
             <Avatar className="h-9 w-9">
+              {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.name} />}
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {(profile?.name ?? "U").slice(0, 1).toUpperCase()}
               </AvatarFallback>
