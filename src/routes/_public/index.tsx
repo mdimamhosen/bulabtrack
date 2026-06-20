@@ -83,12 +83,13 @@ function HomePage() {
     <div className="overflow-hidden">
       {/* ===== HERO ===== */}
       <section className="relative">
-        {/* Liquid orbs background */}
+        {/* Aurora + grid + orbs */}
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="aurora-bg absolute inset-0 opacity-70" />
+          <div className="ai-grid absolute inset-0 opacity-60" />
           <div className="liquid-orb animate-blob absolute -top-40 -left-20 h-[520px] w-[520px] opacity-70" />
           <div className="liquid-orb animate-blob absolute top-40 right-0 h-[460px] w-[460px] opacity-60" style={{ animationDelay: "-6s" }} />
           <div className="liquid-orb animate-blob absolute -bottom-40 left-1/3 h-[420px] w-[420px] opacity-50" style={{ animationDelay: "-12s" }} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.15),transparent_60%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,var(--color-background)_95%)]" />
         </div>
 
@@ -97,18 +98,19 @@ function HomePage() {
             {/* Left text */}
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <div className="liquid-card inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-medium">
+                <Sparkles className="h-3.5 w-3.5 text-accent" />
+                <span className="neon-text font-medium">
                   Now serving 240+ lab admins worldwide
                 </span>
               </div>
 
               <h1 className="mt-6 text-balance text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Peripheral inventory,
-                <span className="block bg-gradient-to-br from-primary via-accent to-primary bg-clip-text text-transparent">
-                  reimagined as liquid glass.
+                <span className="block neon-text">
+                  reimagined for the AI era.
                 </span>
               </h1>
+
               <p className="mt-6 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
                 LabTrack is the all-in-one platform to catalog, monitor, maintain and procure every
                 peripheral in your computer laboratory — wrapped in a UI that finally feels modern.
