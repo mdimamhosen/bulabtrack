@@ -35,7 +35,6 @@ const stats = [
   { v: "99.9%", l: "Uptime" },
 ];
 
-export default AboutPage;
 function AboutPage() {
   return (
     <div className="relative overflow-hidden">
