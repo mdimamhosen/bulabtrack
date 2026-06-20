@@ -236,3 +236,11 @@
 }
 @utility animate-pulse-ring { animation: pulse-ring 2.4s ease-out infinite; }
 @utility animate-gradient-pan { animation: gradient-pan 8s ease infinite; background-size: 200% 200%; }
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

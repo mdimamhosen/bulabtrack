@@ -21,6 +21,7 @@ import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicCheckoutRouteImport } from './routes/_public/checkout'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as PublicProductsIndexRouteImport } from './routes/_public/products.index'
 import { Route as PublicProductsIdRouteImport } from './routes/_public/products.$id'
 import { Route as PublicOrderSuccessOrderNumberRouteImport } from './routes/_public/order-success.$orderNumber'
 import { Route as AuthenticatedAppUsersRouteImport } from './routes/_authenticated/_app/users'
@@ -90,6 +91,11 @@ const PublicAboutRoute = PublicAboutRouteImport.update({
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const PublicProductsIndexRoute = PublicProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicProductsRoute,
 } as any)
 const PublicProductsIdRoute = PublicProductsIdRouteImport.update({
   id: '/$id',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedAppUsersRoute
   '/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
   '/products/$id': typeof PublicProductsIdRoute
+  '/products/': typeof PublicProductsIndexRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -191,7 +198,6 @@ export interface FileRoutesByTo {
   '/contact': typeof PublicContactRoute
   '/faq': typeof PublicFaqRoute
   '/privacy': typeof PublicPrivacyRoute
-  '/products': typeof PublicProductsRouteWithChildren
   '/terms': typeof PublicTermsRoute
   '/activity': typeof AuthenticatedAppActivityRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
@@ -202,6 +208,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedAppUsersRoute
   '/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
   '/products/$id': typeof PublicProductsIdRoute
+  '/products': typeof PublicProductsIndexRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -229,6 +236,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/users': typeof AuthenticatedAppUsersRoute
   '/_public/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
   '/_public/products/$id': typeof PublicProductsIdRoute
+  '/_public/products/': typeof PublicProductsIndexRoute
   '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/_authenticated/_app/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
@@ -254,6 +262,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/order-success/$orderNumber'
     | '/products/$id'
+    | '/products/'
     | '/devices/new'
     | '/devices/'
     | '/devices/$id/edit'
@@ -266,7 +275,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/privacy'
-    | '/products'
     | '/terms'
     | '/activity'
     | '/dashboard'
@@ -277,6 +285,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/order-success/$orderNumber'
     | '/products/$id'
+    | '/products'
     | '/devices/new'
     | '/devices'
     | '/devices/$id/edit'
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/users'
     | '/_public/order-success/$orderNumber'
     | '/_public/products/$id'
+    | '/_public/products/'
     | '/_authenticated/_app/devices/new'
     | '/_authenticated/_app/devices/'
     | '/_authenticated/_app/devices/$id/edit'
@@ -399,6 +409,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_public/products/': {
+      id: '/_public/products/'
+      path: '/'
+      fullPath: '/products/'
+      preLoaderRoute: typeof PublicProductsIndexRouteImport
+      parentRoute: typeof PublicProductsRoute
     }
     '/_public/products/$id': {
       id: '/_public/products/$id'
@@ -529,10 +546,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface PublicProductsRouteChildren {
   PublicProductsIdRoute: typeof PublicProductsIdRoute
+  PublicProductsIndexRoute: typeof PublicProductsIndexRoute
 }
 
 const PublicProductsRouteChildren: PublicProductsRouteChildren = {
   PublicProductsIdRoute: PublicProductsIdRoute,
+  PublicProductsIndexRoute: PublicProductsIndexRoute,
 }
 
 const PublicProductsRouteWithChildren = PublicProductsRoute._addFileChildren(
@@ -574,3 +593,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

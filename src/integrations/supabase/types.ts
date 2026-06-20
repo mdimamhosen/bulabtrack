@@ -41,10 +41,32 @@ export type Database = {
         }
         Relationships: []
       }
+      companies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           brand: string
           category: Database["public"]["Enums"]["device_category"]
+          company_id: string
           created_at: string
           created_by: string | null
           description: string | null
@@ -66,6 +88,7 @@ export type Database = {
         Insert: {
           brand: string
           category: Database["public"]["Enums"]["device_category"]
+          company_id?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -87,6 +110,7 @@ export type Database = {
         Update: {
           brand?: string
           category?: Database["public"]["Enums"]["device_category"]
+          company_id?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -105,7 +129,15 @@ export type Database = {
           updated_at?: string
           warranty_expiry?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "devices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       order_items: {
         Row: {

@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   ShoppingCart, ArrowLeft, Minus, Plus, Truck, ShieldCheck, RefreshCw,
-  Phone, MessageCircle, Mail, MapPin, Clock, Star, Share2, Heart, CheckCircle2, Zap, Award,
+  Phone, MessageCircle, Mail, MapPin, Clock, Star, Share2, Heart, CheckCircle2,
+  Zap, Award, ShieldAlert, Sliders, Volume2, HardDrive, Cpu, Layers, HelpCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { enhanceProductWithNanoBanana } from "./products";
 
 export const Route = createFileRoute("/_public/products/$id")({
   component: ProductDetailPage,
@@ -20,6 +22,54 @@ export const Route = createFileRoute("/_public/products/$id")({
 const SUPPORT_PHONE = "+1 (800) 555-0142";
 const SUPPORT_PHONE_HREF = "tel:+18005550142";
 
+// Enhance DB product with Nano Banana specifications and real image gallery
+function enhanceProductDetails(p: any) {
+  const enhanced = enhanceProductWithNanoBanana(p);
+  if (!enhanced) return null;
+  return {
+    ...enhanced,
+    specsList: enhanced.specsRaw
+  };
+}
+
+// Sound synthesis helper for Keyboard switch test
+const playSwitchSound = (switchColor: "red" | "brown" | "blue") => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (switchColor === "blue") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.06);
+      gainNode.gain.setValueAtTime(0.14, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.06);
+    } else if (switchColor === "brown") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
+    } else { // red
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.14);
+      gainNode.gain.setValueAtTime(0.24, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.14);
+    }
+  } catch (e) {}
+};
+
 function ProductDetailPage() {
   const { id } = useParams({ from: "/_public/products/$id" });
   const [qty, setQty] = useState(1);
@@ -27,7 +77,24 @@ function ProductDetailPage() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const { add } = useCart();
 
-  const { data: product, isLoading } = useQuery({
+  // Switch tester states (Keyboard)
+  const [switchType, setSwitchType] = useState<"red" | "brown" | "blue">("red");
+  const [keypressCount, setKeypressCount] = useState(0);
+
+  // Mouse polling tester states
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [pollingRate, setPollingRate] = useState(1000);
+  const [avgLatency, setAvgLatency] = useState(0.85);
+
+  // Refresh rate simulator states
+  const [displayHz, setDisplayHz] = useState<60 | 144>(60);
+  const [animProgress, setAnimProgress] = useState(0);
+
+  // Audio Equalizer simulator state
+  const [eqActive, setEqActive] = useState(false);
+
+  // Fetch product details
+  const { data: dbProduct, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
       const { data } = await supabase.from("devices").select("*").eq("id", id).maybeSingle();
@@ -35,7 +102,12 @@ function ProductDetailPage() {
     },
   });
 
-  const { data: related = [] } = useQuery({
+  const product = useMemo(() => {
+    return dbProduct ? enhanceProductDetails(dbProduct) : null;
+  }, [dbProduct]);
+
+  // Fetch related products
+  const { data: dbRelated = [] } = useQuery({
     queryKey: ["related", product?.category, id],
     enabled: !!product,
     queryFn: async () => {
@@ -44,6 +116,99 @@ function ProductDetailPage() {
     },
   });
 
+  const related = useMemo(() => {
+    return dbRelated.map(enhanceProductDetails);
+  }, [dbRelated]);
+
+  // Monitor refresh rate animation loop
+  useEffect(() => {
+    let animId: number;
+    const updateAnim = () => {
+      setAnimProgress((p) => (p + (displayHz === 144 ? 3 : 1.25)) % 100);
+      animId = requestAnimationFrame(updateAnim);
+    };
+    animId = requestAnimationFrame(updateAnim);
+    return () => cancelAnimationFrame(animId);
+  }, [displayHz]);
+
+  // Mouse Canvas Trail Draw
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let points: { x: number; y: number; time: number }[] = [];
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      points.push({ x, y, time: Date.now() });
+
+      // Generate randomized polling speed readouts
+      const rates = [1000, 2000, 4000, 8000];
+      const selectedRate = rates[Math.floor(Math.random() * rates.length)];
+      setPollingRate(selectedRate);
+      setAvgLatency(Number((1000 / selectedRate).toFixed(3)));
+    };
+
+    canvas.addEventListener("mousemove", handleMouseMove);
+
+    let drawInterval = setInterval(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw grid
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < canvas.width; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+      }
+      for (let j = 0; j < canvas.height; j += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, j);
+        ctx.lineTo(canvas.width, j);
+        ctx.stroke();
+      }
+
+      // Draw connection lines between mouse points
+      const now = Date.now();
+      points = points.filter((p) => now - p.time < 800); // 800ms trail fade
+      
+      if (points.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.strokeStyle = "oklch(0.58 0.24 274)"; // Primary color
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.stroke();
+
+        // Draw glowing head dot
+        const head = points[points.length - 1];
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "oklch(0.78 0.16 210)"; // Accent color
+        ctx.shadowColor = "rgba(var(--primary), 0.8)";
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+      }
+    }, 16);
+
+    return () => {
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      clearInterval(drawInterval);
+    };
+  }, [product]);
+
   if (isLoading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20">
@@ -51,248 +216,512 @@ function ProductDetailPage() {
       </div>
     );
   }
-  if (!product) return (
-    <div className="mx-auto max-w-7xl px-4 py-20 text-center">
-      <p className="text-muted-foreground">Product not found.</p>
-      <Button asChild className="mt-4"><Link to="/products">Back to products</Link></Button>
-    </div>
-  );
+  
+  if (!product) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <p className="text-muted-foreground">Product not found.</p>
+        <Button asChild className="mt-4"><Link to="/products">Back to products</Link></Button>
+      </div>
+    );
+  }
 
-  const specs: [string, string][] = [
-    ["Brand", product.brand], ["Model", product.model], ["Category", product.category],
-    ["Interface", product.interface], ["Serial #", product.serial_number],
-    ...(product.supplier ? [["Supplier", product.supplier] as [string, string]] : []),
-    ...(product.location ? [["Lab Location", product.location] as [string, string]] : []),
-    ...(product.warranty_expiry ? [["Warranty until", String(product.warranty_expiry)] as [string, string]] : []),
-    ...(product.purchase_date ? [["Purchase date", String(product.purchase_date)] as [string, string]] : []),
-  ];
-
-  const galleryImages = product.image_url ? [product.image_url, product.image_url, product.image_url, product.image_url] : [];
+  const isKeyboard = product.name?.toLowerCase().includes("keyboard") || product.category?.toLowerCase().includes("keyboard");
+  const isMouse = product.name?.toLowerCase().includes("mouse") || product.category?.toLowerCase().includes("mouse");
+  const isAudio = product.name?.toLowerCase().includes("headset") || product.name?.toLowerCase().includes("speaker") || product.category?.toLowerCase().includes("audio");
+  const isDisplay = product.name?.toLowerCase().includes("monitor") || product.category?.toLowerCase().includes("display");
 
   return (
-    <div className="relative">
-      {/* Liquid background orbs */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[700px] overflow-hidden">
-        <div className="liquid-orb animate-blob absolute -top-32 left-1/4 h-[400px] w-[400px] opacity-50" />
-        <div className="liquid-orb animate-blob absolute right-0 top-20 h-[420px] w-[420px] opacity-40" style={{ animationDelay: "-8s" }} />
+    <div className="relative min-h-screen">
+      {/* Background blurs */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="aurora-bg absolute inset-0 opacity-20" />
+        <div className="liquid-orb animate-blob absolute -top-40 left-1/4 h-[500px] w-[500px] bg-primary/10 opacity-70" />
+        <div className="liquid-orb animate-blob absolute right-10 top-40 h-[480px] w-[480px] bg-accent/10 opacity-60" style={{ animationDelay: "-6s" }} />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
-        {/* Breadcrumb */}
-        <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">Home</Link>
+        
+        {/* Breadcrumb Navigation */}
+        <nav className="mb-8 flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
           <span>/</span>
-          <Link to="/products" className="hover:text-foreground">Products</Link>
+          <Link to="/products" className="hover:text-foreground transition-colors">Products</Link>
           <span>/</span>
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <Link to="/products" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Back to products
+        <Link to="/products" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back to Product Catalog
         </Link>
 
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
-          {/* === GALLERY === */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <div className="liquid-card relative aspect-square overflow-hidden rounded-3xl p-3">
-              <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-secondary via-card to-secondary">
-                {galleryImages[activeImg] && (
+        {/* Main Details Panel */}
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-start">
+          
+          {/* === PHOTO GALLERY === */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            {/* Big Main Display Card */}
+            <div className="liquid-card relative aspect-square overflow-hidden rounded-[2rem] p-3 border-primary/20 shadow-2xl">
+              <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-card to-background">
+                {product.images?.[activeImg] && (
                   <motion.img
                     key={activeImg}
-                    initial={{ opacity: 0, scale: 1.05 }}
+                    initial={{ opacity: 0, scale: 1.04 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4 }}
-                    src={galleryImages[activeImg]}
+                    src={product.images[activeImg]}
                     alt={product.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover filter brightness-[0.85] contrast-[1.05]"
                   />
                 )}
-                {/* Floating chips */}
+
+                {/* Floating tags */}
                 <div className="absolute left-4 top-4 flex flex-col gap-2">
-                  <Badge className="liquid-card border-none bg-background/60 text-foreground backdrop-blur-xl">
-                    <Award className="mr-1 h-3 w-3 text-primary" /> Lab certified
+                  <Badge className="liquid-card border-none bg-zinc-950/80 text-zinc-200 backdrop-blur-md font-bold text-[9px] py-1 px-3">
+                    <Award className="mr-1.5 h-3.5 w-3.5 text-primary animate-pulse" /> NANO BANANA EDITION
                   </Badge>
-                  {product.status === "Available" && (
-                    <Badge className="liquid-card border-none bg-success/20 text-success backdrop-blur-xl">
-                      <CheckCircle2 className="mr-1 h-3 w-3" /> In stock
+                  {product.status === "Available" ? (
+                    <Badge className="bg-success/20 text-success border-success/30 font-bold text-[9px] py-1 px-3 backdrop-blur-md">
+                      <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> READY FOR DISPATCH
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30 font-bold text-[9px] py-1 px-3 backdrop-blur-md">
+                      <ShieldAlert className="mr-1 h-3.5 w-3.5" /> REPAIR IN PROGRESS
                     </Badge>
                   )}
                 </div>
+
                 <div className="absolute right-4 top-4 flex gap-2">
-                  <button className="liquid-card grid h-10 w-10 place-items-center rounded-full backdrop-blur-xl transition hover:bg-card/80" aria-label="Wishlist">
+                  <button className="liquid-card h-10 w-10 rounded-full flex items-center justify-center bg-zinc-950/60 text-zinc-300 hover:bg-rose-500/20 hover:text-rose-500 border-border/40 backdrop-blur transition-all cursor-pointer">
                     <Heart className="h-4 w-4" />
                   </button>
-                  <button className="liquid-card grid h-10 w-10 place-items-center rounded-full backdrop-blur-xl transition hover:bg-card/80" aria-label="Share">
+                  <button className="liquid-card h-10 w-10 rounded-full flex items-center justify-center bg-zinc-950/60 text-zinc-300 hover:bg-primary/20 border-border/40 backdrop-blur transition-all cursor-pointer">
                     <Share2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Thumbnails */}
-            {galleryImages.length > 0 && (
-              <div className="mt-4 grid grid-cols-4 gap-3">
-                {galleryImages.map((src, i) => (
+            {/* Thumbnail Selection */}
+            {product.images?.length > 1 && (
+              <div className="grid grid-cols-4 gap-3">
+                {product.images.map((src: string, i: number) => (
                   <button
-                    key={i}
+                    key={src + i}
                     onClick={() => setActiveImg(i)}
-                    className={`liquid-card aspect-square overflow-hidden rounded-xl p-1 transition-all ${
-                      activeImg === i ? "ring-2 ring-primary" : "opacity-70 hover:opacity-100"
+                    className={`liquid-card aspect-square overflow-hidden rounded-2xl p-1 transition-all cursor-pointer ${
+                      activeImg === i ? "border-primary ring-2 ring-primary/20 scale-[0.98]" : "border-border/60 opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <img src={src} alt="" className="h-full w-full rounded-lg object-cover" />
+                    <img src={src} alt="" className="h-full w-full rounded-xl object-cover filter brightness-90" />
                   </button>
                 ))}
               </div>
             )}
           </motion.div>
 
-          {/* === DETAILS === */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="liquid-card">{product.category}</Badge>
-              <Badge className="liquid-card border-none bg-gradient-to-r from-primary/20 to-accent/20 text-primary">
-                {product.brand}
-              </Badge>
-              {product.interface && <Badge variant="outline" className="liquid-card">{product.interface}</Badge>}
-            </div>
-
-            <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
-              <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                {product.name}
-              </span>
-            </h1>
-            <p className="mt-2 text-muted-foreground">{product.brand} • Model {product.model}</p>
-
-            {/* Rating */}
-            <div className="mt-4 flex items-center gap-3">
-              <div className="flex gap-0.5 text-warning">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+          {/* === PRODUCT META & REQUISITION === */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="space-y-6"
+          >
+            {/* Headers */}
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">{product.category}</Badge>
+                <Badge className="bg-gradient-to-r from-primary/20 to-accent/20 border-none text-primary uppercase font-bold text-[10px]">
+                  {product.brand} PERIPHERALS
+                </Badge>
+                {product.interface && <Badge variant="outline" className="border-border/60">{product.interface}</Badge>}
               </div>
-              <span className="text-sm text-muted-foreground">4.9 (128 reviews)</span>
+
+              <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/75 bg-clip-text text-transparent">
+                {product.name}
+              </h1>
+              
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1.5 border-b border-border/20 pb-4">
+                <p>Standard Model: {product.model} &bull; S/N: {product.serial_number}</p>
+                
+                {/* Rating */}
+                <div className="flex items-center gap-1.5 font-bold text-foreground">
+                  <Star className="h-4 w-4 fill-current text-accent" />
+                  <span>{product.rating}</span>
+                  <span className="text-muted-foreground/60">({product.reviews} academic logs)</span>
+                </div>
+              </div>
             </div>
 
-            {/* Price */}
-            <div className="liquid-card mt-6 rounded-2xl p-5">
+            {/* Price Box */}
+            <div className="liquid-card rounded-2xl p-6 border-primary/10 bg-gradient-to-br from-card/30 to-background/50">
               <div className="flex items-baseline gap-3">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-5xl font-bold text-transparent">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">REQUISITION VALUE</span>
+              </div>
+              <div className="flex items-baseline gap-3 mt-1.5">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-5xl font-black text-transparent">
                   ${Number(product.price).toFixed(2)}
                 </span>
-                <span className="text-lg text-muted-foreground line-through">
+                <span className="text-lg text-muted-foreground/50 line-through">
                   ${(Number(product.price) * 1.2).toFixed(2)}
                 </span>
-                <Badge className="bg-success/15 text-success">Save 17%</Badge>
+                <Badge className="bg-success/15 border-none text-success text-[10px] font-bold">
+                  17% INST. SAVINGS
+                </Badge>
               </div>
-              <p className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                <Zap className="h-3.5 w-3.5 text-primary" /> Cash on delivery available. Pay nothing today.
+              <p className="mt-3.5 flex items-center gap-2 text-xs text-muted-foreground/80">
+                <Zap className="h-4 w-4 text-primary" /> Multi-station orders qualify for additional bulk tax waivers.
               </p>
             </div>
 
+            {/* Description */}
             {product.description && (
-              <p className="mt-6 leading-relaxed text-muted-foreground">{product.description}</p>
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Device Overview</h4>
+                <p className="leading-relaxed text-sm text-muted-foreground/90">{product.description}</p>
+              </div>
             )}
 
-            {/* Highlights */}
-            <div className="mt-6 grid grid-cols-2 gap-2">
-              {[
-                "Plug & play setup",
-                "Lab-grade durability",
-                "1-year manufacturer warranty",
-                "Free shipping over $50",
-              ].map((h) => (
-                <div key={h} className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> {h}
-                </div>
-              ))}
+            {/* Key highlights (custom specs list) */}
+            <div className="space-y-3 pt-2">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Telemetry Diagnostic Highlights</h4>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                {product.specsList?.slice(0, 4).map(([key, val] : any) => (
+                  <div key={key} className="flex items-center gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong className="text-foreground">{key}</strong>: {val}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Qty + actions */}
-            <div className="mt-8 flex items-center gap-3">
-              <div className="liquid-card inline-flex items-center rounded-full">
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-11 w-11 place-items-center rounded-full hover:bg-secondary"><Minus className="h-4 w-4" /></button>
-                <span className="w-10 text-center font-semibold">{qty}</span>
-                <button onClick={() => setQty((q) => q + 1)} className="grid h-11 w-11 place-items-center rounded-full hover:bg-secondary"><Plus className="h-4 w-4" /></button>
+            {/* Quantity Selector & Action buttons */}
+            <div className="flex items-center gap-4 border-t border-border/20 pt-6">
+              <div className="flex items-center border border-border/80 bg-secondary/50 rounded-full h-12">
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  className="w-12 h-full flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-muted-foreground cursor-pointer"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-8 text-center font-bold text-sm font-mono">{qty}</span>
+                <button
+                  onClick={() => setQty((q) => q + 1)}
+                  className="w-12 h-full flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-muted-foreground cursor-pointer"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
               </div>
-              <Button size="lg" className="h-11 flex-1 gap-2 bg-gradient-to-r from-primary to-accent shadow-[0_8px_30px_-8px_oklch(0.62_0.22_257/0.7)]" disabled={product.status !== "Available"}
+
+              <Button
                 onClick={() => {
                   add({ id: product.id, name: product.name, brand: product.brand, price: Number(product.price), image_url: product.image_url }, qty);
-                  toast.success(`${qty} × ${product.name} added`);
-                }}>
-                <ShoppingCart className="h-4 w-4" /> Add to Cart
+                  toast.success(`${qty} × ${product.name} added to requisition cart`);
+                }}
+                disabled={product.status !== "Available"}
+                size="lg"
+                className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold shadow-glow"
+              >
+                <ShoppingCart className="h-5 w-5 mr-2" /> Add to Requisition Cart
               </Button>
             </div>
 
-            {/* Talk to us — opens right drawer */}
+            {/* Support drawer clicker */}
             <button
               onClick={() => setInquiryOpen(true)}
-              className="liquid-card group mt-4 flex w-full items-center justify-between rounded-2xl p-4 text-left transition-all hover:-translate-y-0.5"
+              className="liquid-card group flex w-full items-center justify-between rounded-2xl p-4 text-left border-border/80 transition-all hover:-translate-y-0.5 hover:border-primary/30 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow">
                   <Phone className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Talk to a specialist</p>
-                  <p className="text-xs text-muted-foreground">Tap to see our number and chat options</p>
+                  <p className="text-sm font-bold text-foreground">Speak with a Procurement Specialist</p>
+                  <p className="text-xs text-muted-foreground">Requisitions, VAT exemptions, and freight quotes</p>
                 </div>
               </div>
               <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground transition-transform group-hover:translate-x-1" />
             </button>
 
-            {/* Trust badges */}
-            <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
-              {[[Truck, "Cash on delivery"], [ShieldCheck, "1-year warranty"], [RefreshCw, "Easy returns"]].map(([I, t], i) => {
-                const Icon = I as any;
-                return (
-                  <div key={i} className="liquid-card rounded-xl p-3">
-                    <Icon className="mx-auto h-4 w-4 text-primary" />
-                    <p className="mt-1.5 text-muted-foreground">{t as string}</p>
-                  </div>
-                );
-              })}
-            </div>
           </motion.div>
         </div>
 
-        {/* === SPECIFICATIONS === */}
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          className="liquid-card mt-16 overflow-hidden rounded-3xl">
-          <div className="border-b border-border/40 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent px-6 py-4">
-            <h2 className="text-lg font-bold">Full Specifications</h2>
-            <p className="text-xs text-muted-foreground">Every detail you need before procurement.</p>
+        {/* ================= CATEGORY INTERACTIVE DIAGNOSTIC SANDBOX ================= */}
+        <section className="mt-16 border-t border-border/20 pt-16">
+          <div className="mx-auto max-w-4xl">
+            <div className="text-center mb-8">
+              <Badge className="bg-accent/10 border-accent/20 text-accent px-3 py-0.5 mb-2">Live Hardware Simulator</Badge>
+              <h3 className="text-2xl font-extrabold">Nano Banana Sandbox Calibration</h3>
+              <p className="text-xs text-muted-foreground mt-1">Test raw response telemetry outputs generated by this peripheral device.</p>
+            </div>
+
+            {/* 1. KEYBOARD SWITCH TESTING SANDBOX */}
+            {isKeyboard && (
+              <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
+                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Tactile Switch Sandbox</h4>
+                <p className="text-xs text-muted-foreground mt-1">Select mechanical key cores to hear keypress sounds.</p>
+                
+                <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                  <div className="flex gap-2">
+                    {[
+                      { id: "red", label: "Linear Red", color: "bg-rose-500" },
+                      { id: "brown", label: "Tactile Brown", color: "bg-amber-600" },
+                      { id: "blue", label: "Clicky Blue", color: "bg-sky-500" }
+                    ].map((sw) => (
+                      <button
+                        key={sw.id}
+                        onClick={() => {
+                          setSwitchType(sw.id as any);
+                          playSwitchSound(sw.id as any);
+                          toast.info(`Configured switch: ${sw.label}`);
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          switchType === sw.id ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card/25 text-muted-foreground hover:bg-card/45"
+                        }`}
+                      >
+                        <span className={`h-2.5 w-2.5 rounded-full ${sw.color}`} />
+                        {sw.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setKeypressCount((c) => c + 1);
+                      playSwitchSound(switchType);
+                    }}
+                    className="h-14 w-28 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-white font-extrabold text-xs shadow-[0_5px_0_#18181b] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-1.5 select-none cursor-pointer"
+                  >
+                    <Volume2 className="h-4 w-4 text-accent animate-pulse" /> PRESS KEY
+                  </button>
+                </div>
+
+                <div className="mt-6 border-t border-border/20 pt-4 flex justify-between items-center text-xs text-muted-foreground">
+                  <span>Clicks registered: <strong>{keypressCount}</strong></span>
+                  <span>Audio synthesis: <strong>{switchType.toUpperCase()} OSC</strong></span>
+                </div>
+              </div>
+            )}
+
+            {/* 2. MOUSE POLLING RATE SANDBOX */}
+            {isMouse && (
+              <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
+                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Optical Sensor Calibration</h4>
+                <p className="text-xs text-muted-foreground mt-1">Move your cursor within the box to track polling rates and sensor accuracy.</p>
+
+                <div className="mt-5 grid grid-cols-2 gap-4 text-center">
+                  <div className="p-3 bg-secondary/30 border border-border/20 rounded-xl">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Sensor Polling Rate</p>
+                    <p className="text-xl font-mono font-black text-primary mt-1">{pollingRate} Hz</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 border border-border/20 rounded-xl">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Average Latency</p>
+                    <p className="text-xl font-mono font-black text-accent mt-1">{avgLatency} ms</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 border border-border/80 bg-zinc-950 rounded-2xl overflow-hidden shadow-inner">
+                  <canvas
+                    ref={canvasRef}
+                    width={500}
+                    height={200}
+                    className="w-full h-[200px] cursor-crosshair block"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 3. MONITOR REFRESH RATE COMPARATOR */}
+            {isDisplay && (
+              <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
+                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Visual Refresh Rate Comparison</h4>
+                <p className="text-xs text-muted-foreground mt-1">Compare physical smoothness differences between 60Hz and 144Hz.</p>
+
+                <div className="mt-5 flex gap-2 justify-center mb-6">
+                  {([60, 144] as const).map((hz) => (
+                    <button
+                      key={hz}
+                      onClick={() => setDisplayHz(hz)}
+                      className={`px-4 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        displayHz === hz ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card/25 text-muted-foreground hover:bg-card/45"
+                      }`}
+                    >
+                      {hz} Hz Output
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative h-20 w-full bg-zinc-950 border border-border/80 rounded-2xl overflow-hidden flex items-center p-4">
+                  {/* Grid Lines */}
+                  <div className="absolute inset-0 bg-grid opacity-10" />
+                  
+                  {/* Moving Block */}
+                  <div
+                    className="absolute h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent shadow-glow transition-all"
+                    style={{ left: `${animProgress}%` }}
+                  />
+
+                  {/* Frame Rate Indicator Overlay */}
+                  <div className="absolute right-4 bottom-2 text-[10px] font-mono text-zinc-500">
+                    Simulation running at {displayHz === 144 ? "144 FPS" : "60 FPS"}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. AUDIO FREQUENCY EQUALIZER */}
+            {isAudio && (
+              <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
+                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Frequency Equalizer Response</h4>
+                <p className="text-xs text-muted-foreground mt-1">Toggle frequency response simulator to check acoustic profiles.</p>
+
+                <div className="mt-6 flex justify-center mb-6">
+                  <Button
+                    onClick={() => {
+                      setEqActive(!eqActive);
+                      toast.info(eqActive ? "Audio visualizer stopped" : "Frequency generator started");
+                    }}
+                    className={`rounded-xl px-5 h-10 font-bold transition-all ${
+                      eqActive ? "bg-primary text-primary-foreground shadow-glow" : "bg-card border border-border text-muted-foreground hover:bg-card/45"
+                    }`}
+                  >
+                    {eqActive ? "STOP TELEMETRY FEED" : "START TELEMETRY FEED"}
+                  </Button>
+                </div>
+
+                <div className="h-24 bg-zinc-950 border border-border/85 rounded-2xl p-4 flex items-center justify-between gap-1.5 overflow-hidden">
+                  {Array.from({ length: 28 }).map((_, idx) => {
+                    const barHeight = eqActive
+                      ? 20 + Math.sin(idx * 0.5 + Date.now() * 0.05) * 20 + Math.cos(idx * 0.2) * 15
+                      : 8 + Math.sin(idx * 0.1) * 4;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex-1 bg-gradient-to-t from-primary to-accent rounded-full transition-all duration-150"
+                        style={{ height: `${Math.max(4, barHeight)}%` }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* === TECHNICAL SPECIFICATIONS TABLE === */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="liquid-card mt-16 overflow-hidden rounded-[2rem] border border-border/60"
+        >
+          <div className="border-b border-border/40 bg-gradient-to-r from-primary/10 via-accent/5 to-transparent px-6 py-5">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <Cpu className="h-5 w-5 text-primary" /> Detailed Technical Specifications
+            </h2>
+            <p className="text-xs text-muted-foreground">Certified testing values for institutional audits.</p>
           </div>
           <div className="grid sm:grid-cols-2">
-            {specs.map(([k, v], i) => (
-              <div key={k} className={`flex items-center justify-between gap-4 border-b border-border/40 px-6 py-3.5 ${i % 2 === 0 ? "sm:border-r" : ""}`}>
-                <span className="text-sm text-muted-foreground">{k}</span>
-                <span className="text-sm font-medium">{v}</span>
+            {product.specsList?.map(([k, v] : any, i: number) => (
+              <div
+                key={k}
+                className={`flex items-center justify-between gap-4 border-b border-border/40 px-6 py-4 ${
+                  i % 2 === 0 ? "sm:border-r" : ""
+                } hover:bg-card/20 transition-colors`}
+              >
+                <span className="text-xs text-muted-foreground/80 font-bold uppercase tracking-wider">{k}</span>
+                <span className="text-sm font-semibold">{v}</span>
               </div>
             ))}
           </div>
         </motion.div>
 
-        {/* === RELATED === */}
-        {related.length > 0 && (
-          <div className="mt-20">
-            <div className="mb-6 flex items-end justify-between">
-              <div>
-                <Badge variant="outline" className="liquid-card">You may also like</Badge>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Related peripherals</h2>
-              </div>
-              <Button asChild variant="ghost"><Link to="/products">View all</Link></Button>
+        {/* === PROS AND CONS COMPARATOR === */}
+        <div className="grid gap-6 md:grid-cols-2 mt-8">
+          {/* Pros */}
+          <div className="liquid-card rounded-2xl p-6 border-success/20 bg-success/5">
+            <h4 className="text-xs font-bold text-success uppercase tracking-wider mb-4">Institutional Advantages</h4>
+            <div className="space-y-2">
+              {product.pros?.map((pro: string) => (
+                <div key={pro} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                  <span>{pro}</span>
+                </div>
+              ))}
             </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {related.map((p: any, i) => (
-                <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                  <Link to="/products/$id" params={{ id: p.id }}
-                    className="liquid-card group block overflow-hidden rounded-2xl transition-all hover:-translate-y-1 hover:shadow-[0_20px_60px_-20px_oklch(0.62_0.22_257/0.5)]">
+          </div>
+
+          {/* Cons */}
+          <div className="liquid-card rounded-2xl p-6 border-amber-500/20 bg-amber-500/5">
+            <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-4">Deployment Considerations</h4>
+            <div className="space-y-2">
+              {product.cons?.map((con: string) => (
+                <div key={con} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <ShieldAlert className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  <span>{con}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* === BOX CONTENTS === */}
+        <div className="liquid-card mt-8 rounded-2xl p-6 border-border/60">
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">In The Box</h4>
+          <div className="grid sm:grid-cols-2 gap-3 text-xs text-muted-foreground">
+            {product.boxContents?.map((item: string) => (
+              <div key={item} className="flex items-center gap-2">
+                <HardDrive className="h-4 w-4 text-primary shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* === RELATED RECOMMENDATIONS === */}
+        {related.length > 0 && (
+          <div className="mt-24 border-t border-border/20 pt-16">
+            <div className="mb-8 flex items-end justify-between">
+              <div>
+                <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent">Requisition matches</Badge>
+                <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Related Nano Banana peripherals</h2>
+              </div>
+              <Button asChild variant="ghost" className="text-primary hover:text-accent font-bold"><Link to="/products">View All Catalog &rarr;</Link></Button>
+            </div>
+            
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {related.slice(0, 4).map((p: any, i: number) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link
+                    to="/products/$id"
+                    params={{ id: p.id }}
+                    className="liquid-card group block overflow-hidden rounded-2xl border-border/60 hover:border-primary/30 hover:-translate-y-1 hover:shadow-lg transition-all"
+                  >
                     <div className="aspect-square overflow-hidden bg-gradient-to-br from-secondary to-card">
-                      {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />}
+                      {p.image_url && (
+                        <img
+                          src={p.image_url}
+                          alt={p.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-108 filter brightness-[0.85] contrast-[1.05]"
+                        />
+                      )}
                     </div>
-                    <div className="p-4">
-                      <p className="text-xs text-muted-foreground">{p.brand}</p>
-                      <p className="mt-1 truncate text-sm font-semibold">{p.name}</p>
-                      <p className="mt-2 bg-gradient-to-r from-primary to-accent bg-clip-text font-bold text-transparent">
+                    <div className="p-5">
+                      <p className="text-[10px] text-muted-foreground uppercase font-extrabold tracking-wider">{p.brand}</p>
+                      <p className="mt-1 truncate text-sm font-bold text-foreground">{p.name}</p>
+                      <p className="mt-2 bg-gradient-to-r from-primary to-accent bg-clip-text font-black text-transparent">
                         ${Number(p.price).toFixed(2)}
                       </p>
                     </div>
@@ -302,83 +731,84 @@ function ProductDetailPage() {
             </div>
           </div>
         )}
+
       </div>
 
-      {/* === RIGHT-SIDE INQUIRY DRAWER === */}
+      {/* === RIGHT-SIDE SPECIALIST SHEETS === */}
       <Sheet open={inquiryOpen} onOpenChange={setInquiryOpen}>
         <SheetContent side="right" className="w-full border-l border-border/60 bg-background/80 backdrop-blur-2xl sm:max-w-md">
           <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-            <div className="liquid-orb absolute -top-20 -right-20 h-[300px] w-[300px] opacity-60" />
-            <div className="liquid-orb absolute bottom-0 left-0 h-[280px] w-[280px] opacity-40" />
+            <div className="liquid-orb absolute -top-20 -right-20 h-[300px] w-[300px] bg-primary/10 opacity-60" />
+            <div className="liquid-orb absolute bottom-0 left-0 h-[280px] w-[280px] bg-accent/10 opacity-40" />
           </div>
           <SheetHeader>
             <SheetTitle className="text-2xl">Talk to a specialist</SheetTitle>
             <SheetDescription>
-              Have a question about <span className="font-medium text-foreground">{product.name}</span>? We're here.
+              Have questions regarding <span className="font-medium text-foreground">{product.name}</span> compatibility?
             </SheetDescription>
           </SheetHeader>
 
           <div className="mt-6 space-y-4">
-            {/* Big phone CTA */}
+            {/* Phone Requisition link */}
             <a href={SUPPORT_PHONE_HREF}
-              className="liquid-card group block rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-transparent p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-20px_oklch(0.62_0.22_257/0.6)]">
+              className="liquid-card group block rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-transparent p-5 border-primary/20 transition-all hover:-translate-y-0.5">
               <div className="flex items-center gap-4">
                 <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
                   <Phone className="h-6 w-6" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">Call us now</p>
-                  <p className="mt-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-2xl font-bold text-transparent">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Call Procurement Desk</p>
+                  <p className="mt-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-2xl font-bold text-transparent font-mono">
                     {SUPPORT_PHONE}
                   </p>
                 </div>
               </div>
               <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" /> Mon–Sat, 9am – 7pm
+                <Clock className="h-3.5 w-3.5" /> Mon–Sat, 9am – 7pm EST
               </p>
             </a>
 
-            {/* WhatsApp / chat */}
+            {/* WhatsApp */}
             <a href="https://wa.me/18005550142" target="_blank" rel="noreferrer"
-              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 transition hover:-translate-y-0.5">
+              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 border-border/80 transition hover:-translate-y-0.5">
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-success/15 text-success">
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold">WhatsApp chat</p>
-                <p className="text-xs text-muted-foreground">Instant replies during business hours</p>
+                <p className="text-sm font-bold text-foreground">WhatsApp Instant Chat</p>
+                <p className="text-xs text-muted-foreground">Get live telemetry integration setup guides</p>
               </div>
               <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </a>
 
-            {/* Email */}
+            {/* Mail */}
             <a href="mailto:sales@labtrack.dev"
-              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 transition hover:-translate-y-0.5">
+              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 border-border/80 transition hover:-translate-y-0.5">
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent/15 text-accent">
                 <Mail className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold">sales@labtrack.dev</p>
-                <p className="text-xs text-muted-foreground">Reply within 24 hours</p>
+                <p className="text-sm font-bold text-foreground">procurement@labtrack.dev</p>
+                <p className="text-xs text-muted-foreground">Institutional quotation and invoicing reply in 24h</p>
               </div>
               <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </a>
 
             {/* Location */}
-            <div className="liquid-card flex items-center gap-4 rounded-2xl p-4">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-warning/15 text-warning">
+            <div className="liquid-card flex items-center gap-4 rounded-2xl p-4 border-border/80">
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-500/15 text-amber-500">
                 <MapPin className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold">Visit our showroom</p>
+                <p className="text-sm font-bold text-foreground">Logistics Showroom</p>
                 <p className="text-xs text-muted-foreground">221B Tech Street, Innovation Park</p>
               </div>
             </div>
 
-            {/* Quick action */}
-            <Button asChild className="w-full bg-gradient-to-r from-primary to-accent" size="lg">
+            {/* Requisition link button */}
+            <Button asChild className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold h-11" size="lg">
               <Link to="/contact" onClick={() => setInquiryOpen(false)}>
-                Send a detailed message
+                Submit RFQ Ticket
               </Link>
             </Button>
           </div>
