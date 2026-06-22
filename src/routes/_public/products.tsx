@@ -11,6 +11,7 @@ function ProductsLayout() {
 // Master mapping engine to inject rich "Nano Banana" specs, ratings, and gallery images
 export function enhanceProductWithNanoBanana(p: any) {
   if (!p) return null;
+  const hasUploadedImage = Boolean(p.image_url?.trim());
   const nameLower = (p.name || "").toLowerCase();
   const catLower = (p.category || "").toLowerCase();
 
@@ -352,8 +353,8 @@ export function enhanceProductWithNanoBanana(p: any) {
   return {
     ...p,
     brand: p.brand || "Nano Banana",
-    image_url: images[0] || p.image_url,
-    images,
+    image_url: hasUploadedImage ? p.image_url : (images[0] || p.image_url),
+    images: hasUploadedImage ? [p.image_url] : images,
     rating,
     reviews,
     specsList: specsListSimple,

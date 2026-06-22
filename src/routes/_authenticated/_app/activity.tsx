@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ActivityLog } from "@/components/activity-log";
-import { Activity } from "lucide-react";
+import { redirectLegacyPath } from "@/lib/legacy-redirect";
+
 export const Route = createFileRoute("/_authenticated/_app/activity")({
-  component: ActivityLog,
+  beforeLoad: async () => {
+    await redirectLegacyPath("/activity");
+  },
 });

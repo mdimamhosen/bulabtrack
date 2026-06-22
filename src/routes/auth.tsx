@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Lock, User, Phone, Loader2, Boxes } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchUserRole, dashboardPath } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,9 +39,19 @@ const signupSchema = z.object({
 function AuthPage() {
   const navigate = useNavigate();
 
+  const navigateAfterAuth = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return;
+    const role = await fetchUserRole(data.user.id);
+    navigate({ to: dashboardPath(role) as never, replace: true });
+  };
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/dashboard" });
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) {
+        const role = await fetchUserRole(data.user.id);
+        navigate({ to: dashboardPath(role) as never, replace: true });
+      }
     });
   }, [navigate]);
 
@@ -91,10 +102,10 @@ function AuthPage() {
                   <TabsTrigger value="signup">Create account</TabsTrigger>
                 </TabsList>
                 <TabsContent value="login" className="pt-4">
-                  <LoginForm onDone={() => navigate({ to: "/dashboard" })} />
+                  <LoginForm onDone={navigateAfterAuth} />
                 </TabsContent>
                 <TabsContent value="signup" className="pt-4">
-                  <SignupForm onDone={() => navigate({ to: "/dashboard" })} />
+                  <SignupForm onDone={navigateAfterAuth} />
                 </TabsContent>
               </Tabs>
             </div>
@@ -196,7 +207,7 @@ function SignupForm({ onDone }: { onDone: () => void }) {
       email: values.email,
       password: values.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/customer/dashboard`,
         data: { name: values.name, phone: values.phone || null },
       },
     });

@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { StubPage } from "@/components/stub-page";
-import { Users } from "lucide-react";
+import { redirectLegacyPath } from "@/lib/legacy-redirect";
+
 export const Route = createFileRoute("/_authenticated/_app/users")({
-  component: () => <StubPage title="Users" desc="Create staff accounts, assign roles, and manage activity." icon={Users} />,
+  beforeLoad: async () => {
+    await redirectLegacyPath("/users");
+  },
 });

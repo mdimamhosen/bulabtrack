@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { ImageUploadField } from "@/components/image-upload-field";
 
 export function DeviceFormFields({
   defaultValues,
@@ -104,9 +105,14 @@ export function DeviceFormFields({
             <Input type="date" {...form.register("warranty_expiry")} />
           </Field>
           <div className="sm:col-span-2">
-            <Field label="Image URL (optional)" error={err.image_url?.message}>
-              <Input {...form.register("image_url")} placeholder="https://…" />
-            </Field>
+            <ImageUploadField
+              value={form.watch("image_url") ?? ""}
+              onChange={(url) => form.setValue("image_url", url, { shouldValidate: true })}
+              label="Product image (optional)"
+            />
+            {err.image_url?.message && (
+              <p className="mt-1 text-xs text-destructive">{err.image_url.message}</p>
+            )}
           </div>
           <div className="sm:col-span-2">
             <Field label="Description" error={err.description?.message}>

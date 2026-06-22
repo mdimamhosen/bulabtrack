@@ -21,9 +21,26 @@ import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicCheckoutRouteImport } from './routes/_public/checkout'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
+import { Route as AuthenticatedCustomerRouteRouteImport } from './routes/_authenticated/customer/route'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as PublicProductsIndexRouteImport } from './routes/_public/products.index'
 import { Route as PublicProductsIdRouteImport } from './routes/_public/products.$id'
 import { Route as PublicOrderSuccessOrderNumberRouteImport } from './routes/_public/order-success.$orderNumber'
+import { Route as AuthenticatedStaffSettingsRouteImport } from './routes/_authenticated/staff/settings'
+import { Route as AuthenticatedStaffReportsRouteImport } from './routes/_authenticated/staff/reports'
+import { Route as AuthenticatedStaffOrdersRouteImport } from './routes/_authenticated/staff/orders'
+import { Route as AuthenticatedStaffMaintenanceRouteImport } from './routes/_authenticated/staff/maintenance'
+import { Route as AuthenticatedStaffDashboardRouteImport } from './routes/_authenticated/staff/dashboard'
+import { Route as AuthenticatedCustomerSettingsRouteImport } from './routes/_authenticated/customer/settings'
+import { Route as AuthenticatedCustomerDashboardRouteImport } from './routes/_authenticated/customer/dashboard'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
+import { Route as AuthenticatedAdminMaintenanceRouteImport } from './routes/_authenticated/admin/maintenance'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin/activity'
 import { Route as AuthenticatedAppUsersRouteImport } from './routes/_authenticated/_app/users'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/_app/reports'
@@ -31,8 +48,12 @@ import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppMaintenanceRouteImport } from './routes/_authenticated/_app/maintenance'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/_app/activity'
+import { Route as AuthenticatedStaffDevicesIndexRouteImport } from './routes/_authenticated/staff/devices.index'
+import { Route as AuthenticatedAdminDevicesIndexRouteImport } from './routes/_authenticated/admin/devices.index'
 import { Route as AuthenticatedAppDevicesIndexRouteImport } from './routes/_authenticated/_app/devices.index'
+import { Route as AuthenticatedAdminDevicesNewRouteImport } from './routes/_authenticated/admin/devices.new'
 import { Route as AuthenticatedAppDevicesNewRouteImport } from './routes/_authenticated/_app/devices.new'
+import { Route as AuthenticatedAdminDevicesIdEditRouteImport } from './routes/_authenticated/admin/devices.$id.edit'
 import { Route as AuthenticatedAppDevicesIdEditRouteImport } from './routes/_authenticated/_app/devices.$id.edit'
 
 const AuthRoute = AuthRouteImport.update({
@@ -92,6 +113,22 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedStaffRouteRoute = AuthenticatedStaffRouteRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCustomerRouteRoute =
+  AuthenticatedCustomerRouteRouteImport.update({
+    id: '/customer',
+    path: '/customer',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const PublicProductsIndexRoute = PublicProductsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -107,6 +144,89 @@ const PublicOrderSuccessOrderNumberRoute =
     id: '/order-success/$orderNumber',
     path: '/order-success/$orderNumber',
     getParentRoute: () => PublicRoute,
+  } as any)
+const AuthenticatedStaffSettingsRoute =
+  AuthenticatedStaffSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffReportsRoute =
+  AuthenticatedStaffReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffOrdersRoute =
+  AuthenticatedStaffOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffMaintenanceRoute =
+  AuthenticatedStaffMaintenanceRouteImport.update({
+    id: '/maintenance',
+    path: '/maintenance',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffDashboardRoute =
+  AuthenticatedStaffDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedCustomerSettingsRoute =
+  AuthenticatedCustomerSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedCustomerRouteRoute,
+  } as any)
+const AuthenticatedCustomerDashboardRoute =
+  AuthenticatedCustomerDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedCustomerRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminMaintenanceRoute =
+  AuthenticatedAdminMaintenanceRouteImport.update({
+    id: '/maintenance',
+    path: '/maintenance',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminActivityRoute =
+  AuthenticatedAdminActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAppUsersRoute = AuthenticatedAppUsersRouteImport.update({
   id: '/users',
@@ -147,17 +267,41 @@ const AuthenticatedAppActivityRoute =
     path: '/activity',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedStaffDevicesIndexRoute =
+  AuthenticatedStaffDevicesIndexRouteImport.update({
+    id: '/devices/',
+    path: '/devices/',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedAdminDevicesIndexRoute =
+  AuthenticatedAdminDevicesIndexRouteImport.update({
+    id: '/devices/',
+    path: '/devices/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAppDevicesIndexRoute =
   AuthenticatedAppDevicesIndexRouteImport.update({
     id: '/devices/',
     path: '/devices/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAdminDevicesNewRoute =
+  AuthenticatedAdminDevicesNewRouteImport.update({
+    id: '/devices/new',
+    path: '/devices/new',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAppDevicesNewRoute =
   AuthenticatedAppDevicesNewRouteImport.update({
     id: '/devices/new',
     path: '/devices/new',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAdminDevicesIdEditRoute =
+  AuthenticatedAdminDevicesIdEditRouteImport.update({
+    id: '/devices/$id/edit',
+    path: '/devices/$id/edit',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAppDevicesIdEditRoute =
   AuthenticatedAppDevicesIdEditRouteImport.update({
@@ -169,6 +313,9 @@ const AuthenticatedAppDevicesIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/customer': typeof AuthenticatedCustomerRouteRouteWithChildren
+  '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/checkout': typeof PublicCheckoutRoute
   '/contact': typeof PublicContactRoute
@@ -183,16 +330,37 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedAppReportsRoute
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/users': typeof AuthenticatedAppUsersRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
+  '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
+  '/staff/dashboard': typeof AuthenticatedStaffDashboardRoute
+  '/staff/maintenance': typeof AuthenticatedStaffMaintenanceRoute
+  '/staff/orders': typeof AuthenticatedStaffOrdersRoute
+  '/staff/reports': typeof AuthenticatedStaffReportsRoute
+  '/staff/settings': typeof AuthenticatedStaffSettingsRoute
   '/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
   '/products/$id': typeof PublicProductsIdRoute
   '/products/': typeof PublicProductsIndexRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
+  '/admin/devices/new': typeof AuthenticatedAdminDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
+  '/admin/devices/': typeof AuthenticatedAdminDevicesIndexRoute
+  '/staff/devices/': typeof AuthenticatedStaffDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
+  '/admin/devices/$id/edit': typeof AuthenticatedAdminDevicesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/customer': typeof AuthenticatedCustomerRouteRouteWithChildren
+  '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/checkout': typeof PublicCheckoutRoute
   '/contact': typeof PublicContactRoute
@@ -206,18 +374,39 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedAppReportsRoute
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/users': typeof AuthenticatedAppUsersRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
+  '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
+  '/staff/dashboard': typeof AuthenticatedStaffDashboardRoute
+  '/staff/maintenance': typeof AuthenticatedStaffMaintenanceRoute
+  '/staff/orders': typeof AuthenticatedStaffOrdersRoute
+  '/staff/reports': typeof AuthenticatedStaffReportsRoute
+  '/staff/settings': typeof AuthenticatedStaffSettingsRoute
   '/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
   '/products/$id': typeof PublicProductsIdRoute
   '/products': typeof PublicProductsIndexRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
+  '/admin/devices/new': typeof AuthenticatedAdminDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
+  '/admin/devices': typeof AuthenticatedAdminDevicesIndexRoute
+  '/staff/devices': typeof AuthenticatedStaffDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
+  '/admin/devices/$id/edit': typeof AuthenticatedAdminDevicesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/customer': typeof AuthenticatedCustomerRouteRouteWithChildren
+  '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/checkout': typeof PublicCheckoutRoute
@@ -234,18 +423,39 @@ export interface FileRoutesById {
   '/_authenticated/_app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/_app/users': typeof AuthenticatedAppUsersRoute
+  '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
+  '/_authenticated/customer/settings': typeof AuthenticatedCustomerSettingsRoute
+  '/_authenticated/staff/dashboard': typeof AuthenticatedStaffDashboardRoute
+  '/_authenticated/staff/maintenance': typeof AuthenticatedStaffMaintenanceRoute
+  '/_authenticated/staff/orders': typeof AuthenticatedStaffOrdersRoute
+  '/_authenticated/staff/reports': typeof AuthenticatedStaffReportsRoute
+  '/_authenticated/staff/settings': typeof AuthenticatedStaffSettingsRoute
   '/_public/order-success/$orderNumber': typeof PublicOrderSuccessOrderNumberRoute
   '/_public/products/$id': typeof PublicProductsIdRoute
   '/_public/products/': typeof PublicProductsIndexRoute
   '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
+  '/_authenticated/admin/devices/new': typeof AuthenticatedAdminDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
+  '/_authenticated/admin/devices/': typeof AuthenticatedAdminDevicesIndexRoute
+  '/_authenticated/staff/devices/': typeof AuthenticatedStaffDevicesIndexRoute
   '/_authenticated/_app/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
+  '/_authenticated/admin/devices/$id/edit': typeof AuthenticatedAdminDevicesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin'
+    | '/customer'
+    | '/staff'
     | '/about'
     | '/checkout'
     | '/contact'
@@ -260,16 +470,37 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/users'
+    | '/admin/activity'
+    | '/admin/dashboard'
+    | '/admin/maintenance'
+    | '/admin/orders'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/customer/dashboard'
+    | '/customer/settings'
+    | '/staff/dashboard'
+    | '/staff/maintenance'
+    | '/staff/orders'
+    | '/staff/reports'
+    | '/staff/settings'
     | '/order-success/$orderNumber'
     | '/products/$id'
     | '/products/'
     | '/devices/new'
+    | '/admin/devices/new'
     | '/devices/'
+    | '/admin/devices/'
+    | '/staff/devices/'
     | '/devices/$id/edit'
+    | '/admin/devices/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/admin'
+    | '/customer'
+    | '/staff'
     | '/about'
     | '/checkout'
     | '/contact'
@@ -283,17 +514,38 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/users'
+    | '/admin/activity'
+    | '/admin/dashboard'
+    | '/admin/maintenance'
+    | '/admin/orders'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/customer/dashboard'
+    | '/customer/settings'
+    | '/staff/dashboard'
+    | '/staff/maintenance'
+    | '/staff/orders'
+    | '/staff/reports'
+    | '/staff/settings'
     | '/order-success/$orderNumber'
     | '/products/$id'
     | '/products'
     | '/devices/new'
+    | '/admin/devices/new'
     | '/devices'
+    | '/admin/devices'
+    | '/staff/devices'
     | '/devices/$id/edit'
+    | '/admin/devices/$id/edit'
   id:
     | '__root__'
     | '/_authenticated'
     | '/_public'
     | '/auth'
+    | '/_authenticated/admin'
+    | '/_authenticated/customer'
+    | '/_authenticated/staff'
     | '/_authenticated/_app'
     | '/_public/about'
     | '/_public/checkout'
@@ -310,12 +562,30 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/reports'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/users'
+    | '/_authenticated/admin/activity'
+    | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/maintenance'
+    | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/customer/dashboard'
+    | '/_authenticated/customer/settings'
+    | '/_authenticated/staff/dashboard'
+    | '/_authenticated/staff/maintenance'
+    | '/_authenticated/staff/orders'
+    | '/_authenticated/staff/reports'
+    | '/_authenticated/staff/settings'
     | '/_public/order-success/$orderNumber'
     | '/_public/products/$id'
     | '/_public/products/'
     | '/_authenticated/_app/devices/new'
+    | '/_authenticated/admin/devices/new'
     | '/_authenticated/_app/devices/'
+    | '/_authenticated/admin/devices/'
+    | '/_authenticated/staff/devices/'
     | '/_authenticated/_app/devices/$id/edit'
+    | '/_authenticated/admin/devices/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -410,6 +680,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/staff': {
+      id: '/_authenticated/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof AuthenticatedStaffRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer': {
+      id: '/_authenticated/customer'
+      path: '/customer'
+      fullPath: '/customer'
+      preLoaderRoute: typeof AuthenticatedCustomerRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_public/products/': {
       id: '/_public/products/'
       path: '/'
@@ -430,6 +721,104 @@ declare module '@tanstack/react-router' {
       fullPath: '/order-success/$orderNumber'
       preLoaderRoute: typeof PublicOrderSuccessOrderNumberRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/staff/settings': {
+      id: '/_authenticated/staff/settings'
+      path: '/settings'
+      fullPath: '/staff/settings'
+      preLoaderRoute: typeof AuthenticatedStaffSettingsRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/reports': {
+      id: '/_authenticated/staff/reports'
+      path: '/reports'
+      fullPath: '/staff/reports'
+      preLoaderRoute: typeof AuthenticatedStaffReportsRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/orders': {
+      id: '/_authenticated/staff/orders'
+      path: '/orders'
+      fullPath: '/staff/orders'
+      preLoaderRoute: typeof AuthenticatedStaffOrdersRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/maintenance': {
+      id: '/_authenticated/staff/maintenance'
+      path: '/maintenance'
+      fullPath: '/staff/maintenance'
+      preLoaderRoute: typeof AuthenticatedStaffMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/dashboard': {
+      id: '/_authenticated/staff/dashboard'
+      path: '/dashboard'
+      fullPath: '/staff/dashboard'
+      preLoaderRoute: typeof AuthenticatedStaffDashboardRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/customer/settings': {
+      id: '/_authenticated/customer/settings'
+      path: '/settings'
+      fullPath: '/customer/settings'
+      preLoaderRoute: typeof AuthenticatedCustomerSettingsRouteImport
+      parentRoute: typeof AuthenticatedCustomerRouteRoute
+    }
+    '/_authenticated/customer/dashboard': {
+      id: '/_authenticated/customer/dashboard'
+      path: '/dashboard'
+      fullPath: '/customer/dashboard'
+      preLoaderRoute: typeof AuthenticatedCustomerDashboardRouteImport
+      parentRoute: typeof AuthenticatedCustomerRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/maintenance': {
+      id: '/_authenticated/admin/maintenance'
+      path: '/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AuthenticatedAdminMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/dashboard': {
+      id: '/_authenticated/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/activity': {
+      id: '/_authenticated/admin/activity'
+      path: '/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AuthenticatedAdminActivityRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/_app/users': {
       id: '/_authenticated/_app/users'
@@ -480,6 +869,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppActivityRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/staff/devices/': {
+      id: '/_authenticated/staff/devices/'
+      path: '/devices'
+      fullPath: '/staff/devices/'
+      preLoaderRoute: typeof AuthenticatedStaffDevicesIndexRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/admin/devices/': {
+      id: '/_authenticated/admin/devices/'
+      path: '/devices'
+      fullPath: '/admin/devices/'
+      preLoaderRoute: typeof AuthenticatedAdminDevicesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/_app/devices/': {
       id: '/_authenticated/_app/devices/'
       path: '/devices'
@@ -487,12 +890,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDevicesIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/admin/devices/new': {
+      id: '/_authenticated/admin/devices/new'
+      path: '/devices/new'
+      fullPath: '/admin/devices/new'
+      preLoaderRoute: typeof AuthenticatedAdminDevicesNewRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/_app/devices/new': {
       id: '/_authenticated/_app/devices/new'
       path: '/devices/new'
       fullPath: '/devices/new'
       preLoaderRoute: typeof AuthenticatedAppDevicesNewRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/admin/devices/$id/edit': {
+      id: '/_authenticated/admin/devices/$id/edit'
+      path: '/devices/$id/edit'
+      fullPath: '/admin/devices/$id/edit'
+      preLoaderRoute: typeof AuthenticatedAdminDevicesIdEditRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/_app/devices/$id/edit': {
       id: '/_authenticated/_app/devices/$id/edit'
@@ -503,6 +920,78 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminMaintenanceRoute: typeof AuthenticatedAdminMaintenanceRoute
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminDevicesNewRoute: typeof AuthenticatedAdminDevicesNewRoute
+  AuthenticatedAdminDevicesIndexRoute: typeof AuthenticatedAdminDevicesIndexRoute
+  AuthenticatedAdminDevicesIdEditRoute: typeof AuthenticatedAdminDevicesIdEditRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
+    AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+    AuthenticatedAdminMaintenanceRoute: AuthenticatedAdminMaintenanceRoute,
+    AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+    AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+    AuthenticatedAdminDevicesNewRoute: AuthenticatedAdminDevicesNewRoute,
+    AuthenticatedAdminDevicesIndexRoute: AuthenticatedAdminDevicesIndexRoute,
+    AuthenticatedAdminDevicesIdEditRoute: AuthenticatedAdminDevicesIdEditRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedCustomerRouteRouteChildren {
+  AuthenticatedCustomerDashboardRoute: typeof AuthenticatedCustomerDashboardRoute
+  AuthenticatedCustomerSettingsRoute: typeof AuthenticatedCustomerSettingsRoute
+}
+
+const AuthenticatedCustomerRouteRouteChildren: AuthenticatedCustomerRouteRouteChildren =
+  {
+    AuthenticatedCustomerDashboardRoute: AuthenticatedCustomerDashboardRoute,
+    AuthenticatedCustomerSettingsRoute: AuthenticatedCustomerSettingsRoute,
+  }
+
+const AuthenticatedCustomerRouteRouteWithChildren =
+  AuthenticatedCustomerRouteRoute._addFileChildren(
+    AuthenticatedCustomerRouteRouteChildren,
+  )
+
+interface AuthenticatedStaffRouteRouteChildren {
+  AuthenticatedStaffDashboardRoute: typeof AuthenticatedStaffDashboardRoute
+  AuthenticatedStaffMaintenanceRoute: typeof AuthenticatedStaffMaintenanceRoute
+  AuthenticatedStaffOrdersRoute: typeof AuthenticatedStaffOrdersRoute
+  AuthenticatedStaffReportsRoute: typeof AuthenticatedStaffReportsRoute
+  AuthenticatedStaffSettingsRoute: typeof AuthenticatedStaffSettingsRoute
+  AuthenticatedStaffDevicesIndexRoute: typeof AuthenticatedStaffDevicesIndexRoute
+}
+
+const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
+  {
+    AuthenticatedStaffDashboardRoute: AuthenticatedStaffDashboardRoute,
+    AuthenticatedStaffMaintenanceRoute: AuthenticatedStaffMaintenanceRoute,
+    AuthenticatedStaffOrdersRoute: AuthenticatedStaffOrdersRoute,
+    AuthenticatedStaffReportsRoute: AuthenticatedStaffReportsRoute,
+    AuthenticatedStaffSettingsRoute: AuthenticatedStaffSettingsRoute,
+    AuthenticatedStaffDevicesIndexRoute: AuthenticatedStaffDevicesIndexRoute,
+  }
+
+const AuthenticatedStaffRouteRouteWithChildren =
+  AuthenticatedStaffRouteRoute._addFileChildren(
+    AuthenticatedStaffRouteRouteChildren,
+  )
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppActivityRoute: typeof AuthenticatedAppActivityRoute
@@ -534,10 +1023,16 @@ const AuthenticatedAppRouteWithChildren =
   AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedCustomerRouteRoute: typeof AuthenticatedCustomerRouteRouteWithChildren
+  AuthenticatedStaffRouteRoute: typeof AuthenticatedStaffRouteRouteWithChildren
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedCustomerRouteRoute: AuthenticatedCustomerRouteRouteWithChildren,
+  AuthenticatedStaffRouteRoute: AuthenticatedStaffRouteRouteWithChildren,
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
 }
 

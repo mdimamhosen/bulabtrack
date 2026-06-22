@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { StubPage } from "@/components/stub-page";
-import { Wrench } from "lucide-react";
+import { redirectLegacyPath } from "@/lib/legacy-redirect";
+
 export const Route = createFileRoute("/_authenticated/_app/maintenance")({
-  component: () => <StubPage title="Maintenance" desc="Report issues, track technician progress, and view repair history." icon={Wrench} />,
+  beforeLoad: async () => {
+    await redirectLegacyPath("/maintenance");
+  },
 });

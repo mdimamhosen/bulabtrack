@@ -6,7 +6,7 @@ export const deviceSchema = z.object({
   model: z.string().trim().min(1, "Model required").max(80),
   category: z.enum(["Input Device", "Output Device"]),
   price: z.coerce.number().min(0, "Price cannot be negative"),
-  quantity: z.coerce.number().int().min(1, "Quantity at least 1"),
+  quantity: z.coerce.number().int().min(1, "Quantity must be at least 1"),
   interface: z.string().trim().min(1, "Interface required").max(40),
   status: z.enum(["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"]),
   supplier: z.string().trim().max(120).optional().or(z.literal("")),
@@ -15,7 +15,20 @@ export const deviceSchema = z.object({
   location: z.string().trim().max(120).optional().or(z.literal("")),
   serial_number: z.string().trim().min(1, "Serial required").max(80),
   description: z.string().trim().max(1000).optional().or(z.literal("")),
-  image_url: z.string().trim().url("Invalid URL").max(500).optional().or(z.literal("")),
+  image_url: z
+    .string()
+    .trim()
+    .max(2048, "Image link is too long — remove the image and upload again")
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (val) => !val || !val.startsWith("data:"),
+      "Image upload did not complete. Remove the image and try uploading again, or save without an image.",
+    )
+    .refine(
+      (val) => !val || /^https?:\/\//.test(val),
+      "Image must be a valid uploaded URL",
+    ),
 });
 
 export type DeviceForm = z.infer<typeof deviceSchema>;
@@ -23,3 +36,4 @@ export type DeviceForm = z.infer<typeof deviceSchema>;
 export const INTERFACES = ["USB", "Bluetooth", "HDMI", "PS/2", "Ethernet", "Wireless", "VGA", "DisplayPort", "Audio Jack"];
 export const STATUSES = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"] as const;
 export const CATEGORIES = ["Input Device", "Output Device"] as const;
+
