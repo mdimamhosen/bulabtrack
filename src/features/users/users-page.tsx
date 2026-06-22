@@ -211,24 +211,12 @@ export function UsersPage() {
       if (signUpError) throw signUpError;
       if (!signUpData.user) throw new Error("Failed to create user session");
 
-      // Insert role into user_roles
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: signUpData.user.id,
-          role: "staff"
-        });
+      const { error: assignError } = await supabase.rpc("assign_staff_role_by_admin", {
+        target_user_id: signUpData.user.id,
+        staff_name: staffName,
+      });
 
-      if (roleError) throw roleError;
-
-      // Update the newly created profile row to set needs_password_change to true
-      // (This will also be handled by trigger, but doing it explicitly guarantees it)
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ needs_password_change: true })
-        .eq("id", signUpData.user.id);
-
-      if (profileError) throw profileError;
+      if (assignError) throw assignError;
 
       toast.success(`Staff account created for ${staffName}. Temporary password set.`);
       setAddStaffOpen(false);

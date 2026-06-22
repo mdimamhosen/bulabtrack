@@ -312,6 +312,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_staff_role_by_admin: {
+        Args: {
+          target_user_id: string
+          staff_name?: string | null
+        }
+        Returns: undefined
+      }
       delete_user_by_admin: {
         Args: {
           target_user_id: string
