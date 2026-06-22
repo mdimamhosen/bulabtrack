@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Lock, Loader2, LogOut, ShieldAlert } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { updatePassword } from "@/lib/api/auth.functions";
+import { updateProfile } from "@/lib/api/profiles.functions";
+import { clearToken } from "@/lib/auth/auth.client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Profile } from "@/lib/db/types";
 
-type Profile = Pick<
-  Tables<"profiles">,
+type ProfileSummary = Pick<
+  Profile,
   "name" | "email" | "avatar_url" | "needs_password_change" | "status"
 >;
 
@@ -17,8 +19,8 @@ export function AccountOverlays({
   profile,
   onProfileUpdate,
 }: {
-  profile: Profile | null;
-  onProfileUpdate: (profile: Profile) => void;
+  profile: ProfileSummary | null;
+  onProfileUpdate: (profile: ProfileSummary) => void;
 }) {
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
@@ -26,7 +28,7 @@ export function AccountOverlays({
   const [updatingPassword, setUpdatingPassword] = useState(false);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    clearToken();
     toast.success("Signed out");
     navigate({ to: "/auth", replace: true });
   };
@@ -45,18 +47,8 @@ export function AccountOverlays({
 
     setUpdatingPassword(true);
     try {
-      const { error: pwdError } = await supabase.auth.updateUser({ password: newPassword });
-      if (pwdError) throw pwdError;
-
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("No active user session");
-
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ needs_password_change: false })
-        .eq("id", userData.user.id);
-
-      if (profileError) throw profileError;
+      await updatePassword({ data: { password: newPassword } });
+      await updateProfile({ data: { needs_password_change: false } });
 
       toast.success("Password changed successfully!");
       onProfileUpdate({ ...profile!, needs_password_change: false });

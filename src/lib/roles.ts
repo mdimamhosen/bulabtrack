@@ -1,16 +1,8 @@
 import { redirect } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthUser } from "@/lib/api/auth.functions";
+import type { AppRole } from "@/lib/db/types";
 
-export type Role = "admin" | "staff";
-
-export async function fetchUserRole(userId: string): Promise<Role | null> {
-  const { data } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .maybeSingle();
-  return (data?.role as Role) ?? null;
-}
+export type Role = AppRole;
 
 export function roleBasePath(role: Role | null): string {
   if (role === "admin") return "/admin";
@@ -23,16 +15,14 @@ export function dashboardPath(role: Role | null): string {
 }
 
 export async function getCurrentUserRole(): Promise<Role | null> {
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) return null;
-  return fetchUserRole(data.user.id);
+  const { user, role } = await getAuthUser({});
+  if (!user) return null;
+  return role;
 }
 
 export async function requireRole(expected: Role | "customer"): Promise<Role | null> {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) throw redirect({ to: "/auth" });
-
-  const role = await fetchUserRole(data.user.id);
+  const { user, role } = await getAuthUser({});
+  if (!user) throw redirect({ to: "/auth" });
 
   if (expected === "customer") {
     if (role !== null) {

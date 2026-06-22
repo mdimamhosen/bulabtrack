@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { listDevices, updateDeviceStatus, deleteDevice } from "@/lib/api/devices.functions";
 import { useRole } from "@/lib/role-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,14 +43,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   const { data: rawDevices = [], isLoading } = useQuery({
     queryKey: ["devices"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("devices")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => listDevices({ data: {} }),
   });
 
   // Enhance devices using storefront logic
@@ -131,8 +124,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   const updateStatus = useMutation({
     mutationFn: async (args: { id: string; status: string }) => {
-      const { error } = await supabase.from("devices").update({ status: args.status as never }).eq("id", args.id);
-      if (error) throw error;
+      await updateDeviceStatus({ data: { id: args.id, status: args.status as never } });
     },
     onSuccess: () => {
       toast.success("Status updated successfully");
@@ -144,8 +136,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   const del = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("devices").delete().eq("id", id);
-      if (error) throw error;
+      await deleteDevice({ data: { id } });
     },
     onSuccess: () => {
       toast.success("Device deleted successfully");

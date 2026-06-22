@@ -1,19 +1,19 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { fetchUserRole, type Role } from "@/lib/roles";
-import type { Tables } from "@/integrations/supabase/types";
+import { getAuthUser } from "@/lib/api/auth.functions";
+import type { Role } from "@/lib/roles";
+import type { Profile } from "@/lib/db/types";
 
-type Profile = Pick<
-  Tables<"profiles">,
+type ProfileSummary = Pick<
+  Profile,
   "name" | "email" | "avatar_url" | "needs_password_change" | "status"
 >;
 
 type RoleContextValue = {
   role: Role | null;
-  profile: Profile | null;
+  profile: ProfileSummary | null;
   loading: boolean;
   userId: string | null;
-  setProfile: React.Dispatch<React.SetStateAction<Profile | null>>;
+  setProfile: React.Dispatch<React.SetStateAction<ProfileSummary | null>>;
   refresh: () => Promise<void>;
 };
 
@@ -21,14 +21,14 @@ const RoleContext = createContext<RoleContextValue | null>(null);
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<ProfileSummary | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
     setLoading(true);
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
+    const { user, role: r, profile: p } = await getAuthUser({});
+    if (!user) {
       setRole(null);
       setProfile(null);
       setUserId(null);
@@ -36,17 +36,17 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setUserId(data.user.id);
-    const [r, p] = await Promise.all([
-      fetchUserRole(data.user.id),
-      supabase
-        .from("profiles")
-        .select("name,email,avatar_url,needs_password_change,status")
-        .eq("id", data.user.id)
-        .maybeSingle(),
-    ]);
+    setUserId(user.id);
     setRole(r);
-    if (p.data) setProfile(p.data);
+    if (p) {
+      setProfile({
+        name: p.name,
+        email: p.email,
+        avatar_url: p.avatar_url,
+        needs_password_change: p.needs_password_change,
+        status: p.status,
+      });
+    }
     setLoading(false);
   };
 

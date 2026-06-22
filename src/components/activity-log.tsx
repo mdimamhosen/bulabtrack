@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { listAuditLogs } from "@/lib/api/audit.functions";
 import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
+import type { AuditLog } from "@/lib/db/types";
 
-export interface AuditLog {
-  id: string;
-  action: string;
-  user_id: string | null;
-  details: string | null;
-  created_at: string;
-}
+export type { AuditLog };
 
 export function ActivityLog() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -18,18 +13,16 @@ export function ActivityLog() {
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("audit_log")
-        .select("id, action, created_at, user_id, details")
-        .order("created_at", { ascending: false });
-      if (!error && data) {
+      try {
+        const data = await listAuditLogs({});
         setLogs(data);
+      } catch {
+        setLogs([]);
       }
       setLoading(false);
     };
     fetchLogs();
   }, []);
-
 
   if (loading) {
     return (
