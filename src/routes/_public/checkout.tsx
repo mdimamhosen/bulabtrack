@@ -53,18 +53,19 @@ function CheckoutPage() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
+    const orderId = crypto.randomUUID();
     const orderNumber = generateOrderNumber();
-    const { data: order, error } = await supabase.from("orders").insert({
-      ...data, order_number: orderNumber, total: subtotal,
-    }).select("id").single();
+    const { error } = await supabase.from("orders").insert({
+      id: orderId, ...data, order_number: orderNumber, total: subtotal,
+    });
 
-    if (error || !order) {
+    if (error) {
       setLoading(false);
       return toast.error(error?.message ?? "Failed to place order");
     }
 
     const lineItems = items.map((i) => ({
-      order_id: order.id, device_id: i.id, device_name: i.name,
+      order_id: orderId, device_id: i.id, device_name: i.name,
       unit_price: i.price, quantity: i.quantity,
     }));
     const { error: liErr } = await supabase.from("order_items").insert(lineItems);
