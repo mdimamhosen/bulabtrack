@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -41,32 +65,10 @@ export type Database = {
         }
         Relationships: []
       }
-      companies: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       devices: {
         Row: {
           brand: string
           category: Database["public"]["Enums"]["device_category"]
-          company_id: string
           created_at: string
           created_by: string | null
           description: string | null
@@ -88,7 +90,6 @@ export type Database = {
         Insert: {
           brand: string
           category: Database["public"]["Enums"]["device_category"]
-          company_id?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -110,7 +111,6 @@ export type Database = {
         Update: {
           brand?: string
           category?: Database["public"]["Enums"]["device_category"]
-          company_id?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -129,15 +129,7 @@ export type Database = {
           updated_at?: string
           warranty_expiry?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "devices_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -232,30 +224,6 @@ export type Database = {
         }
         Relationships: []
       }
-      audit_log: {
-        Row: {
-          action: string
-          created_at: string
-          details: string | null
-          id: string
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string
-          details?: string | null
-          id?: string
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string
-          details?: string | null
-          id?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -313,16 +281,11 @@ export type Database = {
     }
     Functions: {
       assign_staff_role_by_admin: {
-        Args: {
-          target_user_id: string
-          staff_name?: string | null
-        }
+        Args: { staff_name?: string; target_user_id: string }
         Returns: undefined
       }
       delete_user_by_admin: {
-        Args: {
-          target_user_id: string
-        }
+        Args: { target_user_id: string }
         Returns: undefined
       }
       has_role: {

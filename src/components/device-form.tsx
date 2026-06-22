@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import {
   deviceSchema, type DeviceForm,
   INTERFACES, STATUSES, CATEGORIES,
@@ -40,7 +41,13 @@ export function DeviceFormFields({
   const err = form.formState.errors;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      onSubmit={form.handleSubmit(onSubmit, (errors) => {
+        const first = Object.values(errors)[0] as { message?: string } | undefined;
+        toast.error(first?.message ?? "Please fix the highlighted fields before saving.");
+      })}
+      className="space-y-6"
+    >
       <Card>
         <CardContent className="grid gap-4 p-6 sm:grid-cols-2">
           <Field label="Device name" error={err.name?.message}>
