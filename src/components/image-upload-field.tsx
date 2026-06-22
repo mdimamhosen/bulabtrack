@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/lib/api/storage.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -12,6 +12,20 @@ type ImageUploadFieldProps = {
   /** When false (default), failed uploads show an error instead of embedding base64 */
   allowBase64Fallback?: boolean;
 };
+
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      const encoded = result.split(",")[1];
+      if (!encoded) reject(new Error("Failed to read image"));
+      else resolve(encoded);
+    };
+    reader.onerror = () => reject(new Error("Failed to read image file"));
+    reader.readAsDataURL(file);
+  });
+}
 
 export function ImageUploadField({
   value,
@@ -38,46 +52,33 @@ export function ImageUploadField({
 
     setIsUploading(true);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const userId = userData.user?.id ?? "anon";
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const filePath = `${userId}/${Date.now()}.${ext}`;
+      const base64 = await fileToBase64(file);
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, { cacheControl: "3600", upsert: true });
-
-      if (uploadError) {
+      try {
+        const { url } = await uploadImage({
+          data: {
+            bucket,
+            fileName: file.name,
+            contentType: file.type,
+            base64,
+          },
+        });
+        onChange(url);
+        toast.success("Image uploaded successfully");
+      } catch (uploadError) {
         if (allowBase64Fallback) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            onChange(reader.result as string);
-            setIsUploading(false);
-            toast.success("Image saved (embedded)");
-          };
-          reader.onerror = () => {
-            setIsUploading(false);
-            toast.error("Failed to read image file");
-          };
-          reader.readAsDataURL(file);
+          onChange(`data:${file.type};base64,${base64}`);
+          toast.success("Image saved (embedded)");
           return;
         }
 
-        setIsUploading(false);
-        const msg = uploadError.message.toLowerCase();
-        if (msg.includes("bucket") || msg.includes("not found")) {
-          toast.error(
-            "Image storage is not set up yet. Apply Supabase migrations (device-images bucket) or save without an image.",
-          );
-        } else {
-          toast.error(`Image upload failed: ${uploadError.message}`);
-        }
-        return;
+        const message = uploadError instanceof Error ? uploadError.message : "Upload failed";
+        toast.error(
+          message.toLowerCase().includes("bucket")
+            ? "Image storage is not set up yet. Save without an image or enable local uploads."
+            : `Image upload failed: ${message}`,
+        );
       }
-
-      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      onChange(urlData.publicUrl);
-      toast.success("Image uploaded successfully");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to upload image";
       toast.error(message);

@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { listDevices } from "@/lib/api/devices.functions";
+import { listOrders, getOrderItems, updateOrderStatus } from "@/lib/api/orders.functions";
 import { useRole } from "@/lib/role-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,26 +56,29 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
   // Queries
   const { data: devices = [], isLoading: devicesLoading } = useQuery({
     queryKey: ["dashboard-devices"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("devices")
-        .select("id,name,brand,model,category,price,quantity,status,created_at");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () =>
+      listDevices({
+        data: {},
+      }).then((rows) =>
+        rows.map(({ id, name, brand, model, category, price, quantity, status, created_at }) => ({
+          id,
+          name,
+          brand,
+          model,
+          category,
+          price,
+          quantity,
+          status,
+          created_at,
+        })),
+      ),
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["dashboard-orders", userEmail, role],
     queryFn: async () => {
-      let query = supabase.from("orders").select("*").order("created_at", { ascending: false });
       const isCustomer = role !== "admin" && role !== "staff";
-      if (isCustomer && userEmail) {
-        query = query.eq("email", userEmail);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      return data ?? [];
+      return listOrders({ data: isCustomer && userEmail ? { email: userEmail } : {} });
     },
     enabled: !!userId,
   });
@@ -83,21 +87,13 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
   const { data: selectedOrderItems = [] } = useQuery({
     queryKey: ["order-items", selectedOrder?.id],
     enabled: !!selectedOrder,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("order_items")
-        .select("*")
-        .eq("order_id", selectedOrder.id);
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => getOrderItems({ data: { orderId: selectedOrder.id } }),
   });
 
   // Mutations
   const updateOrderStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
-      if (error) throw error;
+      await updateOrderStatus({ data: { id, status: status as never } });
     },
     onSuccess: () => {
       toast.success("Order status updated");

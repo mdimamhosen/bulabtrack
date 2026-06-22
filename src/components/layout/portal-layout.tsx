@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { clearToken } from "@/lib/auth/auth.client";
 import { RoleProvider, useRole } from "@/lib/role-context";
 import { ThemeToggle } from "@/components/theme";
 import { AccountOverlays } from "@/components/layout/account-overlays";
@@ -41,7 +41,7 @@ function AppShellInner({
         : customerNavItems(base);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    clearToken();
     toast.success("Signed out");
     navigate({ to: "/auth", replace: true });
   };

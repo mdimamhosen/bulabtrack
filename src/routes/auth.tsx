@@ -5,8 +5,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Lock, User, Phone, Loader2, Boxes } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { fetchUserRole, dashboardPath } from "@/lib/roles";
+import { signIn, signUp, getAuthUser, requestPasswordReset } from "@/lib/api/auth.functions";
+import { setToken } from "@/lib/auth/auth.client";
+import { dashboardPath } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,16 +41,14 @@ function AuthPage() {
   const navigate = useNavigate();
 
   const navigateAfterAuth = async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) return;
-    const role = await fetchUserRole(data.user.id);
+    const { user, role } = await getAuthUser({});
+    if (!user) return;
     navigate({ to: dashboardPath(role) as never, replace: true });
   };
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (data.user) {
-        const role = await fetchUserRole(data.user.id);
+    getAuthUser({}).then(async ({ user, role }) => {
+      if (user) {
         navigate({ to: dashboardPath(role) as never, replace: true });
       }
     });
@@ -129,28 +128,28 @@ function LoginForm({ onDone }: { onDone: () => void }) {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const session = await signIn({ data: { email: values.email, password: values.password } });
+      setToken(session.token);
+      toast.success("Welcome back");
+      onDone();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setLoading(false);
     }
-    toast.success("Welcome back");
-    onDone();
   };
 
   const sendReset = async () => {
     const email = form.getValues("email");
     if (!email) return toast.error("Enter your email first");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth`,
-    });
-    if (error) return toast.error(error.message);
-    toast.success("Password reset email sent");
-    setForgot(false);
+    try {
+      const result = await requestPasswordReset({ data: { email } });
+      toast.success(result.message);
+      setForgot(false);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to send reset email");
+    }
   };
 
   return (
@@ -203,21 +202,23 @@ function SignupForm({ onDone }: { onDone: () => void }) {
 
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/customer/dashboard`,
-        data: { name: values.name, phone: values.phone || null },
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const session = await signUp({
+        data: {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          phone: values.phone || null,
+        },
+      });
+      setToken(session.token);
+      toast.success("Account created");
+      onDone();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Signup failed");
+    } finally {
+      setLoading(false);
     }
-    toast.success("Account created");
-    onDone();
   };
 
   return (

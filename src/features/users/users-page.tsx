@@ -1,6 +1,15 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  adminDeleteUser,
+  createStaffAccount,
+} from "@/lib/api/auth.functions";
+import {
+  listProfiles,
+  listUserRoles,
+  adminUpdateProfile,
+} from "@/lib/api/profiles.functions";
+import { listOrders } from "@/lib/api/orders.functions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,7 +23,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/lib/role-context";
-import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
 export function UsersPage() {
@@ -41,32 +49,17 @@ export function UsersPage() {
   // Queries
   const { data: profiles = [], isLoading: profilesLoading } = useQuery({
     queryKey: ["users-profiles"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => listProfiles({}),
   });
 
   const { data: rolesList = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["users-roles"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("user_roles").select("*");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => listUserRoles({}),
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["users-orders"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => listOrders({ data: {} }),
   });
 
   // Map staff roles in memory
@@ -185,38 +178,13 @@ export function UsersPage() {
     }
     setSubmittingStaff(true);
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
-      // Initialize isolated client so we don't log out current admin session
-      const tempClient = createClient(supabaseUrl, supabasePublishableKey, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        }
+      await createStaffAccount({
+        data: {
+          name: staffName,
+          email: staffEmail,
+          password: staffPassword,
+        },
       });
-
-      // Sign up new user with needs_password_change = true in metadata
-      const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({
-        email: staffEmail,
-        password: staffPassword,
-        options: {
-          data: {
-            name: staffName,
-            needs_password_change: true
-          }
-        }
-      });
-
-      if (signUpError) throw signUpError;
-      if (!signUpData.user) throw new Error("Failed to create user session");
-
-      const { error: assignError } = await supabase.rpc("assign_staff_role_by_admin", {
-        target_user_id: signUpData.user.id,
-        staff_name: staffName,
-      });
-
-      if (assignError) throw assignError;
 
       toast.success(`Staff account created for ${staffName}. Temporary password set.`);
       setAddStaffOpen(false);
@@ -236,12 +204,9 @@ export function UsersPage() {
   const handleToggleStatus = async (user: any) => {
     const newStatus = user.status === "active" ? "inactive" : "active";
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ status: newStatus })
-        .eq("id", user.id);
-
-      if (error) throw error;
+      await adminUpdateProfile({
+        data: { userId: user.id, status: newStatus },
+      });
       toast.success(`Account for ${user.name} is now ${newStatus}`);
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
     } catch (err: any) {
@@ -252,10 +217,7 @@ export function UsersPage() {
   const handleRemoveUser = async (user: any) => {
     if (!confirm(`Are you sure you want to completely remove staff member ${user.name}? This will permanently delete their account.`)) return;
     try {
-      const { error } = await supabase.rpc("delete_user_by_admin", {
-        target_user_id: user.id,
-      });
-      if (error) throw error;
+      await adminDeleteUser({ data: { targetUserId: user.id } });
       toast.success(`Staff account for ${user.name} removed successfully.`);
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
       qc.invalidateQueries({ queryKey: ["users-roles"] });
@@ -268,12 +230,9 @@ export function UsersPage() {
     if (!customer.profileId) return;
     const newStatus = customer.status === "active" ? "inactive" : "active";
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ status: newStatus })
-        .eq("id", customer.profileId);
-
-      if (error) throw error;
+      await adminUpdateProfile({
+        data: { userId: customer.profileId, status: newStatus },
+      });
       toast.success(`Customer ${customer.name} is now ${newStatus === "inactive" ? "blocked" : "unblocked"}`);
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
     } catch (err: any) {
@@ -293,11 +252,13 @@ export function UsersPage() {
     if (!editStaffId) return;
     setSavingStaff(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ name: editStaffName, phone: editStaffPhone || null })
-        .eq("id", editStaffId);
-      if (error) throw error;
+      await adminUpdateProfile({
+        data: {
+          userId: editStaffId,
+          name: editStaffName,
+          phone: editStaffPhone || null,
+        },
+      });
       toast.success("Staff profile updated");
       setEditStaffOpen(false);
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
@@ -311,11 +272,9 @@ export function UsersPage() {
 
   const handleForcePasswordReset = async (staffId: string) => {
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ needs_password_change: true })
-        .eq("id", staffId);
-      if (error) throw error;
+      await adminUpdateProfile({
+        data: { userId: staffId, needs_password_change: true },
+      });
       toast.success("Staff will be required to change password on next login");
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
       if (selectedStaff?.id === staffId) {
