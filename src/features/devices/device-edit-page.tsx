@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getDevice, updateDevice } from "@/lib/api/devices.functions";
 import { DeviceFormFields } from "@/components/device-form";
 import type { DeviceForm } from "@/lib/device-schema";
 import { toast } from "sonner";
@@ -10,26 +10,25 @@ export function EditDevicePage({ id, roleBase }: { id: string; roleBase: string 
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["device", id],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("devices").select("*").eq("id", id).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => getDevice({ data: { id } }),
   });
 
   const m = useMutation({
     mutationFn: async (v: DeviceForm) => {
-      const payload = {
-        ...v,
-        supplier: v.supplier || null,
-        location: v.location || null,
-        description: v.description || null,
-        image_url: v.image_url || null,
-        purchase_date: v.purchase_date || null,
-        warranty_expiry: v.warranty_expiry || null,
-      };
-      const { error } = await supabase.from("devices").update(payload as never).eq("id", id);
-      if (error) throw error;
+      await updateDevice({
+        data: {
+          id,
+          data: {
+            ...v,
+            supplier: v.supplier || null,
+            location: v.location || null,
+            description: v.description || null,
+            image_url: v.image_url || null,
+            purchase_date: v.purchase_date || null,
+            warranty_expiry: v.warranty_expiry || null,
+          },
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Device updated");

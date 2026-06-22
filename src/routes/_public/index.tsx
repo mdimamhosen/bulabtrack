@@ -7,7 +7,7 @@ import {
   Sparkles, Keyboard, Mouse, Headphones, Monitor, Camera, Mic, Truck, PackageCheck, PlayCircle,
   Volume2, ShieldAlert, Check, RefreshCw, Clock, X, Heart, ShoppingBag, LayoutGrid, Terminal
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { listDevices } from "@/lib/api/devices.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -198,12 +198,7 @@ function HomePage() {
   const { data: featured = [] } = useQuery({
     queryKey: ["featured-devices-home"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("devices")
-        .select("id,name,brand,price,image_url,status,category,description")
-        .eq("status", "Available")
-        .limit(8);
-      return data ?? [];
+      return listDevices({ data: { status: "Available", limit: 8 } });
     },
   });
 

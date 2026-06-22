@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { listOrders, getOrderItems, updateOrderStatus } from "@/lib/api/orders.functions";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -19,26 +19,18 @@ export function OrdersPage() {
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin-orders"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => listOrders({ data: {} }),
   });
 
   const { data: items = [] } = useQuery({
     queryKey: ["order-items", selected?.id],
     enabled: !!selected,
-    queryFn: async () => {
-      const { data } = await supabase.from("order_items").select("*").eq("order_id", selected.id);
-      return data ?? [];
-    },
+    queryFn: async () => getOrderItems({ data: { orderId: selected.id } }),
   });
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
-      if (error) throw error;
+      await updateOrderStatus({ data: { id, status: status as never } });
     },
     onSuccess: () => { toast.success("Status updated"); qc.invalidateQueries({ queryKey: ["admin-orders"] }); },
     onError: (e: any) => toast.error(e.message),

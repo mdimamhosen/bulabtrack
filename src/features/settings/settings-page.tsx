@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getCurrentProfile, updateProfile } from "@/lib/api/profiles.functions";
+import { changeEmail, updatePassword } from "@/lib/api/auth.functions";
+import { uploadImage } from "@/lib/api/storage.functions";
 import {
   User, Lock, Mail, Camera, Phone, Shield, Bell, Sparkles,
   CheckCircle2, AlertCircle, Loader2, Save, KeyRound
@@ -43,24 +45,7 @@ export function SettingsPage() {
   // Fetch current user details & profile
   const { data: profile, isLoading } = useQuery({
     queryKey: ["current-profile"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No active user session");
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      
-      return {
-        ...data,
-        authEmail: user.email,
-        emailConfirmedAt: user.email_confirmed_at
-      };
-    }
+    queryFn: async () => getCurrentProfile({}),
   });
 
   // Sync form states with database query results
@@ -76,19 +61,13 @@ export function SettingsPage() {
   // Mutation to save name, phone, and avatar changes
   const saveProfileMutation = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Unauthorized");
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
+      await updateProfile({
+        data: {
           name: name.trim(),
           phone: phone.trim(),
           avatar_url: avatarUrl,
-        })
-        .eq("id", user.id);
-
-      if (error) throw error;
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Profile saved successfully");
@@ -109,11 +88,10 @@ export function SettingsPage() {
       if (email.trim() === profile?.authEmail) {
         throw new Error("This is already your current email address.");
       }
-      const { error } = await supabase.auth.updateUser({ email: email.trim() });
-      if (error) throw error;
+      await changeEmail({ data: { email: email.trim() } });
     },
     onSuccess: () => {
-      toast.success("Verification links sent to both your old and new email addresses to confirm the change.");
+      toast.success("Email updated successfully.");
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to initiate email change");
@@ -129,8 +107,7 @@ export function SettingsPage() {
       if (newPassword !== confirmPassword) {
         throw new Error("Passwords do not match.");
       }
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
+      await updatePassword({ data: { password: newPassword } });
     },
     onSuccess: () => {
       toast.success("Password updated successfully");
@@ -154,37 +131,37 @@ export function SettingsPage() {
 
     setIsUploading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Unauthorized");
-
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-      // 1. Try uploading to Supabase Storage bucket 'avatars'
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { cacheControl: "3600", upsert: true });
-
-      if (uploadError) {
-        // Fallback: convert file to base64 and save directly in DB column if storage isn't set up yet
-        console.warn("Storage upload failed or bucket doesn't exist, falling back to base64 encoding", uploadError);
+      const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setAvatarUrl(reader.result as string);
-          setIsUploading(false);
-          toast.success("Image loaded successfully (Base64 fallback active)");
+          const result = reader.result as string;
+          const encoded = result.split(",")[1];
+          if (!encoded) reject(new Error("Failed to read image"));
+          else resolve(encoded);
         };
+        reader.onerror = () => reject(new Error("Failed to read image"));
         reader.readAsDataURL(file);
-      } else {
-        // 2. Get Public URL
-        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-        setAvatarUrl(urlData.publicUrl);
-        setIsUploading(false);
+      });
+
+      try {
+        const { url } = await uploadImage({
+          data: {
+            bucket: "avatars",
+            fileName: file.name,
+            contentType: file.type,
+            base64,
+          },
+        });
+        setAvatarUrl(url);
         toast.success("Image uploaded successfully");
+      } catch {
+        setAvatarUrl(`data:${file.type};base64,${base64}`);
+        toast.success("Image loaded successfully (Base64 fallback active)");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload image");
+    } finally {
       setIsUploading(false);
-      toast.error(err.message || "Failed to upload image");
     }
   };
 
@@ -415,7 +392,7 @@ export function SettingsPage() {
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
-                      ⚠️ Note: To verify the new address, Supabase sends verification links to both the previous email ({profile?.authEmail}) and the newly submitted email. Both links must be confirmed before the update takes effect.
+                      ⚠️ Note: Your email is updated immediately in local MongoDB mode (no verification email is sent).
                     </p>
                   </div>
                 </CardContent>

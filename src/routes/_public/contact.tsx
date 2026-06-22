@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { submitContactMessage } from "@/lib/api/contact.functions";
 import { toast } from "sonner";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -37,11 +37,15 @@ function ContactPage() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    const { error } = await supabase.from("contact_messages").insert(data);
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Message sent! We'll be in touch soon.");
-    reset();
+    try {
+      await submitContactMessage({ data });
+      toast.success("Message sent! We'll be in touch soon.");
+      reset();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const cards = [

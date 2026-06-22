@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { createDevice } from "@/lib/api/devices.functions";
 import { DeviceFormFields } from "@/components/device-form";
 import type { DeviceForm } from "@/lib/device-schema";
 import { toast } from "sonner";
@@ -10,19 +10,17 @@ export function NewDevicePage({ roleBase }: { roleBase: string }) {
   const navigate = useNavigate();
   const m = useMutation({
     mutationFn: async (v: DeviceForm) => {
-      const { data: u } = await supabase.auth.getUser();
-      const payload = {
-        ...v,
-        supplier: v.supplier || null,
-        location: v.location || null,
-        description: v.description || null,
-        image_url: v.image_url || null,
-        purchase_date: v.purchase_date || null,
-        warranty_expiry: v.warranty_expiry || null,
-        created_by: u.user?.id ?? null,
-      };
-      const { error } = await supabase.from("devices").insert(payload as never);
-      if (error) throw error;
+      await createDevice({
+        data: {
+          ...v,
+          supplier: v.supplier || null,
+          location: v.location || null,
+          description: v.description || null,
+          image_url: v.image_url || null,
+          purchase_date: v.purchase_date || null,
+          warranty_expiry: v.warranty_expiry || null,
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Device added");

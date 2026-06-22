@@ -24,7 +24,7 @@ import {
   Zap,
   Projector
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { listDevices } from "@/lib/api/devices.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -72,8 +72,7 @@ function ProductsPage() {
   const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["public-products"],
     queryFn: async () => {
-      const { data } = await supabase.from("devices").select("*").order("created_at", { ascending: false });
-      return data ?? [];
+      return listDevices({ data: {} });
     },
   });
 
