@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -202,26 +226,32 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           email: string
           id: string
           name: string
+          needs_password_change: boolean
           phone: string | null
           status: Database["public"]["Enums"]["user_status"]
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           email: string
           id: string
           name: string
+          needs_password_change?: boolean
           phone?: string | null
           status?: Database["public"]["Enums"]["user_status"]
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           email?: string
           id?: string
           name?: string
+          needs_password_change?: boolean
           phone?: string | null
           status?: Database["public"]["Enums"]["user_status"]
         }
@@ -250,6 +280,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_staff_role_by_admin: {
+        Args: { staff_name?: string; target_user_id: string }
+        Returns: undefined
+      }
+      delete_user_by_admin: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
