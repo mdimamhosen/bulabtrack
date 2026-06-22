@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Truck, Lock, ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { createOrder } from "@/lib/api/orders.functions";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,28 +53,27 @@ function CheckoutPage() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    const orderId = crypto.randomUUID();
     const orderNumber = generateOrderNumber();
-    const { error } = await supabase.from("orders").insert({
-      id: orderId, ...data, order_number: orderNumber, total: subtotal,
-    });
-
-    if (error) {
+    try {
+      await createOrder({
+        data: {
+          order: { ...data, order_number: orderNumber, total: subtotal },
+          items: items.map((i) => ({
+            device_id: i.id,
+            device_name: i.name,
+            unit_price: i.price,
+            quantity: i.quantity,
+          })),
+        },
+      });
+      clear();
+      toast.success("Order placed!");
+      navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to place order");
+    } finally {
       setLoading(false);
-      return toast.error(error?.message ?? "Failed to place order");
     }
-
-    const lineItems = items.map((i) => ({
-      order_id: orderId, device_id: i.id, device_name: i.name,
-      unit_price: i.price, quantity: i.quantity,
-    }));
-    const { error: liErr } = await supabase.from("order_items").insert(lineItems);
-    setLoading(false);
-    if (liErr) return toast.error(liErr.message);
-
-    clear();
-    toast.success("Order placed!");
-    navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
   };
 
   return (

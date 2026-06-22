@@ -6,7 +6,7 @@ import {
   Phone, MessageCircle, Mail, MapPin, Clock, Star, Share2, Heart, CheckCircle2,
   Zap, Award, ShieldAlert, Sliders, Volume2, HardDrive, Cpu, Layers, HelpCircle
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getDevice, listRelatedDevices } from "@/lib/api/devices.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -96,10 +96,7 @@ function ProductDetailPage() {
   // Fetch product details
   const { data: dbProduct, isLoading } = useQuery({
     queryKey: ["product", id],
-    queryFn: async () => {
-      const { data } = await supabase.from("devices").select("*").eq("id", id).maybeSingle();
-      return data;
-    },
+    queryFn: async () => getDevice({ data: { id } }),
   });
 
   const product = useMemo(() => {
@@ -110,10 +107,10 @@ function ProductDetailPage() {
   const { data: dbRelated = [] } = useQuery({
     queryKey: ["related", product?.category, id],
     enabled: !!product,
-    queryFn: async () => {
-      const { data } = await supabase.from("devices").select("id,name,brand,price,image_url,category").eq("category", product!.category).neq("id", id).limit(4);
-      return data ?? [];
-    },
+    queryFn: async () =>
+      listRelatedDevices({
+        data: { category: product!.category, excludeId: id, limit: 4 },
+      }),
   });
 
   const related = useMemo(() => {
