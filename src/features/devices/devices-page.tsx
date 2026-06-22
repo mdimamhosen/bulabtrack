@@ -543,7 +543,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                             {/* Edit / Delete triggers */}
                             {isAdmin && (
                               <div className="flex gap-1 shrink-0">
-                                <Link to={`${roleBase}/devices/$id/edit` as never} params={{ id: p.id }}>
+                                <Link to={`${roleBase}/devices/${p.id}/edit` as never}>
                                   <Button size="icon" variant="outline" className="h-8 w-8 border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer">
                                     <Pencil className="h-3.5 w-3.5" />
                                   </Button>
@@ -621,7 +621,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                         <TableCell>
                           {isAdmin && (
                             <div className="flex gap-1 justify-end">
-                              <Link to={`${roleBase}/devices/$id/edit` as never} params={{ id: d.id }}>
+                              <Link to={`${roleBase}/devices/${d.id}/edit` as never}>
                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-foreground">
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
