@@ -68,11 +68,11 @@ export function PortalSidebar({
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-sidebar-border bg-sidebar transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-sidebar-border bg-sidebar transition-transform lg:sticky lg:top-0 lg:h-screen flex flex-col justify-between lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-5">
+        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-5 flex-shrink-0">
           <Link to={dashboardTo as never} className="flex items-center gap-2">
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Boxes className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function PortalSidebar({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex flex-col gap-1 p-3">
+        <nav className="flex flex-col gap-1 p-3 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const active = pathname === item.to || pathname.startsWith(item.to + "/");
             const Icon = item.icon;
@@ -103,7 +103,7 @@ export function PortalSidebar({
             );
           })}
         </nav>
-        <div className="absolute bottom-0 w-full border-t border-sidebar-border p-3">
+        <div className="border-t border-sidebar-border p-3 mt-auto flex-shrink-0">
           <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent p-3">
             <div className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
               {(profile?.name ?? "U").slice(0, 1).toUpperCase()}

@@ -158,8 +158,7 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
       toast.success(
         `Successfully generated ${res.orderCount} fake orders and ${res.itemCount} customer order items.`,
       );
-      qc.invalidateQueries({ queryKey: ["dashboard-devices"] });
-      qc.invalidateQueries({ queryKey: ["dashboard-orders"] });
+      qc.invalidateQueries();
     } catch (e: any) {
       toast.error(e.message || "Failed to seed fake data.");
     } finally {
@@ -172,7 +171,7 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
     try {
       await clearAllOrders();
       toast.success("Successfully cleared all order and customer history.");
-      qc.invalidateQueries({ queryKey: ["dashboard-orders"] });
+      qc.invalidateQueries();
     } catch (e: any) {
       toast.error(e.message || "Failed to clear order history.");
     } finally {
