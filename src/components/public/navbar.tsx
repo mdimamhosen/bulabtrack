@@ -21,7 +21,9 @@ export function PublicNavbar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { count } = useCart();
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -84,7 +86,11 @@ export function PublicNavbar() {
                 </span>
               )}
             </button>
-            <Button asChild size="sm" className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
+            <Button
+              asChild
+              size="sm"
+              className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+            >
               <Link to="/auth">Login</Link>
             </Button>
             <button

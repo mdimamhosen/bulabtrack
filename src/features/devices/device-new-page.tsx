@@ -33,14 +33,23 @@ export function NewDevicePage({ roleBase }: { roleBase: string }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link to={`${roleBase}/devices` as never} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to={`${roleBase}/devices` as never}
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ChevronLeft className="h-4 w-4" /> Back to devices
       </Link>
       <div>
         <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">Add device</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Register a new peripheral in the inventory.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Register a new peripheral in the inventory.
+        </p>
       </div>
-      <DeviceFormFields submitting={m.isPending} onSubmit={(v) => m.mutate(v)} submitLabel="Add device" />
+      <DeviceFormFields
+        submitting={m.isPending}
+        onSubmit={(v) => m.mutate(v)}
+        submitLabel="Add device"
+      />
     </div>
   );
 }

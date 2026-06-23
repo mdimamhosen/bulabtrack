@@ -2,10 +2,28 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  User, Lock, Mail, Camera, Phone, Shield, Bell, Sparkles,
-  CheckCircle2, AlertCircle, Loader2, Save, KeyRound
+  User,
+  Lock,
+  Mail,
+  Camera,
+  Phone,
+  Shield,
+  Bell,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Save,
+  KeyRound,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,10 +33,22 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 const PRESET_AVATARS = [
-  { name: "Scholar Female", url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" },
-  { name: "Scholar Male", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
-  { name: "Researcher Female", url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80" },
-  { name: "Researcher Male", url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" }
+  {
+    name: "Scholar Female",
+    url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Scholar Male",
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Researcher Female",
+    url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Researcher Male",
+    url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+  },
 ];
 
 export function SettingsPage() {
@@ -30,7 +60,7 @@ export function SettingsPage() {
   const [phone, setPhone] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [email, setEmail] = useState("");
-  
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -44,9 +74,11 @@ export function SettingsPage() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["current-profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("No active user session");
-      
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -54,13 +86,13 @@ export function SettingsPage() {
         .maybeSingle();
 
       if (error) throw error;
-      
+
       return {
         ...data,
         authEmail: user.email,
-        emailConfirmedAt: user.email_confirmed_at
+        emailConfirmedAt: user.email_confirmed_at,
       };
-    }
+    },
   });
 
   // Sync form states with database query results
@@ -76,7 +108,9 @@ export function SettingsPage() {
   // Mutation to save name, phone, and avatar changes
   const saveProfileMutation = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Unauthorized");
 
       const { error } = await supabase
@@ -94,13 +128,13 @@ export function SettingsPage() {
       toast.success("Profile saved successfully");
       queryClient.invalidateQueries({ queryKey: ["current-profile"] });
       // Invalidate navbar sidebar profile query
-      queryClient.invalidateQueries({ queryKey: ["public-products"] }); 
+      queryClient.invalidateQueries({ queryKey: ["public-products"] });
       // Invalidate the auth shell queries
       window.location.reload(); // Refresh to propagate sidebar updates smoothly
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to update profile");
-    }
+    },
   });
 
   // Mutation to change account email
@@ -113,11 +147,13 @@ export function SettingsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Verification links sent to both your old and new email addresses to confirm the change.");
+      toast.success(
+        "Verification links sent to both your old and new email addresses to confirm the change.",
+      );
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to initiate email change");
-    }
+    },
   });
 
   // Mutation to update password
@@ -139,7 +175,7 @@ export function SettingsPage() {
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to change password");
-    }
+    },
   });
 
   // Handles Profile Image Custom Upload (with Base64 fallback if storage bucket is missing)
@@ -154,7 +190,9 @@ export function SettingsPage() {
 
     setIsUploading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Unauthorized");
 
       const fileExt = file.name.split(".").pop();
@@ -167,7 +205,10 @@ export function SettingsPage() {
 
       if (uploadError) {
         // Fallback: convert file to base64 and save directly in DB column if storage isn't set up yet
-        console.warn("Storage upload failed or bucket doesn't exist, falling back to base64 encoding", uploadError);
+        console.warn(
+          "Storage upload failed or bucket doesn't exist, falling back to base64 encoding",
+          uploadError,
+        );
         const reader = new FileReader();
         reader.onloadend = () => {
           setAvatarUrl(reader.result as string);
@@ -215,7 +256,7 @@ export function SettingsPage() {
           {[
             { id: "profile", label: "Profile Details", icon: User },
             { id: "security", label: "Security & Login", icon: Shield },
-            { id: "preferences", label: "System Preferences", icon: Bell }
+            { id: "preferences", label: "System Preferences", icon: Bell },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -237,7 +278,6 @@ export function SettingsPage() {
 
         {/* Content Tabs */}
         <div className="space-y-6">
-          
           {/* PROFILE DETAILS TAB */}
           {activeTab === "profile" && (
             <Card className="liquid-card border-border/60 shadow-xl rounded-2xl">
@@ -250,12 +290,12 @@ export function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                
                 {/* Profile Image / Avatar Picker */}
                 <div className="space-y-4">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Profile Image</Label>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    Profile Image
+                  </Label>
                   <div className="flex flex-col sm:flex-row gap-5 items-center">
-                    
                     {/* Visual Avatar Preview */}
                     <div className="relative group h-20 w-20 rounded-full border border-border/80 overflow-hidden bg-zinc-950 flex items-center justify-center shrink-0">
                       {avatarUrl ? (
@@ -265,7 +305,7 @@ export function SettingsPage() {
                           {(name || "U").slice(0, 1).toUpperCase()}
                         </span>
                       )}
-                      
+
                       {/* Image Upload Trigger */}
                       <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-[10px] text-white font-bold select-none">
                         <Camera className="h-4 w-4 mb-0.5" />
@@ -288,18 +328,24 @@ export function SettingsPage() {
                     {/* Presets and Upload guidelines */}
                     <div className="space-y-2 flex-1 w-full text-center sm:text-left">
                       <p className="text-xs text-muted-foreground">
-                        Select a premium scholar preset avatar below, or hover to upload a custom JPG/PNG image.
+                        Select a premium scholar preset avatar below, or hover to upload a custom
+                        JPG/PNG image.
                       </p>
-                      
+
                       {/* Presets Row */}
                       <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                         {PRESET_AVATARS.map((p) => (
                           <button
                             key={p.name}
                             type="button"
-                            onClick={() => { setAvatarUrl(p.url); toast.info(`Selected Preset: ${p.name}`); }}
+                            onClick={() => {
+                              setAvatarUrl(p.url);
+                              toast.info(`Selected Preset: ${p.name}`);
+                            }}
                             className={`h-9 w-9 rounded-full overflow-hidden border-2 cursor-pointer transition-all hover:scale-105 ${
-                              avatarUrl === p.url ? "border-primary scale-[1.03]" : "border-border/60 opacity-70 hover:opacity-100"
+                              avatarUrl === p.url
+                                ? "border-primary scale-[1.03]"
+                                : "border-border/60 opacity-70 hover:opacity-100"
                             }`}
                           >
                             <img src={p.url} alt={p.name} className="h-full w-full object-cover" />
@@ -324,7 +370,10 @@ export function SettingsPage() {
                 {/* Form Inputs */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="display-name" className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    <Label
+                      htmlFor="display-name"
+                      className="text-xs font-bold uppercase tracking-wider text-zinc-400"
+                    >
                       Display Name
                     </Label>
                     <Input
@@ -336,7 +385,10 @@ export function SettingsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone-number" className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    <Label
+                      htmlFor="phone-number"
+                      className="text-xs font-bold uppercase tracking-wider text-zinc-400"
+                    >
                       Phone Number
                     </Label>
                     <div className="relative">
@@ -351,7 +403,6 @@ export function SettingsPage() {
                     </div>
                   </div>
                 </div>
-
               </CardContent>
               <CardFooter className="border-t border-border/10 pt-4 flex justify-end">
                 <Button
@@ -376,21 +427,21 @@ export function SettingsPage() {
           {/* SECURITY & LOGIN TAB */}
           {activeTab === "security" && (
             <div className="space-y-6">
-              
               {/* Email Address Update Card */}
               <Card className="liquid-card border-border/60 shadow-xl rounded-2xl">
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <Mail className="h-5 w-5 text-primary" /> Email Authentication
                   </CardTitle>
-                  <CardDescription>
-                    Change your linked email address.
-                  </CardDescription>
+                  <CardDescription>Change your linked email address.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="email-input" className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      <Label
+                        htmlFor="email-input"
+                        className="text-xs font-bold uppercase tracking-wider text-zinc-400"
+                      >
                         Email Address
                       </Label>
                       {profile?.emailConfirmedAt ? (
@@ -415,7 +466,9 @@ export function SettingsPage() {
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
-                      ⚠️ Note: To verify the new address, Supabase sends verification links to both the previous email ({profile?.authEmail}) and the newly submitted email. Both links must be confirmed before the update takes effect.
+                      ⚠️ Note: To verify the new address, Supabase sends verification links to both
+                      the previous email ({profile?.authEmail}) and the newly submitted email. Both
+                      links must be confirmed before the update takes effect.
                     </p>
                   </div>
                 </CardContent>
@@ -443,14 +496,15 @@ export function SettingsPage() {
                   <CardTitle className="text-xl flex items-center gap-2">
                     <KeyRound className="h-5 w-5 text-primary" /> Credentials Password
                   </CardTitle>
-                  <CardDescription>
-                    Change your account password.
-                  </CardDescription>
+                  <CardDescription>Change your account password.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="new-pwd" className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      <Label
+                        htmlFor="new-pwd"
+                        className="text-xs font-bold uppercase tracking-wider text-zinc-400"
+                      >
                         New Password
                       </Label>
                       <div className="relative">
@@ -466,7 +520,10 @@ export function SettingsPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirm-pwd" className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      <Label
+                        htmlFor="confirm-pwd"
+                        className="text-xs font-bold uppercase tracking-wider text-zinc-400"
+                      >
                         Confirm New Password
                       </Label>
                       <div className="relative">
@@ -499,7 +556,6 @@ export function SettingsPage() {
                   </Button>
                 </CardFooter>
               </Card>
-
             </div>
           )}
 
@@ -515,23 +571,22 @@ export function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                
                 {/* Telemetry notification triggers */}
                 <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Notification Channels</h4>
-                  
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    Notification Channels
+                  </h4>
+
                   {/* Option 1 */}
                   <div className="flex items-center justify-between border-b border-border/10 pb-4">
                     <div className="space-y-0.5">
                       <Label className="text-sm font-semibold">Requisition Approvals</Label>
                       <p className="text-xs text-muted-foreground max-w-md">
-                        Receive instant notifications when your department requisitions are approved, returned, or completed.
+                        Receive instant notifications when your department requisitions are
+                        approved, returned, or completed.
                       </p>
                     </div>
-                    <Switch
-                      checked={reqNotifications}
-                      onCheckedChange={setReqNotifications}
-                    />
+                    <Switch checked={reqNotifications} onCheckedChange={setReqNotifications} />
                   </div>
 
                   {/* Option 2 */}
@@ -539,7 +594,8 @@ export function SettingsPage() {
                     <div className="space-y-0.5">
                       <Label className="text-sm font-semibold">Telemetry Calibration Logs</Label>
                       <p className="text-xs text-muted-foreground max-w-md">
-                        Email alerts when a connected classroom peripheral reports device maintenance warnings or telemetry sync failure.
+                        Email alerts when a connected classroom peripheral reports device
+                        maintenance warnings or telemetry sync failure.
                       </p>
                     </div>
                     <Switch
@@ -553,7 +609,8 @@ export function SettingsPage() {
                     <div className="space-y-0.5">
                       <Label className="text-sm font-semibold">Security & Audit logs</Label>
                       <p className="text-xs text-muted-foreground max-w-md">
-                        Get notified when new admin roles are assigned or devices are permanently disposed of.
+                        Get notified when new admin roles are assigned or devices are permanently
+                        disposed of.
                       </p>
                     </div>
                     <Switch
@@ -561,7 +618,6 @@ export function SettingsPage() {
                       onCheckedChange={setSecurityNotifications}
                     />
                   </div>
-
                 </div>
 
                 {/* Info Note */}
@@ -569,11 +625,9 @@ export function SettingsPage() {
                   <Sparkles className="h-4 w-4 shrink-0 animate-pulse" />
                   <span>These settings sync automatically to your local browser storage.</span>
                 </div>
-
               </CardContent>
             </Card>
           )}
-
         </div>
       </div>
     </div>

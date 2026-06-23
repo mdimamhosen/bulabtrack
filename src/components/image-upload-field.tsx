@@ -123,7 +123,13 @@ export function ImageUploadField({
             {value ? "Replace image" : "Upload image"}
           </Button>
           {value && (
-            <Button type="button" variant="ghost" size="sm" onClick={() => onChange("")} className="text-destructive">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onChange("")}
+              className="text-destructive"
+            >
               Remove image
             </Button>
           )}

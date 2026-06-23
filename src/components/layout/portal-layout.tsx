@@ -82,10 +82,7 @@ function AppShellInner({
         </main>
       </div>
 
-      <AccountOverlays
-        profile={profile}
-        onProfileUpdate={(p) => setProfile(p)}
-      />
+      <AccountOverlays profile={profile} onProfileUpdate={(p) => setProfile(p)} />
     </div>
   );
 }

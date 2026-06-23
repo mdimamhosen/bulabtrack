@@ -2,19 +2,25 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
-  deviceSchema, type DeviceForm,
-  INTERFACES, STATUSES, CATEGORIES,
+  deviceSchema,
+  type DeviceForm,
+  INTERFACES,
+  STATUSES,
+  CATEGORIES,
 } from "@/lib/device-schema";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { ImageUploadField } from "@/components/image-upload-field";
+import { Loader2, Camera } from "lucide-react";
 
 export function DeviceFormFields({
   defaultValues,
@@ -30,10 +36,21 @@ export function DeviceFormFields({
   const form = useForm<DeviceForm>({
     resolver: zodResolver(deviceSchema),
     defaultValues: {
-      name: "", brand: "", model: "", category: "Input Device",
-      price: 0, quantity: 1, interface: "USB", status: "Available",
-      supplier: "", purchase_date: "", warranty_expiry: "", location: "",
-      serial_number: "", description: "", image_url: "",
+      name: "",
+      brand: "",
+      model: "",
+      category: "Input Device",
+      price: 0,
+      quantity: 1,
+      interface: "USB",
+      status: "Available",
+      supplier: "",
+      purchase_date: "",
+      warranty_expiry: "",
+      location: "",
+      serial_number: "",
+      description: "",
+      image_url: "",
       ...defaultValues,
     },
   });
@@ -63,26 +80,53 @@ export function DeviceFormFields({
             <Input {...form.register("model")} placeholder="MX Master 3" />
           </Field>
           <Field label="Category" error={err.category?.message}>
-            <Select value={form.watch("category")} onValueChange={(v) => form.setValue("category", v as DeviceForm["category"])}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.watch("category")}
+              onValueChange={(v) => form.setValue("category", v as DeviceForm["category"])}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Field>
           <Field label="Interface" error={err.interface?.message}>
-            <Select value={form.watch("interface")} onValueChange={(v) => form.setValue("interface", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.watch("interface")}
+              onValueChange={(v) => form.setValue("interface", v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {INTERFACES.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                {INTERFACES.map((i) => (
+                  <SelectItem key={i} value={i}>
+                    {i}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Field>
           <Field label="Status" error={err.status?.message}>
-            <Select value={form.watch("status")} onValueChange={(v) => form.setValue("status", v as DeviceForm["status"])}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.watch("status")}
+              onValueChange={(v) => form.setValue("status", v as DeviceForm["status"])}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                {STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Field>
@@ -112,18 +156,41 @@ export function DeviceFormFields({
             <Input type="date" {...form.register("warranty_expiry")} />
           </Field>
           <div className="sm:col-span-2">
-            <ImageUploadField
-              value={form.watch("image_url") ?? ""}
-              onChange={(url) => form.setValue("image_url", url, { shouldValidate: true })}
-              label="Product image (optional)"
-            />
-            {err.image_url?.message && (
-              <p className="mt-1 text-xs text-destructive">{err.image_url.message}</p>
-            )}
+            <Field label="Product Image URL (optional)" error={err.image_url?.message}>
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mt-1.5">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-secondary/30">
+                  {form.watch("image_url") && /^https?:\/\//.test(form.watch("image_url") || "") ? (
+                    <img
+                      src={form.watch("image_url") || ""}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <Camera className="h-6 w-6 opacity-40" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 w-full">
+                  <Input
+                    type="text"
+                    placeholder="https://images.unsplash.com/photo-..."
+                    {...form.register("image_url")}
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Paste a direct link to an image (starting with http:// or https://)
+                  </p>
+                </div>
+              </div>
+            </Field>
           </div>
           <div className="sm:col-span-2">
             <Field label="Description" error={err.description?.message}>
-              <Textarea {...form.register("description")} rows={3} placeholder="Notes about the device…" />
+              <Textarea
+                {...form.register("description")}
+                rows={3}
+                placeholder="Notes about the device…"
+              />
             </Field>
           </div>
         </CardContent>
@@ -139,7 +206,15 @@ export function DeviceFormFields({
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>

@@ -15,8 +15,12 @@ function OrderSuccessPage() {
       <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-primary/10 text-primary">
         <CheckCircle2 className="h-10 w-10" />
       </div>
-      <h1 className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl">Order placed successfully!</h1>
-      <p className="mt-3 text-muted-foreground">Thank you for your order. Our team will contact you shortly to confirm delivery details.</p>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl">
+        Order placed successfully!
+      </h1>
+      <p className="mt-3 text-muted-foreground">
+        Thank you for your order. Our team will contact you shortly to confirm delivery details.
+      </p>
 
       <Card className="mt-8 text-left">
         <CardContent className="p-6">
@@ -43,8 +47,14 @@ function OrderSuccessPage() {
       </Card>
 
       <div className="mt-8 flex justify-center gap-3">
-        <Button asChild variant="outline"><Link to="/products">Keep shopping</Link></Button>
-        <Button asChild><Link to="/"><Home className="h-4 w-4" /> Home</Link></Button>
+        <Button asChild variant="outline">
+          <Link to="/products">Keep shopping</Link>
+        </Button>
+        <Button asChild>
+          <Link to="/">
+            <Home className="h-4 w-4" /> Home
+          </Link>
+        </Button>
       </div>
     </div>
   );

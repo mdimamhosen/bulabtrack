@@ -8,18 +8,45 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Search, Download, Pencil, Trash2, PackageX,
-  LayoutGrid, List, SlidersHorizontal, Cpu, ShieldCheck, Check, Star, Eye
+  Plus,
+  Search,
+  Download,
+  Pencil,
+  Trash2,
+  PackageX,
+  LayoutGrid,
+  List,
+  SlidersHorizontal,
+  Cpu,
+  ShieldCheck,
+  Check,
+  Star,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +58,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
   const qc = useQueryClient();
   const { role } = useRole();
   const isAdmin = role === "admin";
-  
+
   // Filter and Layout States
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -71,13 +98,16 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     devices.forEach((d) => {
-      const matchesSearch = !q || `${d.name} ${d.brand} ${d.model}`.toLowerCase().includes(q.toLowerCase());
+      const matchesSearch =
+        !q || `${d.name} ${d.brand} ${d.model}`.toLowerCase().includes(q.toLowerCase());
       const matchesStatus = status === "all" || d.status === status;
       const matchesBrand = brand === "all" || d.brand === brand;
-      const matchesPrice = priceRange === "all" || (() => {
-        const [min, max] = priceRange.split("-").map(Number);
-        return Number(d.price) >= min && (max ? Number(d.price) <= max : true);
-      })();
+      const matchesPrice =
+        priceRange === "all" ||
+        (() => {
+          const [min, max] = priceRange.split("-").map(Number);
+          return Number(d.price) >= min && (max ? Number(d.price) <= max : true);
+        })();
 
       if (matchesSearch && matchesStatus && matchesBrand && matchesPrice) {
         counts[d.peripheralType] = (counts[d.peripheralType] || 0) + 1;
@@ -89,13 +119,16 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
   const brandCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     devices.forEach((d) => {
-      const matchesSearch = !q || `${d.name} ${d.brand} ${d.model}`.toLowerCase().includes(q.toLowerCase());
+      const matchesSearch =
+        !q || `${d.name} ${d.brand} ${d.model}`.toLowerCase().includes(q.toLowerCase());
       const matchesStatus = status === "all" || d.status === status;
       const matchesCategory = category === "all" || d.peripheralType === category;
-      const matchesPrice = priceRange === "all" || (() => {
-        const [min, max] = priceRange.split("-").map(Number);
-        return Number(d.price) >= min && (max ? Number(d.price) <= max : true);
-      })();
+      const matchesPrice =
+        priceRange === "all" ||
+        (() => {
+          const [min, max] = priceRange.split("-").map(Number);
+          return Number(d.price) >= min && (max ? Number(d.price) <= max : true);
+        })();
 
       if (matchesSearch && matchesStatus && matchesCategory && matchesPrice) {
         counts[d.brand] = (counts[d.brand] || 0) + 1;
@@ -123,7 +156,8 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
           !(d.serial_number ?? "").toLowerCase().includes(t) &&
           !(d.supplier ?? "").toLowerCase().includes(t) &&
           !(d.interface ?? "").toLowerCase().includes(t)
-        ) return false;
+        )
+          return false;
       }
       return true;
     });
@@ -131,7 +165,10 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   const updateStatus = useMutation({
     mutationFn: async (args: { id: string; status: string }) => {
-      const { error } = await supabase.from("devices").update({ status: args.status as never }).eq("id", args.id);
+      const { error } = await supabase
+        .from("devices")
+        .update({ status: args.status as never })
+        .eq("id", args.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -158,19 +195,47 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   const exportCsv = () => {
     if (filtered.length === 0) return toast.error("Nothing to export");
-    const headers = ["Name", "Brand", "Model", "Category", "Status", "Interface", "Qty", "Price", "Total", "Serial", "Supplier", "Location"];
+    const headers = [
+      "Name",
+      "Brand",
+      "Model",
+      "Category",
+      "Status",
+      "Interface",
+      "Qty",
+      "Price",
+      "Total",
+      "Serial",
+      "Supplier",
+      "Location",
+    ];
     const lines = [headers.join(",")];
     for (const d of filtered) {
-      lines.push([
-        d.name, d.brand, d.model, d.category, d.status, d.interface,
-        d.quantity, d.price, Number(d.price) * (d.quantity ?? 1),
-        d.serial_number, d.supplier ?? "", d.location ?? "",
-      ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","));
+      lines.push(
+        [
+          d.name,
+          d.brand,
+          d.model,
+          d.category,
+          d.status,
+          d.interface,
+          d.quantity,
+          d.price,
+          Number(d.price) * (d.quantity ?? 1),
+          d.serial_number,
+          d.supplier ?? "",
+          d.location ?? "",
+        ]
+          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .join(","),
+      );
     }
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `devices-${Date.now()}.csv`; a.click();
+    a.href = url;
+    a.download = `devices-${Date.now()}.csv`;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -183,7 +248,8 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
     toast.info("Filters cleared");
   };
 
-  const hasFiltersActive = q !== "" || status !== "all" || category !== "all" || brand !== "all" || priceRange !== "all";
+  const hasFiltersActive =
+    q !== "" || status !== "all" || category !== "all" || brand !== "all" || priceRange !== "all";
 
   return (
     <div className="relative min-h-screen space-y-6">
@@ -191,7 +257,10 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="aurora-bg absolute inset-0 opacity-10" />
         <div className="liquid-orb animate-blob absolute top-1/4 left-1/4 h-[300px] w-[300px] bg-primary/5 opacity-55" />
-        <div className="liquid-orb animate-blob absolute bottom-1/3 right-10 h-[350px] w-[350px] bg-accent/5 opacity-45" style={{ animationDelay: "-5s" }} />
+        <div
+          className="liquid-orb animate-blob absolute bottom-1/3 right-10 h-[350px] w-[350px] bg-accent/5 opacity-45"
+          style={{ animationDelay: "-5s" }}
+        />
       </div>
 
       {/* Header section */}
@@ -230,7 +299,10 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
           </Button>
           {isAdmin && (
             <Link to={`${roleBase}/devices/new` as never}>
-              <Button size="sm" className="rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground">
+              <Button
+                size="sm"
+                className="rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground"
+              >
                 <Plus className="mr-2 h-4 w-4" /> Add device
               </Button>
             </Link>
@@ -240,7 +312,6 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
       {/* Main layout with sidebar filters */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
-        
         {/* Sticky Filters Sidebar */}
         <aside className="w-full lg:w-64 shrink-0 space-y-4 lg:sticky lg:top-20">
           {/* Search Card */}
@@ -268,7 +339,9 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
               <button
                 onClick={() => setStatus("all")}
                 className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                  status === "all" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                  status === "all"
+                    ? "bg-primary text-primary-foreground font-bold"
+                    : "text-muted-foreground hover:bg-card/45"
                 }`}
               >
                 <span>All Statuses</span>
@@ -279,11 +352,15 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                   key={s}
                   onClick={() => setStatus(s)}
                   className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                    status === s ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                    status === s
+                      ? "bg-primary text-primary-foreground font-bold"
+                      : "text-muted-foreground hover:bg-card/45"
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <span className={`h-1.5 w-1.5 rounded-full ${s === "Available" ? "bg-success" : s === "Under Maintenance" ? "bg-warning" : "bg-destructive"}`} />
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${s === "Available" ? "bg-success" : s === "Under Maintenance" ? "bg-warning" : "bg-destructive"}`}
+                    />
                     {s}
                   </span>
                   {status === s && <Check className="h-3.5 w-3.5" />}
@@ -301,11 +378,17 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
               <button
                 onClick={() => setCategory("all")}
                 className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                  category === "all" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                  category === "all"
+                    ? "bg-primary text-primary-foreground font-bold"
+                    : "text-muted-foreground hover:bg-card/45"
                 }`}
               >
                 <span>All Types</span>
-                {category === "all" ? <Check className="h-3.5 w-3.5" /> : <span className="text-[9px] text-muted-foreground/60">({devices.length})</span>}
+                {category === "all" ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <span className="text-[9px] text-muted-foreground/60">({devices.length})</span>
+                )}
               </button>
               {categoriesList.map((type) => {
                 const count = categoryCounts[type] || 0;
@@ -314,11 +397,17 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                     key={type}
                     onClick={() => setCategory(type)}
                     className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                      category === type ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                      category === type
+                        ? "bg-primary text-primary-foreground font-bold"
+                        : "text-muted-foreground hover:bg-card/45"
                     }`}
                   >
                     <span>{type}</span>
-                    {category === type ? <Check className="h-3.5 w-3.5" /> : <span className="text-[9px] text-muted-foreground/50">({count})</span>}
+                    {category === type ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <span className="text-[9px] text-muted-foreground/50">({count})</span>
+                    )}
                   </button>
                 );
               })}
@@ -334,11 +423,17 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
               <button
                 onClick={() => setBrand("all")}
                 className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                  brand === "all" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                  brand === "all"
+                    ? "bg-primary text-primary-foreground font-bold"
+                    : "text-muted-foreground hover:bg-card/45"
                 }`}
               >
                 <span>All Brands</span>
-                {brand === "all" ? <Check className="h-3.5 w-3.5" /> : <span className="text-[9px] text-muted-foreground/60">({devices.length})</span>}
+                {brand === "all" ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <span className="text-[9px] text-muted-foreground/60">({devices.length})</span>
+                )}
               </button>
               {brandsList.map((br) => {
                 const count = brandCounts[br] || 0;
@@ -347,11 +442,17 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                     key={br}
                     onClick={() => setBrand(br)}
                     className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                      brand === br ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                      brand === br
+                        ? "bg-primary text-primary-foreground font-bold"
+                        : "text-muted-foreground hover:bg-card/45"
                     }`}
                   >
                     <span>{br}</span>
-                    {brand === br ? <Check className="h-3.5 w-3.5" /> : <span className="text-[9px] text-muted-foreground/50">({count})</span>}
+                    {brand === br ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <span className="text-[9px] text-muted-foreground/50">({count})</span>
+                    )}
                   </button>
                 );
               })}
@@ -369,13 +470,15 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                 { id: "0-50", label: "Under $50" },
                 { id: "50-150", label: "$50 – $150" },
                 { id: "150-300", label: "$150 – $300" },
-                { id: "300-9999", label: "$300+" }
+                { id: "300-9999", label: "$300+" },
               ].map((range) => (
                 <button
                   key={range.id}
                   onClick={() => setPriceRange(range.id)}
                   className={`w-full flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                    priceRange === range.id ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-card/45"
+                    priceRange === range.id
+                      ? "bg-primary text-primary-foreground font-bold"
+                      : "text-muted-foreground hover:bg-card/45"
                   }`}
                 >
                   <span>{range.label}</span>
@@ -423,7 +526,10 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-80 animate-pulse rounded-2xl border border-border bg-card/45" />
+                <div
+                  key={i}
+                  className="h-80 animate-pulse rounded-2xl border border-border bg-card/45"
+                />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -469,7 +575,9 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                             {p.peripheralType}
                           </Badge>
                           <div className="flex items-center gap-1 bg-zinc-950/85 border border-zinc-800/80 px-2 py-0.5 rounded-full">
-                            <span className={`inline-block h-1.5 w-1.5 rounded-full ${p.status === "Available" ? "bg-success animate-pulse" : p.status === "Under Maintenance" ? "bg-warning" : "bg-destructive"}`} />
+                            <span
+                              className={`inline-block h-1.5 w-1.5 rounded-full ${p.status === "Available" ? "bg-success animate-pulse" : p.status === "Under Maintenance" ? "bg-warning" : "bg-destructive"}`}
+                            />
                             <span className="text-[7.5px] font-mono font-bold uppercase tracking-wider text-zinc-300">
                               {p.status}
                             </span>
@@ -508,7 +616,10 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                               {t}
                             </Badge>
                           ))}
-                          <Badge variant="outline" className="text-[8px] border-zinc-800/80 bg-zinc-950/50 text-zinc-400 px-1.5 py-0.5 rounded">
+                          <Badge
+                            variant="outline"
+                            className="text-[8px] border-zinc-800/80 bg-zinc-950/50 text-zinc-400 px-1.5 py-0.5 rounded"
+                          >
                             Qty: {p.quantity}
                           </Badge>
                         </div>
@@ -518,8 +629,13 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                         {/* Inline admin controls */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-zinc-400 font-bold">Price: <span className="text-white">${Number(p.price).toFixed(2)}</span></span>
-                            <span className="text-xs font-extrabold text-primary">${(Number(p.price) * (p.quantity ?? 1)).toFixed(2)}</span>
+                            <span className="text-[10px] text-zinc-400 font-bold">
+                              Price:{" "}
+                              <span className="text-white">${Number(p.price).toFixed(2)}</span>
+                            </span>
+                            <span className="text-xs font-extrabold text-primary">
+                              ${(Number(p.price) * (p.quantity ?? 1)).toFixed(2)}
+                            </span>
                           </div>
 
                           <div className="flex gap-2 items-center">
@@ -534,7 +650,9 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                                 </SelectTrigger>
                                 <SelectContent>
                                   {STATUSES.map((s) => (
-                                    <SelectItem key={s} value={s} className="text-[10px]">{s}</SelectItem>
+                                    <SelectItem key={s} value={s} className="text-[10px]">
+                                      {s}
+                                    </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
@@ -544,7 +662,11 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                             {isAdmin && (
                               <div className="flex gap-1 shrink-0">
                                 <Link to={`${roleBase}/devices/${p.id}/edit` as never}>
-                                  <Button size="icon" variant="outline" className="h-8 w-8 border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer">
+                                  <Button
+                                    size="icon"
+                                    variant="outline"
+                                    className="h-8 w-8 border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer"
+                                  >
                                     <Pencil className="h-3.5 w-3.5" />
                                   </Button>
                                 </Link>
@@ -560,7 +682,6 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                             )}
                           </div>
                         </div>
-
                       </div>
                     </div>
                   </motion.div>
@@ -585,7 +706,10 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                   </TableHeader>
                   <TableBody>
                     {filtered.map((d) => (
-                      <TableRow key={d.id} className="border-b border-border/40 hover:bg-secondary/20">
+                      <TableRow
+                        key={d.id}
+                        className="border-b border-border/40 hover:bg-secondary/20"
+                      >
                         <TableCell>
                           <div className="font-semibold text-foreground text-sm">{d.name}</div>
                           <div className="text-[10px] text-muted-foreground font-mono">
@@ -608,13 +732,17 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                             </SelectTrigger>
                             <SelectContent>
                               {STATUSES.map((s) => (
-                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                                <SelectItem key={s} value={s}>
+                                  {s}
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </TableCell>
                         <TableCell className="text-right text-xs">{d.quantity}</TableCell>
-                        <TableCell className="text-right text-xs">${Number(d.price).toFixed(2)}</TableCell>
+                        <TableCell className="text-right text-xs">
+                          ${Number(d.price).toFixed(2)}
+                        </TableCell>
                         <TableCell className="text-right font-medium text-sm text-primary">
                           ${(Number(d.price) * (d.quantity ?? 1)).toFixed(2)}
                         </TableCell>
@@ -622,7 +750,11 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                           {isAdmin && (
                             <div className="flex gap-1 justify-end">
                               <Link to={`${roleBase}/devices/${d.id}/edit` as never}>
-                                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
                               </Link>
@@ -653,7 +785,9 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete hardware device?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. It will remove this device from the active inventory catalog. Associated order logs will be set to NULL references but records will remain intact.
+              This action cannot be undone. It will remove this device from the active inventory
+              catalog. Associated order logs will be set to NULL references but records will remain
+              intact.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -11,7 +11,7 @@ function canAccessLegacyPath(role: Role | null, suffix: string): boolean {
   if (adminStaffOnly.some((p) => suffix === p || suffix.startsWith(p + "/"))) {
     return role === "admin" || role === "staff";
   }
-  if (suffix === "/devices/new" || suffix.includes("/devices/") && suffix.endsWith("/edit")) {
+  if (suffix === "/devices/new" || (suffix.includes("/devices/") && suffix.endsWith("/edit"))) {
     return role === "admin";
   }
   return true;

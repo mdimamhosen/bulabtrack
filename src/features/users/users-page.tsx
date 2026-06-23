@@ -3,18 +3,43 @@ import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
-  Users, Search, Mail, Phone, MapPin, ShoppingCart, ShieldCheck, Eye, UserCheck, RefreshCw, Plus, Loader2, Trash2
+  Users,
+  Search,
+  Mail,
+  Phone,
+  MapPin,
+  ShoppingCart,
+  ShieldCheck,
+  Eye,
+  UserCheck,
+  RefreshCw,
+  Plus,
+  Loader2,
+  Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/lib/role-context";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export function UsersPage() {
@@ -71,30 +96,35 @@ export function UsersPage() {
 
   // Map staff roles in memory
   const mappedStaff = useMemo(() => {
-    return profiles.map((p) => {
-      const roleRecord = rolesList.find((r) => r.user_id === p.id);
-      return {
-        ...p,
-        role: roleRecord?.role ?? null,
-      };
-    }).filter(s => s.role !== null); // Filter out users who have no assigned role (i.e. customers)
+    return profiles
+      .map((p) => {
+        const roleRecord = rolesList.find((r) => r.user_id === p.id);
+        return {
+          ...p,
+          role: roleRecord?.role ?? null,
+        };
+      })
+      .filter((s) => s.role !== null); // Filter out users who have no assigned role (i.e. customers)
   }, [profiles, rolesList]);
 
   // Derive Customers from Orders & Profiles
   const customers = useMemo(() => {
-    const map = new Map<string, {
-      name: string;
-      email: string;
-      phone: string;
-      address: string;
-      city: string;
-      postal_code: string;
-      totalOrders: number;
-      totalSpend: number;
-      orders: any[];
-      profileId?: string;
-      status?: string;
-    }>();
+    const map = new Map<
+      string,
+      {
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        city: string;
+        postal_code: string;
+        totalOrders: number;
+        totalSpend: number;
+        orders: any[];
+        profileId?: string;
+        status?: string;
+      }
+    >();
 
     orders.forEach((o: any) => {
       const emailKey = o.email.toLowerCase().trim();
@@ -156,21 +186,23 @@ export function UsersPage() {
   const filteredStaff = useMemo(() => {
     if (!staffSearch) return mappedStaff;
     const t = staffSearch.toLowerCase();
-    return mappedStaff.filter((s) =>
-      s.name.toLowerCase().includes(t) ||
-      s.email.toLowerCase().includes(t) ||
-      (s.phone ?? "").includes(t)
+    return mappedStaff.filter(
+      (s) =>
+        s.name.toLowerCase().includes(t) ||
+        s.email.toLowerCase().includes(t) ||
+        (s.phone ?? "").includes(t),
     );
   }, [mappedStaff, staffSearch]);
 
   const filteredCustomers = useMemo(() => {
     if (!customerSearch) return customers;
     const t = customerSearch.toLowerCase();
-    return customers.filter((c) =>
-      c.name.toLowerCase().includes(t) ||
-      c.email.toLowerCase().includes(t) ||
-      c.phone.includes(t) ||
-      c.city.toLowerCase().includes(t)
+    return customers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(t) ||
+        c.email.toLowerCase().includes(t) ||
+        c.phone.includes(t) ||
+        c.city.toLowerCase().includes(t),
     );
   }, [customers, customerSearch]);
 
@@ -187,13 +219,13 @@ export function UsersPage() {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
+
       // Initialize isolated client so we don't log out current admin session
       const tempClient = createClient(supabaseUrl, supabasePublishableKey, {
         auth: {
           persistSession: false,
           autoRefreshToken: false,
-        }
+        },
       });
 
       // Sign up new user with needs_password_change = true in metadata
@@ -203,9 +235,9 @@ export function UsersPage() {
         options: {
           data: {
             name: staffName,
-            needs_password_change: true
-          }
-        }
+            needs_password_change: true,
+          },
+        },
       });
 
       if (signUpError) throw signUpError;
@@ -223,7 +255,7 @@ export function UsersPage() {
       setStaffName("");
       setStaffEmail("");
       setStaffPassword("");
-      
+
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
       qc.invalidateQueries({ queryKey: ["users-roles"] });
     } catch (err: any) {
@@ -250,7 +282,12 @@ export function UsersPage() {
   };
 
   const handleRemoveUser = async (user: any) => {
-    if (!confirm(`Are you sure you want to completely remove staff member ${user.name}? This will permanently delete their account.`)) return;
+    if (
+      !confirm(
+        `Are you sure you want to completely remove staff member ${user.name}? This will permanently delete their account.`,
+      )
+    )
+      return;
     try {
       const { error } = await supabase.rpc("delete_user_by_admin", {
         target_user_id: user.id,
@@ -274,7 +311,9 @@ export function UsersPage() {
         .eq("id", customer.profileId);
 
       if (error) throw error;
-      toast.success(`Customer ${customer.name} is now ${newStatus === "inactive" ? "blocked" : "unblocked"}`);
+      toast.success(
+        `Customer ${customer.name} is now ${newStatus === "inactive" ? "blocked" : "unblocked"}`,
+      );
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
     } catch (err: any) {
       toast.error(err.message || "Failed to update customer status");
@@ -319,7 +358,7 @@ export function UsersPage() {
       toast.success("Staff will be required to change password on next login");
       qc.invalidateQueries({ queryKey: ["users-profiles"] });
       if (selectedStaff?.id === staffId) {
-        setSelectedStaff((prev: any) => prev ? { ...prev, needs_password_change: true } : null);
+        setSelectedStaff((prev: any) => (prev ? { ...prev, needs_password_change: true } : null));
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to set password reset";
@@ -335,7 +374,10 @@ export function UsersPage() {
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="aurora-bg absolute inset-0 opacity-15" />
         <div className="liquid-orb animate-blob absolute top-1/4 left-1/4 h-[350px] w-[350px] bg-primary/5 opacity-60" />
-        <div className="liquid-orb animate-blob absolute bottom-1/3 right-10 h-[400px] w-[400px] bg-accent/5 opacity-50" style={{ animationDelay: "-6s" }} />
+        <div
+          className="liquid-orb animate-blob absolute bottom-1/3 right-10 h-[400px] w-[400px] bg-accent/5 opacity-50"
+          style={{ animationDelay: "-6s" }}
+        />
       </div>
 
       {/* Header */}
@@ -350,10 +392,16 @@ export function UsersPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 max-w-[400px] rounded-xl border border-border bg-card/65 p-1">
-          <TabsTrigger value="staff" className="rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+          <TabsTrigger
+            value="staff"
+            className="rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+          >
             <UserCheck className="h-3.5 w-3.5" /> Staff Accounts ({filteredStaff.length})
           </TabsTrigger>
-          <TabsTrigger value="customers" className="rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+          <TabsTrigger
+            value="customers"
+            className="rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+          >
             <Users className="h-3.5 w-3.5" /> Customer Database ({filteredCustomers.length})
           </TabsTrigger>
         </TabsList>
@@ -363,8 +411,12 @@ export function UsersPage() {
           <Card className="liquid-card border-border/55">
             <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3">
               <div>
-                <CardTitle className="text-base font-bold text-foreground">LabTrack Staff Profiles</CardTitle>
-                <CardDescription className="text-xs">Active laboratory technicians, supervisors, and administrative personnel.</CardDescription>
+                <CardTitle className="text-base font-bold text-foreground">
+                  LabTrack Staff Profiles
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Active laboratory technicians, supervisors, and administrative personnel.
+                </CardDescription>
               </div>
               <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <div className="relative w-full sm:w-60">
@@ -390,7 +442,8 @@ export function UsersPage() {
             <CardContent className="p-0 overflow-x-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-12 text-muted-foreground text-xs gap-2">
-                  <RefreshCw className="h-4 w-4 animate-spin text-primary" /> Loading staff accounts...
+                  <RefreshCw className="h-4 w-4 animate-spin text-primary" /> Loading staff
+                  accounts...
                 </div>
               ) : filteredStaff.length === 0 ? (
                 <div className="py-12 text-center text-muted-foreground text-xs">
@@ -410,24 +463,37 @@ export function UsersPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredStaff.map((s) => (
-                      <TableRow key={s.id} className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors">
+                      <TableRow
+                        key={s.id}
+                        className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors"
+                      >
                         <TableCell className="font-semibold text-foreground">
                           <div>
                             <span>{s.name}</span>
                             {(s as { needs_password_change?: boolean }).needs_password_change && (
-                              <Badge className="ml-2 text-[8px] bg-warning/20 border-warning/30 text-warning px-1.5 py-0">Reset Pending</Badge>
+                              <Badge className="ml-2 text-[8px] bg-warning/20 border-warning/30 text-warning px-1.5 py-0">
+                                Reset Pending
+                              </Badge>
                             )}
                           </div>
                         </TableCell>
                         <TableCell className="font-mono text-zinc-300 text-xs">{s.email}</TableCell>
-                        <TableCell className="text-muted-foreground text-xs">{s.phone ?? "—"}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">
+                          {s.phone ?? "—"}
+                        </TableCell>
                         <TableCell>
-                          <Badge variant={s.role === "admin" ? "default" : "secondary"} className="capitalize text-[10px] font-bold">
+                          <Badge
+                            variant={s.role === "admin" ? "default" : "secondary"}
+                            className="capitalize text-[10px] font-bold"
+                          >
                             {s.role}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={s.status === "active" ? "outline" : "destructive"} className="capitalize text-[10px] font-bold">
+                          <Badge
+                            variant={s.status === "active" ? "outline" : "destructive"}
+                            className="capitalize text-[10px] font-bold"
+                          >
                             {s.status}
                           </Badge>
                         </TableCell>
@@ -491,8 +557,12 @@ export function UsersPage() {
           <Card className="liquid-card border-border/55">
             <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3">
               <div>
-                <CardTitle className="text-base font-bold text-foreground">Academic Customers</CardTitle>
-                <CardDescription className="text-xs">Directory of laboratory personnel and guests placing orders through the catalog.</CardDescription>
+                <CardTitle className="text-base font-bold text-foreground">
+                  Academic Customers
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Directory of laboratory personnel and guests placing orders through the catalog.
+                </CardDescription>
               </div>
               <div className="relative w-full sm:w-72">
                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
@@ -507,11 +577,13 @@ export function UsersPage() {
             <CardContent className="p-0 overflow-x-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-12 text-muted-foreground text-xs gap-2">
-                  <RefreshCw className="h-4 w-4 animate-spin text-primary" /> Loading customer directory...
+                  <RefreshCw className="h-4 w-4 animate-spin text-primary" /> Loading customer
+                  directory...
                 </div>
               ) : filteredCustomers.length === 0 ? (
                 <div className="py-12 text-center text-muted-foreground text-xs">
-                  No customers found. Clear and seed orders on the Admin Dashboard to populate mock client records.
+                  No customers found. Clear and seed orders on the Admin Dashboard to populate mock
+                  client records.
                 </div>
               ) : (
                 <Table>
@@ -529,21 +601,35 @@ export function UsersPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredCustomers.map((c) => (
-                      <TableRow key={c.email} className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors">
+                      <TableRow
+                        key={c.email}
+                        className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors"
+                      >
                         <TableCell className="font-semibold text-foreground">{c.name}</TableCell>
                         <TableCell className="font-mono text-zinc-300 text-xs">{c.email}</TableCell>
-                        <TableCell className="text-muted-foreground text-xs">{c.phone || "—"}</TableCell>
-                        <TableCell className="text-muted-foreground text-xs">{c.city || "—"}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">
+                          {c.phone || "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-xs">
+                          {c.city || "—"}
+                        </TableCell>
                         <TableCell>
                           {c.profileId ? (
-                            <Badge variant={c.status === "active" ? "outline" : "destructive"} className="capitalize text-[10px] font-bold">
+                            <Badge
+                              variant={c.status === "active" ? "outline" : "destructive"}
+                              className="capitalize text-[10px] font-bold"
+                            >
                               {c.status === "active" ? "Active" : "Blocked"}
                             </Badge>
                           ) : (
-                            <Badge variant="secondary" className="text-[10px] font-bold">Guest</Badge>
+                            <Badge variant="secondary" className="text-[10px] font-bold">
+                              Guest
+                            </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-xs">{c.totalOrders}</TableCell>
+                        <TableCell className="text-right font-medium text-xs">
+                          {c.totalOrders}
+                        </TableCell>
                         <TableCell className="text-right font-extrabold text-success text-xs">
                           ${c.totalSpend.toFixed(2)}
                         </TableCell>
@@ -601,7 +687,9 @@ export function UsersPage() {
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     <Mail className="h-3 w-3" /> Contact Email
                   </p>
-                  <p className="font-bold text-foreground text-sm font-mono">{selectedCustomer.email}</p>
+                  <p className="font-bold text-foreground text-sm font-mono">
+                    {selectedCustomer.email}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -614,7 +702,8 @@ export function UsersPage() {
                     <MapPin className="h-3 w-3" /> Shipping Address
                   </p>
                   <p className="text-foreground text-sm bg-secondary/15 rounded-md p-2.5">
-                    {selectedCustomer.address}, {selectedCustomer.city} {selectedCustomer.postal_code}
+                    {selectedCustomer.address}, {selectedCustomer.city}{" "}
+                    {selectedCustomer.postal_code}
                   </p>
                 </div>
               </div>
@@ -625,13 +714,17 @@ export function UsersPage() {
                   <p className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     <ShoppingCart className="h-3 w-3" /> Purchase Count
                   </p>
-                  <p className="text-lg font-black text-foreground mt-1">{selectedCustomer.totalOrders} Order{selectedCustomer.totalOrders !== 1 && "s"}</p>
+                  <p className="text-lg font-black text-foreground mt-1">
+                    {selectedCustomer.totalOrders} Order{selectedCustomer.totalOrders !== 1 && "s"}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-border/80 bg-secondary/10 p-3">
                   <p className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     <ShieldCheck className="h-3 w-3 text-success" /> Total Spend
                   </p>
-                  <p className="text-lg font-black text-success mt-1">${selectedCustomer.totalSpend.toFixed(2)}</p>
+                  <p className="text-lg font-black text-success mt-1">
+                    ${selectedCustomer.totalSpend.toFixed(2)}
+                  </p>
                 </div>
               </div>
 
@@ -652,12 +745,22 @@ export function UsersPage() {
                     </thead>
                     <tbody>
                       {selectedCustomer.orders.map((ord: any) => (
-                        <tr key={ord.id} className="border-b border-border/20 last:border-0 hover:bg-secondary/10 transition-colors">
+                        <tr
+                          key={ord.id}
+                          className="border-b border-border/20 last:border-0 hover:bg-secondary/10 transition-colors"
+                        >
                           <td className="px-4 py-2 font-mono text-[10px]">{ord.order_number}</td>
-                          <td className="px-4 py-2 text-muted-foreground">{new Date(ord.created_at).toLocaleDateString()}</td>
-                          <td className="px-4 py-2 text-right font-semibold">${Number(ord.total).toFixed(2)}</td>
+                          <td className="px-4 py-2 text-muted-foreground">
+                            {new Date(ord.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-2 text-right font-semibold">
+                            ${Number(ord.total).toFixed(2)}
+                          </td>
                           <td className="px-4 py-2 text-center">
-                            <Badge variant="secondary" className="text-[8.5px] font-bold capitalize">
+                            <Badge
+                              variant="secondary"
+                              className="text-[8.5px] font-bold capitalize"
+                            >
                               {ord.status}
                             </Badge>
                           </td>
@@ -688,42 +791,70 @@ export function UsersPage() {
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     <Mail className="h-3 w-3" /> Email
                   </p>
-                  <p className="font-bold text-foreground text-sm font-mono">{selectedStaff.email}</p>
+                  <p className="font-bold text-foreground text-sm font-mono">
+                    {selectedStaff.email}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     <Phone className="h-3 w-3" /> Phone
                   </p>
-                  <p className="text-foreground text-sm font-semibold">{selectedStaff.phone ?? "—"}</p>
+                  <p className="text-foreground text-sm font-semibold">
+                    {selectedStaff.phone ?? "—"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Role</p>
-                  <Badge variant={selectedStaff.role === "admin" ? "default" : "secondary"} className="capitalize text-[10px]">
+                  <Badge
+                    variant={selectedStaff.role === "admin" ? "default" : "secondary"}
+                    className="capitalize text-[10px]"
+                  >
                     {selectedStaff.role}
                   </Badge>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Status</p>
-                  <Badge variant={selectedStaff.status === "active" ? "outline" : "destructive"} className="capitalize text-[10px]">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Status
+                  </p>
+                  <Badge
+                    variant={selectedStaff.status === "active" ? "outline" : "destructive"}
+                    className="capitalize text-[10px]"
+                  >
                     {selectedStaff.status}
                   </Badge>
                 </div>
                 <div className="sm:col-span-2 space-y-1">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Member Since</p>
-                  <p className="text-foreground text-sm">{new Date(selectedStaff.created_at).toLocaleDateString()}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Member Since
+                  </p>
+                  <p className="text-foreground text-sm">
+                    {new Date(selectedStaff.created_at).toLocaleDateString()}
+                  </p>
                 </div>
                 {selectedStaff.needs_password_change && (
                   <div className="sm:col-span-2">
-                    <Badge className="text-[9px] bg-warning/20 border-warning/30 text-warning">Password reset pending</Badge>
+                    <Badge className="text-[9px] bg-warning/20 border-warning/30 text-warning">
+                      Password reset pending
+                    </Badge>
                   </div>
                 )}
               </div>
               {isAdmin && selectedStaff.id !== currentUserId && (
                 <div className="flex flex-wrap gap-2 pt-2">
-                  <Button size="sm" variant="outline" onClick={() => handleOpenEditStaff(selectedStaff)} className="text-xs h-8 rounded-lg">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleOpenEditStaff(selectedStaff)}
+                    className="text-xs h-8 rounded-lg"
+                  >
                     Edit Profile
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleForcePasswordReset(selectedStaff.id)} className="text-xs h-8 rounded-lg">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleForcePasswordReset(selectedStaff.id)}
+                    className="text-xs h-8 rounded-lg"
+                  >
                     Force Password Reset
                   </Button>
                 </div>
@@ -738,20 +869,47 @@ export function UsersPage() {
         <DialogContent className="max-w-md rounded-2xl border-border bg-card">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">Edit Staff Profile</DialogTitle>
-            <DialogDescription className="text-xs">Update name and phone number for this staff member.</DialogDescription>
+            <DialogDescription className="text-xs">
+              Update name and phone number for this staff member.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSaveStaff} className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Full Name</Label>
-              <Input value={editStaffName} onChange={(e) => setEditStaffName(e.target.value)} className="glass-input text-xs" required />
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Full Name
+              </Label>
+              <Input
+                value={editStaffName}
+                onChange={(e) => setEditStaffName(e.target.value)}
+                className="glass-input text-xs"
+                required
+              />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Phone Number</Label>
-              <Input value={editStaffPhone} onChange={(e) => setEditStaffPhone(e.target.value)} className="glass-input text-xs" placeholder="Optional" />
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Phone Number
+              </Label>
+              <Input
+                value={editStaffPhone}
+                onChange={(e) => setEditStaffPhone(e.target.value)}
+                className="glass-input text-xs"
+                placeholder="Optional"
+              />
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setEditStaffOpen(false)} className="rounded-xl h-9 text-xs">Cancel</Button>
-              <Button type="submit" disabled={savingStaff} className="rounded-xl h-9 text-xs bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditStaffOpen(false)}
+                className="rounded-xl h-9 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={savingStaff}
+                className="rounded-xl h-9 text-xs bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold"
+              >
                 {savingStaff && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
                 Save Changes
               </Button>
@@ -769,13 +927,16 @@ export function UsersPage() {
               <span>Add Staff Account</span>
             </DialogTitle>
             <DialogDescription className="text-xs">
-              Register a new staff member. The user will be required to change their password on first login.
+              Register a new staff member. The user will be required to change their password on
+              first login.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleAddStaff} className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Full Name</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Full Name
+              </Label>
               <Input
                 value={staffName}
                 onChange={(e) => setStaffName(e.target.value)}
@@ -785,7 +946,9 @@ export function UsersPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Email Address</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Email Address
+              </Label>
               <Input
                 type="email"
                 value={staffEmail}
@@ -796,7 +959,9 @@ export function UsersPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Default Password</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Default Password
+              </Label>
               <Input
                 type="password"
                 value={staffPassword}
@@ -807,10 +972,19 @@ export function UsersPage() {
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setAddStaffOpen(false)} className="rounded-xl h-9 text-xs">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setAddStaffOpen(false)}
+                className="rounded-xl h-9 text-xs"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={submittingStaff} className="rounded-xl h-9 text-xs bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold">
+              <Button
+                type="submit"
+                disabled={submittingStaff}
+                className="rounded-xl h-9 text-xs bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold"
+              >
                 {submittingStaff && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
                 Create Account
               </Button>

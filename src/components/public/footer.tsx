@@ -17,7 +17,11 @@ export function PublicFooter() {
           </p>
           <div className="mt-4 flex gap-3">
             {[Github, Twitter, Linkedin, Mail].map((I, idx) => (
-              <a key={idx} href="#" className="grid h-9 w-9 place-items-center rounded-md border border-border text-muted-foreground hover:bg-secondary hover:text-foreground">
+              <a
+                key={idx}
+                href="#"
+                className="grid h-9 w-9 place-items-center rounded-md border border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
                 <I className="h-4 w-4" />
               </a>
             ))}
@@ -26,19 +30,51 @@ export function PublicFooter() {
         <div>
           <h4 className="text-sm font-semibold">Explore</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/" className="hover:text-foreground">Home</Link></li>
-            <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-            <li><Link to="/products" className="hover:text-foreground">Products</Link></li>
-            <li><Link to="/faq" className="hover:text-foreground">FAQ</Link></li>
+            <li>
+              <Link to="/" className="hover:text-foreground">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-foreground">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/products" className="hover:text-foreground">
+                Products
+              </Link>
+            </li>
+            <li>
+              <Link to="/faq" className="hover:text-foreground">
+                FAQ
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="text-sm font-semibold">Support</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
-            <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
-            <li><Link to="/terms" className="hover:text-foreground">Terms & Conditions</Link></li>
-            <li><Link to="/auth" className="hover:text-foreground">Staff Login</Link></li>
+            <li>
+              <Link to="/contact" className="hover:text-foreground">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link to="/privacy" className="hover:text-foreground">
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
+              <Link to="/terms" className="hover:text-foreground">
+                Terms & Conditions
+              </Link>
+            </li>
+            <li>
+              <Link to="/auth" className="hover:text-foreground">
+                Staff Login
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

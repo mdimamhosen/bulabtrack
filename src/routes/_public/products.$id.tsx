@@ -2,14 +2,42 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
-  ShoppingCart, ArrowLeft, Minus, Plus, Truck, ShieldCheck, RefreshCw,
-  Phone, MessageCircle, Mail, MapPin, Clock, Star, Share2, Heart, CheckCircle2,
-  Zap, Award, ShieldAlert, Sliders, Volume2, HardDrive, Cpu, Layers, HelpCircle
+  ShoppingCart,
+  ArrowLeft,
+  Minus,
+  Plus,
+  Truck,
+  ShieldCheck,
+  RefreshCw,
+  Phone,
+  MessageCircle,
+  Mail,
+  MapPin,
+  Clock,
+  Star,
+  Share2,
+  Heart,
+  CheckCircle2,
+  Zap,
+  Award,
+  ShieldAlert,
+  Sliders,
+  Volume2,
+  HardDrive,
+  Cpu,
+  Layers,
+  HelpCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,7 +56,7 @@ function enhanceProductDetails(p: any) {
   if (!enhanced) return null;
   return {
     ...enhanced,
-    specsList: enhanced.specsRaw
+    specsList: enhanced.specsRaw,
   };
 }
 
@@ -38,7 +66,7 @@ const playSwitchSound = (switchColor: "red" | "brown" | "blue") => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
-    
+
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
@@ -58,7 +86,8 @@ const playSwitchSound = (switchColor: "red" | "brown" | "blue") => {
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.1);
-    } else { // red
+    } else {
+      // red
       osc.type = "sine";
       osc.frequency.setValueAtTime(180, audioCtx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.14);
@@ -111,7 +140,12 @@ function ProductDetailPage() {
     queryKey: ["related", product?.category, id],
     enabled: !!product,
     queryFn: async () => {
-      const { data } = await supabase.from("devices").select("id,name,brand,price,image_url,category").eq("category", product!.category).neq("id", id).limit(4);
+      const { data } = await supabase
+        .from("devices")
+        .select("id,name,brand,price,image_url,category")
+        .eq("category", product!.category)
+        .neq("id", id)
+        .limit(4);
       return data ?? [];
     },
   });
@@ -144,7 +178,7 @@ function ProductDetailPage() {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       points.push({ x, y, time: Date.now() });
 
       // Generate randomized polling speed readouts
@@ -158,7 +192,7 @@ function ProductDetailPage() {
 
     let drawInterval = setInterval(() => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw grid
       ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
       ctx.lineWidth = 1;
@@ -178,7 +212,7 @@ function ProductDetailPage() {
       // Draw connection lines between mouse points
       const now = Date.now();
       points = points.filter((p) => now - p.time < 800); // 800ms trail fade
-      
+
       if (points.length > 1) {
         ctx.beginPath();
         ctx.moveTo(points[0].x, points[0].y);
@@ -216,20 +250,31 @@ function ProductDetailPage() {
       </div>
     );
   }
-  
+
   if (!product) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center">
         <p className="text-muted-foreground">Product not found.</p>
-        <Button asChild className="mt-4"><Link to="/products">Back to products</Link></Button>
+        <Button asChild className="mt-4">
+          <Link to="/products">Back to products</Link>
+        </Button>
       </div>
     );
   }
 
-  const isKeyboard = product.name?.toLowerCase().includes("keyboard") || product.category?.toLowerCase().includes("keyboard");
-  const isMouse = product.name?.toLowerCase().includes("mouse") || product.category?.toLowerCase().includes("mouse");
-  const isAudio = product.name?.toLowerCase().includes("headset") || product.name?.toLowerCase().includes("speaker") || product.category?.toLowerCase().includes("audio");
-  const isDisplay = product.name?.toLowerCase().includes("monitor") || product.category?.toLowerCase().includes("display");
+  const isKeyboard =
+    product.name?.toLowerCase().includes("keyboard") ||
+    product.category?.toLowerCase().includes("keyboard");
+  const isMouse =
+    product.name?.toLowerCase().includes("mouse") ||
+    product.category?.toLowerCase().includes("mouse");
+  const isAudio =
+    product.name?.toLowerCase().includes("headset") ||
+    product.name?.toLowerCase().includes("speaker") ||
+    product.category?.toLowerCase().includes("audio");
+  const isDisplay =
+    product.name?.toLowerCase().includes("monitor") ||
+    product.category?.toLowerCase().includes("display");
 
   return (
     <div className="relative min-h-screen">
@@ -237,27 +282,35 @@ function ProductDetailPage() {
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="aurora-bg absolute inset-0 opacity-20" />
         <div className="liquid-orb animate-blob absolute -top-40 left-1/4 h-[500px] w-[500px] bg-primary/10 opacity-70" />
-        <div className="liquid-orb animate-blob absolute right-10 top-40 h-[480px] w-[480px] bg-accent/10 opacity-60" style={{ animationDelay: "-6s" }} />
+        <div
+          className="liquid-orb animate-blob absolute right-10 top-40 h-[480px] w-[480px] bg-accent/10 opacity-60"
+          style={{ animationDelay: "-6s" }}
+        />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
-        
         {/* Breadcrumb Navigation */}
         <nav className="mb-8 flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+          <Link to="/" className="hover:text-foreground transition-colors">
+            Home
+          </Link>
           <span>/</span>
-          <Link to="/products" className="hover:text-foreground transition-colors">Products</Link>
+          <Link to="/products" className="hover:text-foreground transition-colors">
+            Products
+          </Link>
           <span>/</span>
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <Link to="/products" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition-colors">
+        <Link
+          to="/products"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition-colors"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to Product Catalog
         </Link>
 
         {/* Main Details Panel */}
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-start">
-          
           {/* === PHOTO GALLERY === */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -283,7 +336,8 @@ function ProductDetailPage() {
                 {/* Floating tags */}
                 <div className="absolute left-4 top-4 flex flex-col gap-2">
                   <Badge className="liquid-card border-none bg-zinc-950/80 text-zinc-200 backdrop-blur-md font-bold text-[9px] py-1 px-3">
-                    <Award className="mr-1.5 h-3.5 w-3.5 text-primary animate-pulse" /> NANO BANANA EDITION
+                    <Award className="mr-1.5 h-3.5 w-3.5 text-primary animate-pulse" /> NANO BANANA
+                    EDITION
                   </Badge>
                   {product.status === "Available" ? (
                     <Badge className="bg-success/20 text-success border-success/30 font-bold text-[9px] py-1 px-3 backdrop-blur-md">
@@ -315,10 +369,16 @@ function ProductDetailPage() {
                     key={src + i}
                     onClick={() => setActiveImg(i)}
                     className={`liquid-card aspect-square overflow-hidden rounded-2xl p-1 transition-all cursor-pointer ${
-                      activeImg === i ? "border-primary ring-2 ring-primary/20 scale-[0.98]" : "border-border/60 opacity-60 hover:opacity-100"
+                      activeImg === i
+                        ? "border-primary ring-2 ring-primary/20 scale-[0.98]"
+                        : "border-border/60 opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <img src={src} alt="" className="h-full w-full rounded-xl object-cover filter brightness-90" />
+                    <img
+                      src={src}
+                      alt=""
+                      className="h-full w-full rounded-xl object-cover filter brightness-90"
+                    />
                   </button>
                 ))}
               </div>
@@ -335,25 +395,35 @@ function ProductDetailPage() {
             {/* Headers */}
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">{product.category}</Badge>
+                <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
+                  {product.category}
+                </Badge>
                 <Badge className="bg-gradient-to-r from-primary/20 to-accent/20 border-none text-primary uppercase font-bold text-[10px]">
                   {product.brand} PERIPHERALS
                 </Badge>
-                {product.interface && <Badge variant="outline" className="border-border/60">{product.interface}</Badge>}
+                {product.interface && (
+                  <Badge variant="outline" className="border-border/60">
+                    {product.interface}
+                  </Badge>
+                )}
               </div>
 
               <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/75 bg-clip-text text-transparent">
                 {product.name}
               </h1>
-              
+
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-1.5 border-b border-border/20 pb-4">
-                <p>Standard Model: {product.model} &bull; S/N: {product.serial_number}</p>
-                
+                <p>
+                  Standard Model: {product.model} &bull; S/N: {product.serial_number}
+                </p>
+
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 font-bold text-foreground">
                   <Star className="h-4 w-4 fill-current text-accent" />
                   <span>{product.rating}</span>
-                  <span className="text-muted-foreground/60">({product.reviews} academic logs)</span>
+                  <span className="text-muted-foreground/60">
+                    ({product.reviews} academic logs)
+                  </span>
                 </div>
               </div>
             </div>
@@ -361,7 +431,9 @@ function ProductDetailPage() {
             {/* Price Box */}
             <div className="liquid-card rounded-2xl p-6 border-primary/10 bg-gradient-to-br from-card/30 to-background/50">
               <div className="flex items-baseline gap-3">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">REQUISITION VALUE</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  REQUISITION VALUE
+                </span>
               </div>
               <div className="flex items-baseline gap-3 mt-1.5">
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-5xl font-black text-transparent">
@@ -375,26 +447,35 @@ function ProductDetailPage() {
                 </Badge>
               </div>
               <p className="mt-3.5 flex items-center gap-2 text-xs text-muted-foreground/80">
-                <Zap className="h-4 w-4 text-primary" /> Multi-station orders qualify for additional bulk tax waivers.
+                <Zap className="h-4 w-4 text-primary" /> Multi-station orders qualify for additional
+                bulk tax waivers.
               </p>
             </div>
 
             {/* Description */}
             {product.description && (
               <div className="space-y-2">
-                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Device Overview</h4>
-                <p className="leading-relaxed text-sm text-muted-foreground/90">{product.description}</p>
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Device Overview
+                </h4>
+                <p className="leading-relaxed text-sm text-muted-foreground/90">
+                  {product.description}
+                </p>
               </div>
             )}
 
             {/* Key highlights (custom specs list) */}
             <div className="space-y-3 pt-2">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Telemetry Diagnostic Highlights</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Telemetry Diagnostic Highlights
+              </h4>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                {product.specsList?.slice(0, 4).map(([key, val] : any) => (
+                {product.specsList?.slice(0, 4).map(([key, val]: any) => (
                   <div key={key} className="flex items-center gap-2 text-muted-foreground">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                    <span><strong className="text-foreground">{key}</strong>: {val}</span>
+                    <span>
+                      <strong className="text-foreground">{key}</strong>: {val}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -420,7 +501,16 @@ function ProductDetailPage() {
 
               <Button
                 onClick={() => {
-                  add({ id: product.id, name: product.name, brand: product.brand, price: Number(product.price), image_url: product.image_url }, qty);
+                  add(
+                    {
+                      id: product.id,
+                      name: product.name,
+                      brand: product.brand,
+                      price: Number(product.price),
+                      image_url: product.image_url,
+                    },
+                    qty,
+                  );
                   toast.success(`${qty} × ${product.name} added to requisition cart`);
                 }}
                 disabled={product.status !== "Available"}
@@ -441,13 +531,16 @@ function ProductDetailPage() {
                   <Phone className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Speak with a Procurement Specialist</p>
-                  <p className="text-xs text-muted-foreground">Requisitions, VAT exemptions, and freight quotes</p>
+                  <p className="text-sm font-bold text-foreground">
+                    Speak with a Procurement Specialist
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Requisitions, VAT exemptions, and freight quotes
+                  </p>
                 </div>
               </div>
               <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground transition-transform group-hover:translate-x-1" />
             </button>
-
           </motion.div>
         </div>
 
@@ -455,23 +548,31 @@ function ProductDetailPage() {
         <section className="mt-16 border-t border-border/20 pt-16">
           <div className="mx-auto max-w-4xl">
             <div className="text-center mb-8">
-              <Badge className="bg-accent/10 border-accent/20 text-accent px-3 py-0.5 mb-2">Live Hardware Simulator</Badge>
+              <Badge className="bg-accent/10 border-accent/20 text-accent px-3 py-0.5 mb-2">
+                Live Hardware Simulator
+              </Badge>
               <h3 className="text-2xl font-extrabold">Nano Banana Sandbox Calibration</h3>
-              <p className="text-xs text-muted-foreground mt-1">Test raw response telemetry outputs generated by this peripheral device.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Test raw response telemetry outputs generated by this peripheral device.
+              </p>
             </div>
 
             {/* 1. KEYBOARD SWITCH TESTING SANDBOX */}
             {isKeyboard && (
               <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
-                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Tactile Switch Sandbox</h4>
-                <p className="text-xs text-muted-foreground mt-1">Select mechanical key cores to hear keypress sounds.</p>
-                
+                <h4 className="text-sm font-bold flex items-center gap-1.5">
+                  <Sliders className="h-4 w-4 text-primary" /> Tactile Switch Sandbox
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select mechanical key cores to hear keypress sounds.
+                </p>
+
                 <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
                   <div className="flex gap-2">
                     {[
                       { id: "red", label: "Linear Red", color: "bg-rose-500" },
                       { id: "brown", label: "Tactile Brown", color: "bg-amber-600" },
-                      { id: "blue", label: "Clicky Blue", color: "bg-sky-500" }
+                      { id: "blue", label: "Clicky Blue", color: "bg-sky-500" },
                     ].map((sw) => (
                       <button
                         key={sw.id}
@@ -481,7 +582,9 @@ function ProductDetailPage() {
                           toast.info(`Configured switch: ${sw.label}`);
                         }}
                         className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          switchType === sw.id ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card/25 text-muted-foreground hover:bg-card/45"
+                          switchType === sw.id
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border bg-card/25 text-muted-foreground hover:bg-card/45"
                         }`}
                       >
                         <span className={`h-2.5 w-2.5 rounded-full ${sw.color}`} />
@@ -502,8 +605,12 @@ function ProductDetailPage() {
                 </div>
 
                 <div className="mt-6 border-t border-border/20 pt-4 flex justify-between items-center text-xs text-muted-foreground">
-                  <span>Clicks registered: <strong>{keypressCount}</strong></span>
-                  <span>Audio synthesis: <strong>{switchType.toUpperCase()} OSC</strong></span>
+                  <span>
+                    Clicks registered: <strong>{keypressCount}</strong>
+                  </span>
+                  <span>
+                    Audio synthesis: <strong>{switchType.toUpperCase()} OSC</strong>
+                  </span>
                 </div>
               </div>
             )}
@@ -511,16 +618,26 @@ function ProductDetailPage() {
             {/* 2. MOUSE POLLING RATE SANDBOX */}
             {isMouse && (
               <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
-                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Optical Sensor Calibration</h4>
-                <p className="text-xs text-muted-foreground mt-1">Move your cursor within the box to track polling rates and sensor accuracy.</p>
+                <h4 className="text-sm font-bold flex items-center gap-1.5">
+                  <Sliders className="h-4 w-4 text-primary" /> Optical Sensor Calibration
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Move your cursor within the box to track polling rates and sensor accuracy.
+                </p>
 
                 <div className="mt-5 grid grid-cols-2 gap-4 text-center">
                   <div className="p-3 bg-secondary/30 border border-border/20 rounded-xl">
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Sensor Polling Rate</p>
-                    <p className="text-xl font-mono font-black text-primary mt-1">{pollingRate} Hz</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                      Sensor Polling Rate
+                    </p>
+                    <p className="text-xl font-mono font-black text-primary mt-1">
+                      {pollingRate} Hz
+                    </p>
                   </div>
                   <div className="p-3 bg-secondary/30 border border-border/20 rounded-xl">
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Average Latency</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                      Average Latency
+                    </p>
                     <p className="text-xl font-mono font-black text-accent mt-1">{avgLatency} ms</p>
                   </div>
                 </div>
@@ -539,8 +656,12 @@ function ProductDetailPage() {
             {/* 3. MONITOR REFRESH RATE COMPARATOR */}
             {isDisplay && (
               <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
-                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Visual Refresh Rate Comparison</h4>
-                <p className="text-xs text-muted-foreground mt-1">Compare physical smoothness differences between 60Hz and 144Hz.</p>
+                <h4 className="text-sm font-bold flex items-center gap-1.5">
+                  <Sliders className="h-4 w-4 text-primary" /> Visual Refresh Rate Comparison
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Compare physical smoothness differences between 60Hz and 144Hz.
+                </p>
 
                 <div className="mt-5 flex gap-2 justify-center mb-6">
                   {([60, 144] as const).map((hz) => (
@@ -548,7 +669,9 @@ function ProductDetailPage() {
                       key={hz}
                       onClick={() => setDisplayHz(hz)}
                       className={`px-4 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        displayHz === hz ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card/25 text-muted-foreground hover:bg-card/45"
+                        displayHz === hz
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-border bg-card/25 text-muted-foreground hover:bg-card/45"
                       }`}
                     >
                       {hz} Hz Output
@@ -559,7 +682,7 @@ function ProductDetailPage() {
                 <div className="relative h-20 w-full bg-zinc-950 border border-border/80 rounded-2xl overflow-hidden flex items-center p-4">
                   {/* Grid Lines */}
                   <div className="absolute inset-0 bg-grid opacity-10" />
-                  
+
                   {/* Moving Block */}
                   <div
                     className="absolute h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent shadow-glow transition-all"
@@ -577,17 +700,25 @@ function ProductDetailPage() {
             {/* 4. AUDIO FREQUENCY EQUALIZER */}
             {isAudio && (
               <div className="liquid-card rounded-3xl p-6 border-primary/20 max-w-2xl mx-auto">
-                <h4 className="text-sm font-bold flex items-center gap-1.5"><Sliders className="h-4 w-4 text-primary" /> Frequency Equalizer Response</h4>
-                <p className="text-xs text-muted-foreground mt-1">Toggle frequency response simulator to check acoustic profiles.</p>
+                <h4 className="text-sm font-bold flex items-center gap-1.5">
+                  <Sliders className="h-4 w-4 text-primary" /> Frequency Equalizer Response
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Toggle frequency response simulator to check acoustic profiles.
+                </p>
 
                 <div className="mt-6 flex justify-center mb-6">
                   <Button
                     onClick={() => {
                       setEqActive(!eqActive);
-                      toast.info(eqActive ? "Audio visualizer stopped" : "Frequency generator started");
+                      toast.info(
+                        eqActive ? "Audio visualizer stopped" : "Frequency generator started",
+                      );
                     }}
                     className={`rounded-xl px-5 h-10 font-bold transition-all ${
-                      eqActive ? "bg-primary text-primary-foreground shadow-glow" : "bg-card border border-border text-muted-foreground hover:bg-card/45"
+                      eqActive
+                        ? "bg-primary text-primary-foreground shadow-glow"
+                        : "bg-card border border-border text-muted-foreground hover:bg-card/45"
                     }`}
                   >
                     {eqActive ? "STOP TELEMETRY FEED" : "START TELEMETRY FEED"}
@@ -624,17 +755,21 @@ function ProductDetailPage() {
             <h2 className="text-lg font-bold flex items-center gap-2">
               <Cpu className="h-5 w-5 text-primary" /> Detailed Technical Specifications
             </h2>
-            <p className="text-xs text-muted-foreground">Certified testing values for institutional audits.</p>
+            <p className="text-xs text-muted-foreground">
+              Certified testing values for institutional audits.
+            </p>
           </div>
           <div className="grid sm:grid-cols-2">
-            {product.specsList?.map(([k, v] : any, i: number) => (
+            {product.specsList?.map(([k, v]: any, i: number) => (
               <div
                 key={k}
                 className={`flex items-center justify-between gap-4 border-b border-border/40 px-6 py-4 ${
                   i % 2 === 0 ? "sm:border-r" : ""
                 } hover:bg-card/20 transition-colors`}
               >
-                <span className="text-xs text-muted-foreground/80 font-bold uppercase tracking-wider">{k}</span>
+                <span className="text-xs text-muted-foreground/80 font-bold uppercase tracking-wider">
+                  {k}
+                </span>
                 <span className="text-sm font-semibold">{v}</span>
               </div>
             ))}
@@ -645,7 +780,9 @@ function ProductDetailPage() {
         <div className="grid gap-6 md:grid-cols-2 mt-8">
           {/* Pros */}
           <div className="liquid-card rounded-2xl p-6 border-success/20 bg-success/5">
-            <h4 className="text-xs font-bold text-success uppercase tracking-wider mb-4">Institutional Advantages</h4>
+            <h4 className="text-xs font-bold text-success uppercase tracking-wider mb-4">
+              Institutional Advantages
+            </h4>
             <div className="space-y-2">
               {product.pros?.map((pro: string) => (
                 <div key={pro} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -658,7 +795,9 @@ function ProductDetailPage() {
 
           {/* Cons */}
           <div className="liquid-card rounded-2xl p-6 border-amber-500/20 bg-amber-500/5">
-            <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-4">Deployment Considerations</h4>
+            <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-4">
+              Deployment Considerations
+            </h4>
             <div className="space-y-2">
               {product.cons?.map((con: string) => (
                 <div key={con} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -672,7 +811,9 @@ function ProductDetailPage() {
 
         {/* === BOX CONTENTS === */}
         <div className="liquid-card mt-8 rounded-2xl p-6 border-border/60">
-          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">In The Box</h4>
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
+            In The Box
+          </h4>
           <div className="grid sm:grid-cols-2 gap-3 text-xs text-muted-foreground">
             {product.boxContents?.map((item: string) => (
               <div key={item} className="flex items-center gap-2">
@@ -688,12 +829,18 @@ function ProductDetailPage() {
           <div className="mt-24 border-t border-border/20 pt-16">
             <div className="mb-8 flex items-end justify-between">
               <div>
-                <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent">Requisition matches</Badge>
-                <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Related Nano Banana peripherals</h2>
+                <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent">
+                  Requisition matches
+                </Badge>
+                <h2 className="mt-2 text-3xl font-extrabold tracking-tight">
+                  Related Nano Banana peripherals
+                </h2>
               </div>
-              <Button asChild variant="ghost" className="text-primary hover:text-accent font-bold"><Link to="/products">View All Catalog &rarr;</Link></Button>
+              <Button asChild variant="ghost" className="text-primary hover:text-accent font-bold">
+                <Link to="/products">View All Catalog &rarr;</Link>
+              </Button>
             </div>
-            
+
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {related.slice(0, 4).map((p: any, i: number) => (
                 <motion.div
@@ -719,7 +866,9 @@ function ProductDetailPage() {
                       )}
                     </div>
                     <div className="p-5">
-                      <p className="text-[10px] text-muted-foreground uppercase font-extrabold tracking-wider">{p.brand}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-extrabold tracking-wider">
+                        {p.brand}
+                      </p>
                       <p className="mt-1 truncate text-sm font-bold text-foreground">{p.name}</p>
                       <p className="mt-2 bg-gradient-to-r from-primary to-accent bg-clip-text font-black text-transparent">
                         ${Number(p.price).toFixed(2)}
@@ -731,12 +880,14 @@ function ProductDetailPage() {
             </div>
           </div>
         )}
-
       </div>
 
       {/* === RIGHT-SIDE SPECIALIST SHEETS === */}
       <Sheet open={inquiryOpen} onOpenChange={setInquiryOpen}>
-        <SheetContent side="right" className="w-full border-l border-border/60 bg-background/80 backdrop-blur-2xl sm:max-w-md">
+        <SheetContent
+          side="right"
+          className="w-full border-l border-border/60 bg-background/80 backdrop-blur-2xl sm:max-w-md"
+        >
           <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
             <div className="liquid-orb absolute -top-20 -right-20 h-[300px] w-[300px] bg-primary/10 opacity-60" />
             <div className="liquid-orb absolute bottom-0 left-0 h-[280px] w-[280px] bg-accent/10 opacity-40" />
@@ -744,20 +895,25 @@ function ProductDetailPage() {
           <SheetHeader>
             <SheetTitle className="text-2xl">Talk to a specialist</SheetTitle>
             <SheetDescription>
-              Have questions regarding <span className="font-medium text-foreground">{product.name}</span> compatibility?
+              Have questions regarding{" "}
+              <span className="font-medium text-foreground">{product.name}</span> compatibility?
             </SheetDescription>
           </SheetHeader>
 
           <div className="mt-6 space-y-4">
             {/* Phone Requisition link */}
-            <a href={SUPPORT_PHONE_HREF}
-              className="liquid-card group block rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-transparent p-5 border-primary/20 transition-all hover:-translate-y-0.5">
+            <a
+              href={SUPPORT_PHONE_HREF}
+              className="liquid-card group block rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-transparent p-5 border-primary/20 transition-all hover:-translate-y-0.5"
+            >
               <div className="flex items-center gap-4">
                 <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg">
                   <Phone className="h-6 w-6" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Call Procurement Desk</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    Call Procurement Desk
+                  </p>
                   <p className="mt-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-2xl font-bold text-transparent font-mono">
                     {SUPPORT_PHONE}
                   </p>
@@ -769,27 +925,37 @@ function ProductDetailPage() {
             </a>
 
             {/* WhatsApp */}
-            <a href="https://wa.me/18005550142" target="_blank" rel="noreferrer"
-              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 border-border/80 transition hover:-translate-y-0.5">
+            <a
+              href="https://wa.me/18005550142"
+              target="_blank"
+              rel="noreferrer"
+              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 border-border/80 transition hover:-translate-y-0.5"
+            >
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-success/15 text-success">
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-foreground">WhatsApp Instant Chat</p>
-                <p className="text-xs text-muted-foreground">Get live telemetry integration setup guides</p>
+                <p className="text-xs text-muted-foreground">
+                  Get live telemetry integration setup guides
+                </p>
               </div>
               <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </a>
 
             {/* Mail */}
-            <a href="mailto:sales@labtrack.dev"
-              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 border-border/80 transition hover:-translate-y-0.5">
+            <a
+              href="mailto:sales@labtrack.dev"
+              className="liquid-card group flex items-center gap-4 rounded-2xl p-4 border-border/80 transition hover:-translate-y-0.5"
+            >
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent/15 text-accent">
                 <Mail className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-foreground">procurement@labtrack.dev</p>
-                <p className="text-xs text-muted-foreground">Institutional quotation and invoicing reply in 24h</p>
+                <p className="text-xs text-muted-foreground">
+                  Institutional quotation and invoicing reply in 24h
+                </p>
               </div>
               <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground" />
             </a>
@@ -806,7 +972,11 @@ function ProductDetailPage() {
             </div>
 
             {/* Requisition link button */}
-            <Button asChild className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold h-11" size="lg">
+            <Button
+              asChild
+              className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold h-11"
+              size="lg"
+            >
               <Link to="/contact" onClick={() => setInquiryOpen(false)}>
                 Submit RFQ Ticket
               </Link>

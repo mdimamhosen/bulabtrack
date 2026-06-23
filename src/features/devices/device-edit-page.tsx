@@ -28,7 +28,10 @@ export function EditDevicePage({ id, roleBase }: { id: string; roleBase: string 
         purchase_date: v.purchase_date || null,
         warranty_expiry: v.warranty_expiry || null,
       };
-      const { error } = await supabase.from("devices").update(payload as never).eq("id", id);
+      const { error } = await supabase
+        .from("devices")
+        .update(payload as never)
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -38,12 +41,20 @@ export function EditDevicePage({ id, roleBase }: { id: string; roleBase: string 
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
   if (!data) return <div className="p-6 text-muted-foreground">Device not found.</div>;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link to={`${roleBase}/devices` as never} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to={`${roleBase}/devices` as never}
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ChevronLeft className="h-4 w-4" /> Back to devices
       </Link>
       <div>
@@ -51,16 +62,18 @@ export function EditDevicePage({ id, roleBase }: { id: string; roleBase: string 
         <p className="mt-1 text-sm text-muted-foreground">{data.name}</p>
       </div>
       <DeviceFormFields
-        defaultValues={{
-          ...data,
-          price: Number(data.price),
-          supplier: data.supplier ?? "",
-          location: data.location ?? "",
-          description: data.description ?? "",
-          image_url: data.image_url ?? "",
-          purchase_date: data.purchase_date ?? "",
-          warranty_expiry: data.warranty_expiry ?? "",
-        } as Partial<DeviceForm>}
+        defaultValues={
+          {
+            ...data,
+            price: Number(data.price),
+            supplier: data.supplier ?? "",
+            location: data.location ?? "",
+            description: data.description ?? "",
+            image_url: data.image_url ?? "",
+            purchase_date: data.purchase_date ?? "",
+            warranty_expiry: data.warranty_expiry ?? "",
+          } as Partial<DeviceForm>
+        }
         submitting={m.isPending}
         onSubmit={(v) => m.mutate(v)}
         submitLabel="Save changes"

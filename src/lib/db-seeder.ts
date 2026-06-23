@@ -1,26 +1,157 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const FAKE_CUSTOMERS = [
-  { name: "John Doe", email: "john.doe@gmail.com", phone: "+1 (555) 019-2834", address: "123 Academic Way", city: "Boston", postal_code: "02115" },
-  { name: "Jane Smith", email: "jane.smith@mit.edu", phone: "+1 (555) 043-9821", address: "45 Innovation Blvd", city: "Cambridge", postal_code: "02139" },
-  { name: "Alice Johnson", email: "alice.j@stanford.edu", phone: "+1 (555) 087-4321", address: "789 Campus Dr", city: "Stanford", postal_code: "94305" },
-  { name: "Bob Brown", email: "bob.brown@berkeley.edu", phone: "+1 (555) 098-1122", address: "101 Euclid Ave", city: "Berkeley", postal_code: "94720" },
-  { name: "Charlie Green", email: "c.green@cmu.edu", phone: "+1 (555) 022-8877", address: "5000 Forbes Ave", city: "Pittsburgh", postal_code: "15213" },
-  { name: "Diana Prince", email: "diana.prince@harvard.edu", phone: "+1 (555) 055-6677", address: "86 Brattle St", city: "Cambridge", postal_code: "02138" },
-  { name: "Evan Wright", email: "evan.wright@yale.edu", phone: "+1 (555) 077-4433", address: "246 Church St", city: "New Haven", postal_code: "06510" },
-  { name: "Fiona Gallagher", email: "fiona.g@columbia.edu", phone: "+1 (555) 011-2233", address: "116th St & Broadway", city: "New York", postal_code: "10027" },
-  { name: "George Costanza", email: "george@vandelay.com", phone: "+1 (555) 044-5566", address: "84th St & West End Ave", city: "New York", postal_code: "10024" },
-  { name: "Hannah Abbott", email: "hannah@hogwarts.edu", phone: "+1 (555) 033-6699", address: "Hufflepuff Basement", city: "Hogsmeade", postal_code: "00777" },
+  {
+    name: "John Doe",
+    email: "john.doe@gmail.com",
+    phone: "+1 (555) 019-2834",
+    address: "123 Academic Way",
+    city: "Boston",
+    postal_code: "02115",
+  },
+  {
+    name: "Jane Smith",
+    email: "jane.smith@mit.edu",
+    phone: "+1 (555) 043-9821",
+    address: "45 Innovation Blvd",
+    city: "Cambridge",
+    postal_code: "02139",
+  },
+  {
+    name: "Alice Johnson",
+    email: "alice.j@stanford.edu",
+    phone: "+1 (555) 087-4321",
+    address: "789 Campus Dr",
+    city: "Stanford",
+    postal_code: "94305",
+  },
+  {
+    name: "Bob Brown",
+    email: "bob.brown@berkeley.edu",
+    phone: "+1 (555) 098-1122",
+    address: "101 Euclid Ave",
+    city: "Berkeley",
+    postal_code: "94720",
+  },
+  {
+    name: "Charlie Green",
+    email: "c.green@cmu.edu",
+    phone: "+1 (555) 022-8877",
+    address: "5000 Forbes Ave",
+    city: "Pittsburgh",
+    postal_code: "15213",
+  },
+  {
+    name: "Diana Prince",
+    email: "diana.prince@harvard.edu",
+    phone: "+1 (555) 055-6677",
+    address: "86 Brattle St",
+    city: "Cambridge",
+    postal_code: "02138",
+  },
+  {
+    name: "Evan Wright",
+    email: "evan.wright@yale.edu",
+    phone: "+1 (555) 077-4433",
+    address: "246 Church St",
+    city: "New Haven",
+    postal_code: "06510",
+  },
+  {
+    name: "Fiona Gallagher",
+    email: "fiona.g@columbia.edu",
+    phone: "+1 (555) 011-2233",
+    address: "116th St & Broadway",
+    city: "New York",
+    postal_code: "10027",
+  },
+  {
+    name: "George Costanza",
+    email: "george@vandelay.com",
+    phone: "+1 (555) 044-5566",
+    address: "84th St & West End Ave",
+    city: "New York",
+    postal_code: "10024",
+  },
+  {
+    name: "Hannah Abbott",
+    email: "hannah@hogwarts.edu",
+    phone: "+1 (555) 033-6699",
+    address: "Hufflepuff Basement",
+    city: "Hogsmeade",
+    postal_code: "00777",
+  },
 ];
 
 export async function generateFakeOrdersAndCustomers() {
   // 1. Fetch devices to use in orders
-  const { data: devices, error: devError } = await supabase
-    .from("devices")
-    .select("id, name, price");
+  let { data: devices, error: devError } = await supabase.from("devices").select("id, name, price");
   if (devError) throw devError;
+
   if (!devices || devices.length === 0) {
-    throw new Error("No devices found in the database. Add some devices first.");
+    const mockDevices = [
+      {
+        name: "Mechanical Keyboard G-Pro",
+        brand: "Logitech",
+        model: "G-Pro X",
+        category: "Input Device",
+        price: 129.99,
+        quantity: 15,
+        serial_number: "SN-LOGI-KBD-001",
+        status: "Available",
+        interface: "USB-C",
+      },
+      {
+        name: "Wireless Ergonomic Mouse",
+        brand: "MX Master",
+        model: "MX Master 3S",
+        category: "Input Device",
+        price: 99.99,
+        quantity: 20,
+        serial_number: "SN-MX-MSE-002",
+        status: "Available",
+        interface: "Bluetooth",
+      },
+      {
+        name: 'UltraSharp 27" 4K Monitor',
+        brand: "Dell",
+        model: "U2723QE",
+        category: "Output Device",
+        price: 499.99,
+        quantity: 8,
+        serial_number: "SN-DELL-MON-003",
+        status: "Available",
+        interface: "HDMI / DisplayPort",
+      },
+      {
+        name: "HD Stereo Webcam 1080p",
+        brand: "Anker",
+        model: "PowerConf C200",
+        category: "Input Device",
+        price: 59.99,
+        quantity: 12,
+        serial_number: "SN-ANK-CAM-004",
+        status: "Available",
+        interface: "USB-A",
+      },
+      {
+        name: "LaserJet Pro Printer",
+        brand: "HP",
+        model: "M404dn",
+        category: "Output Device",
+        price: 249.99,
+        quantity: 4,
+        serial_number: "SN-HP-PRN-005",
+        status: "Available",
+        interface: "Ethernet / Wi-Fi",
+      },
+    ];
+
+    const { error: insertDevError } = await supabase.from("devices").insert(mockDevices);
+    if (insertDevError) throw insertDevError;
+
+    const { data: refetched } = await supabase.from("devices").select("id, name, price");
+    devices = refetched || [];
   }
 
   // 2. Generate orders
@@ -28,11 +159,11 @@ export async function generateFakeOrdersAndCustomers() {
   const itemsToInsert = [];
 
   const now = new Date();
-  
+
   // Create 15 orders spread over the last 6 months
   for (let i = 0; i < 15; i++) {
     const customer = FAKE_CUSTOMERS[i % FAKE_CUSTOMERS.length];
-    
+
     const createdDate = new Date();
     createdDate.setDate(now.getDate() - Math.floor(Math.random() * 180));
     createdDate.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60), 0, 0);
@@ -101,7 +232,9 @@ export async function generateFakeOrdersAndCustomers() {
   }
 
   // Sort orders by created_at ascending so they insert chronologically
-  ordersToInsert.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  ordersToInsert.sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  );
 
   // Insert into orders
   const { error: ordError } = await supabase.from("orders").insert(ordersToInsert as any);

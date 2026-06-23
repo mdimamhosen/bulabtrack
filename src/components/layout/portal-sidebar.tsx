@@ -1,7 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import {
-  LayoutDashboard, Cpu, Wrench, BarChart3, Users, Activity, Settings, ShoppingBag, Globe, Boxes, X,
+  LayoutDashboard,
+  Cpu,
+  Wrench,
+  BarChart3,
+  Users,
+  Activity,
+  Settings,
+  ShoppingBag,
+  Globe,
+  Boxes,
+  X,
 } from "lucide-react";
 
 export type NavItem = { to: string; label: string; icon: LucideIcon };
@@ -102,11 +112,15 @@ export function PortalSidebar({
               <p className="truncate text-sm font-medium">{profile?.name ?? "Loading…"}</p>
               <p className="truncate text-xs text-muted-foreground">{profile?.email}</p>
             </div>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize border ${
-              roleVariant === "default" ? "bg-primary text-primary-foreground" :
-              roleVariant === "secondary" ? "bg-secondary text-secondary-foreground" :
-              "border-accent text-accent"
-            }`}>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize border ${
+                roleVariant === "default"
+                  ? "bg-primary text-primary-foreground"
+                  : roleVariant === "secondary"
+                    ? "bg-secondary text-secondary-foreground"
+                    : "border-accent text-accent"
+              }`}
+            >
               {roleLabel}
             </span>
           </div>

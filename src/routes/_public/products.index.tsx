@@ -22,7 +22,7 @@ import {
   HardDrive,
   Smartphone,
   Zap,
-  Projector
+  Projector,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,11 @@ export const Route = createFileRoute("/_public/products/")({
   head: () => ({
     meta: [
       { title: "Products — LabTrack Peripheral Catalog" },
-      { name: "description", content: "Browse 30+ premium Nano Banana lab peripherals: mechanical keyboards, high-DPI mice, monitors, and studio audio." },
+      {
+        name: "description",
+        content:
+          "Browse 30+ premium Nano Banana lab peripherals: mechanical keyboards, high-DPI mice, monitors, and studio audio.",
+      },
     ],
   }),
   component: ProductsPage,
@@ -72,7 +76,10 @@ function ProductsPage() {
   const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["public-products"],
     queryFn: async () => {
-      const { data } = await supabase.from("devices").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase
+        .from("devices")
+        .select("*")
+        .order("created_at", { ascending: false });
       return data ?? [];
     },
   });
@@ -97,12 +104,18 @@ function ProductsPage() {
   const peripheralCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     products.forEach((p) => {
-      const matchesSearch = !search || `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch =
+        !search ||
+        `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`
+          .toLowerCase()
+          .includes(search.toLowerCase());
       const matchesBrand = selectedBrand === "all" || p.brand === selectedBrand;
-      const matchesPrice = priceRange === "all" || (() => {
-        const [min, max] = priceRange.split("-").map(Number);
-        return Number(p.price) >= min && (max ? Number(p.price) <= max : true);
-      })();
+      const matchesPrice =
+        priceRange === "all" ||
+        (() => {
+          const [min, max] = priceRange.split("-").map(Number);
+          return Number(p.price) >= min && (max ? Number(p.price) <= max : true);
+        })();
 
       if (matchesSearch && matchesBrand && matchesPrice) {
         counts[p.peripheralType] = (counts[p.peripheralType] || 0) + 1;
@@ -114,12 +127,19 @@ function ProductsPage() {
   const brandCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     products.forEach((p) => {
-      const matchesSearch = !search || `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`.toLowerCase().includes(search.toLowerCase());
-      const matchesPeripheral = selectedPeripheral === "all" || p.peripheralType === selectedPeripheral;
-      const matchesPrice = priceRange === "all" || (() => {
-        const [min, max] = priceRange.split("-").map(Number);
-        return Number(p.price) >= min && (max ? Number(p.price) <= max : true);
-      })();
+      const matchesSearch =
+        !search ||
+        `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`
+          .toLowerCase()
+          .includes(search.toLowerCase());
+      const matchesPeripheral =
+        selectedPeripheral === "all" || p.peripheralType === selectedPeripheral;
+      const matchesPrice =
+        priceRange === "all" ||
+        (() => {
+          const [min, max] = priceRange.split("-").map(Number);
+          return Number(p.price) >= min && (max ? Number(p.price) <= max : true);
+        })();
 
       if (matchesSearch && matchesPeripheral && matchesPrice) {
         counts[p.brand] = (counts[p.brand] || 0) + 1;
@@ -134,7 +154,7 @@ function ProductsPage() {
       r = r.filter((p) =>
         `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`
           .toLowerCase()
-          .includes(search.toLowerCase())
+          .includes(search.toLowerCase()),
       );
     }
     if (selectedPeripheral !== "all") {
@@ -169,7 +189,11 @@ function ProductsPage() {
     });
   };
 
-  const hasFiltersActive = search !== "" || selectedPeripheral !== "all" || selectedBrand !== "all" || priceRange !== "all";
+  const hasFiltersActive =
+    search !== "" ||
+    selectedPeripheral !== "all" ||
+    selectedBrand !== "all" ||
+    priceRange !== "all";
 
   const clearAllFilters = () => {
     setSearch("");
@@ -186,11 +210,13 @@ function ProductsPage() {
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="aurora-bg absolute inset-0 opacity-15" />
         <div className="liquid-orb animate-blob absolute top-1/4 left-1/4 h-[350px] w-[350px] bg-primary/5 opacity-60" />
-        <div className="liquid-orb animate-blob absolute bottom-1/3 right-10 h-[400px] w-[400px] bg-accent/5 opacity-50" style={{ animationDelay: "-6s" }} />
+        <div
+          className="liquid-orb animate-blob absolute bottom-1/3 right-10 h-[400px] w-[400px] bg-accent/5 opacity-50"
+          style={{ animationDelay: "-6s" }}
+        />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
-        
         {/* Page Header */}
         <div className="mb-10 text-center sm:text-left border-b border-border/20 pb-8">
           <Badge className="bg-primary/10 border-primary/20 text-primary px-3.5 py-1 mb-3">
@@ -200,16 +226,15 @@ function ProductsPage() {
             The Nano Banana Catalog
           </h1>
           <p className="mt-3 text-muted-foreground max-w-xl text-sm leading-relaxed">
-            Reengineered custom academic peripherals. Every device carries active telemetry diagnostics and institutional compliance certificates.
+            Reengineered custom academic peripherals. Every device carries active telemetry
+            diagnostics and institutional compliance certificates.
           </p>
         </div>
 
         {/* E-Commerce Sidebar Layout */}
         <div className="flex flex-col lg:flex-row gap-8 items-start">
-          
           {/* Sticky Sidebar Filters */}
           <aside className="w-full lg:w-72 shrink-0 space-y-6 lg:sticky lg:top-24">
-            
             {/* Search Card */}
             <div className="liquid-card rounded-2xl p-5 border-border/60 shadow-xl space-y-4">
               <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
@@ -219,7 +244,10 @@ function ProductsPage() {
                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
                 <Input
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
                   placeholder="Type to search..."
                   className="pl-9 glass-input border-border/80 rounded-xl text-xs"
                 />
@@ -233,7 +261,10 @@ function ProductsPage() {
               </h3>
               <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
                 <button
-                  onClick={() => { setSelectedPeripheral("all"); setPage(1); }}
+                  onClick={() => {
+                    setSelectedPeripheral("all");
+                    setPage(1);
+                  }}
                   className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-xl transition-all cursor-pointer ${
                     selectedPeripheral === "all"
                       ? "bg-primary text-primary-foreground font-bold"
@@ -244,7 +275,9 @@ function ProductsPage() {
                   {selectedPeripheral === "all" ? (
                     <Check className="h-3.5 w-3.5" />
                   ) : (
-                    <span className="text-[10px] text-muted-foreground/60">({products.length})</span>
+                    <span className="text-[10px] text-muted-foreground/60">
+                      ({products.length})
+                    </span>
                   )}
                 </button>
                 {peripheralTypesList.map((type) => {
@@ -253,7 +286,10 @@ function ProductsPage() {
                   return (
                     <button
                       key={type}
-                      onClick={() => { setSelectedPeripheral(type); setPage(1); }}
+                      onClick={() => {
+                        setSelectedPeripheral(type);
+                        setPage(1);
+                      }}
                       className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-xl transition-all text-left cursor-pointer ${
                         selectedPeripheral === type
                           ? "bg-primary text-primary-foreground font-bold"
@@ -267,7 +303,9 @@ function ProductsPage() {
                       {selectedPeripheral === type ? (
                         <Check className="h-3.5 w-3.5 shrink-0" />
                       ) : (
-                        <span className="text-[10px] text-muted-foreground/50 shrink-0">({count})</span>
+                        <span className="text-[10px] text-muted-foreground/50 shrink-0">
+                          ({count})
+                        </span>
                       )}
                     </button>
                   );
@@ -282,7 +320,10 @@ function ProductsPage() {
               </h3>
               <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
                 <button
-                  onClick={() => { setSelectedBrand("all"); setPage(1); }}
+                  onClick={() => {
+                    setSelectedBrand("all");
+                    setPage(1);
+                  }}
                   className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-xl transition-all cursor-pointer ${
                     selectedBrand === "all"
                       ? "bg-primary text-primary-foreground font-bold"
@@ -293,7 +334,9 @@ function ProductsPage() {
                   {selectedBrand === "all" ? (
                     <Check className="h-3.5 w-3.5" />
                   ) : (
-                    <span className="text-[10px] text-muted-foreground/60">({products.length})</span>
+                    <span className="text-[10px] text-muted-foreground/60">
+                      ({products.length})
+                    </span>
                   )}
                 </button>
                 {brandsList.map((br) => {
@@ -301,7 +344,10 @@ function ProductsPage() {
                   return (
                     <button
                       key={br}
-                      onClick={() => { setSelectedBrand(br); setPage(1); }}
+                      onClick={() => {
+                        setSelectedBrand(br);
+                        setPage(1);
+                      }}
                       className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-xl transition-all text-left cursor-pointer ${
                         selectedBrand === br
                           ? "bg-primary text-primary-foreground font-bold"
@@ -312,7 +358,9 @@ function ProductsPage() {
                       {selectedBrand === br ? (
                         <Check className="h-3.5 w-3.5 shrink-0" />
                       ) : (
-                        <span className="text-[10px] text-muted-foreground/50 shrink-0">({count})</span>
+                        <span className="text-[10px] text-muted-foreground/50 shrink-0">
+                          ({count})
+                        </span>
                       )}
                     </button>
                   );
@@ -331,11 +379,14 @@ function ProductsPage() {
                   { id: "0-50", label: "Under $50" },
                   { id: "50-150", label: "$50 – $150" },
                   { id: "150-300", label: "$150 – $300" },
-                  { id: "300-9999", label: "$300+" }
+                  { id: "300-9999", label: "$300+" },
                 ].map((range) => (
                   <button
                     key={range.id}
-                    onClick={() => { setPriceRange(range.id); setPage(1); }}
+                    onClick={() => {
+                      setPriceRange(range.id);
+                      setPage(1);
+                    }}
                     className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-xl transition-all cursor-pointer ${
                       priceRange === range.id
                         ? "bg-primary text-primary-foreground font-bold"
@@ -388,7 +439,6 @@ function ProductsPage() {
 
           {/* Main Content Area (Products Grid) */}
           <div className="flex-1 w-full space-y-6">
-            
             {/* Sort & Stats Bar */}
             <div className="flex items-center justify-between gap-4 border-b border-border/20 pb-4">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -413,21 +463,25 @@ function ProductsPage() {
             {isLoading ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-96 animate-pulse rounded-2xl border border-border bg-card/40" />
+                  <div
+                    key={i}
+                    className="h-96 animate-pulse rounded-2xl border border-border bg-card/40"
+                  />
                 ))}
               </div>
             ) : pageItems.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border/80 p-16 text-center text-muted-foreground liquid-card">
                 <p className="text-sm">No specialized peripherals match your current filters.</p>
-                <Button onClick={clearAllFilters} variant="outline" className="mt-4 rounded-xl border-primary text-primary hover:bg-primary/5">
+                <Button
+                  onClick={clearAllFilters}
+                  variant="outline"
+                  className="mt-4 rounded-xl border-primary text-primary hover:bg-primary/5"
+                >
                   Clear All Filters
                 </Button>
               </div>
             ) : (
-              <motion.div
-                layout
-                className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
-              >
+              <motion.div layout className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 <AnimatePresence mode="popLayout">
                   {pageItems.map((p: any) => {
                     const isFavorite = wishlist.includes(p.id);
@@ -464,7 +518,9 @@ function ProductsPage() {
                                 {p.peripheralType}
                               </Badge>
                               <div className="flex items-center gap-1 bg-zinc-950/85 border border-zinc-800/85 backdrop-blur px-2 py-0.5 rounded-full">
-                                <span className={`inline-block h-1.5 w-1.5 rounded-full ${p.status === "Available" ? "bg-success animate-pulse" : "bg-amber-500"}`} />
+                                <span
+                                  className={`inline-block h-1.5 w-1.5 rounded-full ${p.status === "Available" ? "bg-success animate-pulse" : "bg-amber-500"}`}
+                                />
                                 <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-zinc-300">
                                   {p.status === "Available" ? "SYNC OK" : "MAINTENANCE"}
                                 </span>
@@ -474,10 +530,14 @@ function ProductsPage() {
                             <button
                               onClick={() => toggleWishlist(p.id)}
                               className={`h-7 w-7 rounded-full border flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer ${
-                                isFavorite ? "bg-rose-500/20 text-rose-500 border-rose-500/40" : "bg-zinc-950/70 border-zinc-800 text-zinc-300 hover:bg-rose-500/10 hover:text-rose-500"
+                                isFavorite
+                                  ? "bg-rose-500/20 text-rose-500 border-rose-500/40"
+                                  : "bg-zinc-950/70 border-zinc-800 text-zinc-300 hover:bg-rose-500/10 hover:text-rose-500"
                               }`}
                             >
-                              <Heart className={`h-3.5 w-3.5 ${isFavorite ? "fill-current" : ""}`} />
+                              <Heart
+                                className={`h-3.5 w-3.5 ${isFavorite ? "fill-current" : ""}`}
+                              />
                             </button>
                           </div>
 
@@ -522,7 +582,9 @@ function ProductsPage() {
                             {/* Price and Action Row */}
                             <div className="flex items-center justify-between pt-1">
                               <div className="flex flex-col">
-                                <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-wider leading-none">REQ VAL</span>
+                                <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-wider leading-none">
+                                  REQ VAL
+                                </span>
                                 <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-base font-black text-transparent">
                                   ${Number(p.price).toFixed(2)}
                                 </span>
@@ -535,7 +597,11 @@ function ProductsPage() {
                                   variant="outline"
                                   className="h-8 w-8 p-0 border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer shrink-0"
                                 >
-                                  <Link to="/products/$id" params={{ id: p.id }} title="Specifications">
+                                  <Link
+                                    to="/products/$id"
+                                    params={{ id: p.id }}
+                                    title="Specifications"
+                                  >
                                     <Eye className="h-3.5 w-3.5" />
                                   </Link>
                                 </Button>
@@ -543,7 +609,13 @@ function ProductsPage() {
                                   size="sm"
                                   disabled={p.status !== "Available"}
                                   onClick={() => {
-                                    add({ id: p.id, name: p.name, brand: p.brand, price: Number(p.price), image_url: p.image_url });
+                                    add({
+                                      id: p.id,
+                                      name: p.name,
+                                      brand: p.brand,
+                                      price: Number(p.price),
+                                      image_url: p.image_url,
+                                    });
                                     toast.success("Added to requisition cart");
                                   }}
                                   className="h-8 px-2.5 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-[10px] font-bold cursor-pointer"
@@ -553,7 +625,6 @@ function ProductsPage() {
                               </div>
                             </div>
                           </div>
-
                         </div>
                       </motion.div>
                     );
@@ -596,10 +667,8 @@ function ProductsPage() {
                 </Button>
               </div>
             )}
-
           </div>
         </div>
-
       </div>
     </div>
   );

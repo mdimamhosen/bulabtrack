@@ -18,22 +18,33 @@ export const deviceSchema = z.object({
   image_url: z
     .string()
     .trim()
-    .max(2048, "Image link is too long — remove the image and upload again")
+    .max(2048, "Image URL is too long")
     .optional()
     .or(z.literal(""))
     .refine(
-      (val) => !val || !val.startsWith("data:"),
-      "Image upload did not complete. Remove the image and try uploading again, or save without an image.",
-    )
-    .refine(
       (val) => !val || /^https?:\/\//.test(val),
-      "Image must be a valid uploaded URL",
+      "Image URL must start with http:// or https://",
     ),
 });
 
 export type DeviceForm = z.infer<typeof deviceSchema>;
 
-export const INTERFACES = ["USB", "Bluetooth", "HDMI", "PS/2", "Ethernet", "Wireless", "VGA", "DisplayPort", "Audio Jack"];
-export const STATUSES = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"] as const;
+export const INTERFACES = [
+  "USB",
+  "Bluetooth",
+  "HDMI",
+  "PS/2",
+  "Ethernet",
+  "Wireless",
+  "VGA",
+  "DisplayPort",
+  "Audio Jack",
+];
+export const STATUSES = [
+  "Available",
+  "In Use",
+  "Under Maintenance",
+  "Damaged",
+  "Disposed",
+] as const;
 export const CATEGORIES = ["Input Device", "Output Device"] as const;
-

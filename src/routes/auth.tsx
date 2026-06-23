@@ -12,12 +12,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+const searchSchema = z.object({
+  redirect: z.string().optional(),
+});
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search) => searchSchema.parse(search),
   head: () => ({
     meta: [
       { title: "Sign in — LabTrack Inventory" },
-      { name: "description", content: "Secure access to the Computer Lab Peripheral Inventory Management System." },
+      {
+        name: "description",
+        content: "Secure access to the Computer Lab Peripheral Inventory Management System.",
+      },
     ],
   }),
   component: AuthPage,
@@ -38,22 +45,31 @@ const signupSchema = z.object({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
 
   const navigateAfterAuth = async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) return;
-    const role = await fetchUserRole(data.user.id);
-    navigate({ to: dashboardPath(role) as never, replace: true });
+    if (search.redirect) {
+      navigate({ to: search.redirect as never, replace: true });
+    } else {
+      const role = await fetchUserRole(data.user.id);
+      navigate({ to: dashboardPath(role) as never, replace: true });
+    }
   };
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (data.user) {
-        const role = await fetchUserRole(data.user.id);
-        navigate({ to: dashboardPath(role) as never, replace: true });
+        if (search.redirect) {
+          navigate({ to: search.redirect as never, replace: true });
+        } else {
+          const role = await fetchUserRole(data.user.id);
+          navigate({ to: dashboardPath(role) as never, replace: true });
+        }
       }
     });
-  }, [navigate]);
+  }, [navigate, search.redirect]);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
@@ -74,7 +90,8 @@ function AuthPage() {
               Manage every <span className="gradient-text">peripheral</span> in your lab.
             </h1>
             <p className="mt-4 text-muted-foreground">
-              A modern inventory system for keyboards, mice, monitors, printers and every device in between — built for staff and administrators.
+              A modern inventory system for keyboards, mice, monitors, printers and every device in
+              between — built for staff and administrators.
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3 text-sm">
               {["Track devices", "Monitor status", "Calculate cost"].map((t) => (
@@ -159,32 +176,60 @@ function LoginForm({ onDone }: { onDone: () => void }) {
         <Label htmlFor="email">Email</Label>
         <div className="relative">
           <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input id="email" type="email" autoComplete="email" className="pl-9" placeholder="you@lab.edu" {...form.register("email")} />
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            className="pl-9"
+            placeholder="you@lab.edu"
+            {...form.register("email")}
+          />
         </div>
-        {form.formState.errors.email && <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>}
+        {form.formState.errors.email && (
+          <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
-          <button type="button" onClick={() => setForgot((v) => !v)} className="text-xs text-primary hover:underline">
+          <button
+            type="button"
+            onClick={() => setForgot((v) => !v)}
+            className="text-xs text-primary hover:underline"
+          >
             Forgot?
           </button>
         </div>
         <div className="relative">
           <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input id="password" type="password" autoComplete="current-password" className="pl-9" placeholder="••••••••" {...form.register("password")} />
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            className="pl-9"
+            placeholder="••••••••"
+            {...form.register("password")}
+          />
         </div>
-        {form.formState.errors.password && <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>}
+        {form.formState.errors.password && (
+          <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
+        )}
       </div>
       {forgot && (
         <div className="rounded-md border border-border bg-secondary/40 p-3 text-sm">
-          <p className="mb-2 text-muted-foreground">We'll email a reset link to the address above.</p>
-          <Button type="button" size="sm" variant="secondary" onClick={sendReset}>Send reset link</Button>
+          <p className="mb-2 text-muted-foreground">
+            We'll email a reset link to the address above.
+          </p>
+          <Button type="button" size="sm" variant="secondary" onClick={sendReset}>
+            Send reset link
+          </Button>
         </div>
       )}
       <div className="flex items-center gap-2">
         <Checkbox id="remember" defaultChecked />
-        <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground">Remember me</Label>
+        <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground">
+          Remember me
+        </Label>
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -228,30 +273,53 @@ function SignupForm({ onDone }: { onDone: () => void }) {
           <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input id="su-name" className="pl-9" placeholder="Jane Doe" {...form.register("name")} />
         </div>
-        {form.formState.errors.name && <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>}
+        {form.formState.errors.name && (
+          <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="su-email">Email</Label>
         <div className="relative">
           <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input id="su-email" type="email" className="pl-9" placeholder="you@lab.edu" {...form.register("email")} />
+          <Input
+            id="su-email"
+            type="email"
+            className="pl-9"
+            placeholder="you@lab.edu"
+            {...form.register("email")}
+          />
         </div>
-        {form.formState.errors.email && <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>}
+        {form.formState.errors.email && (
+          <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="su-phone">Phone (optional)</Label>
         <div className="relative">
           <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input id="su-phone" className="pl-9" placeholder="+1 555 1234" {...form.register("phone")} />
+          <Input
+            id="su-phone"
+            className="pl-9"
+            placeholder="+1 555 1234"
+            {...form.register("phone")}
+          />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="su-password">Password</Label>
         <div className="relative">
           <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input id="su-password" type="password" className="pl-9" placeholder="At least 8 characters" {...form.register("password")} />
+          <Input
+            id="su-password"
+            type="password"
+            className="pl-9"
+            placeholder="At least 8 characters"
+            {...form.register("password")}
+          />
         </div>
-        {form.formState.errors.password && <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>}
+        {form.formState.errors.password && (
+          <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
+        )}
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -81,9 +81,14 @@ export function AccountOverlays({
             </div>
             <h3 className="text-lg font-bold text-foreground">Account Deactivated</h3>
             <p className="text-xs text-muted-foreground mt-2 mb-6 leading-relaxed">
-              Your account has been deactivated or blocked by an administrator. Please reach out to administrative support if you believe this is in error.
+              Your account has been deactivated or blocked by an administrator. Please reach out to
+              administrative support if you believe this is in error.
             </p>
-            <Button onClick={signOut} variant="destructive" className="w-full rounded-xl font-semibold text-xs h-9">
+            <Button
+              onClick={signOut}
+              variant="destructive"
+              className="w-full rounded-xl font-semibold text-xs h-9"
+            >
               <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign Out & Exit
             </Button>
           </div>
@@ -99,12 +104,15 @@ export function AccountOverlays({
               </div>
               <h3 className="text-lg font-bold text-foreground">Password Update Required</h3>
               <p className="text-xs text-muted-foreground">
-                For security reasons, your administrator requires you to change your password before using the LabTrack portal.
+                For security reasons, your administrator requires you to change your password before
+                using the LabTrack portal.
               </p>
             </div>
             <form onSubmit={handleEnforcedPasswordChange} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">New Password</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  New Password
+                </Label>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
                   <Input
@@ -118,7 +126,9 @@ export function AccountOverlays({
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Confirm Password</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Confirm Password
+                </Label>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
                   <Input
@@ -131,7 +141,11 @@ export function AccountOverlays({
                   />
                 </div>
               </div>
-              <Button type="submit" disabled={updatingPassword} className="w-full rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-xs h-9">
+              <Button
+                type="submit"
+                disabled={updatingPassword}
+                className="w-full rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-xs h-9"
+              >
                 {updatingPassword && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
                 Change Password & Proceed
               </Button>

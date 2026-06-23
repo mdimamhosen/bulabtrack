@@ -1,7 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Construction, type LucideIcon } from "lucide-react";
 
-export function StubPage({ title, desc, icon: Icon }: { title: string; desc: string; icon: LucideIcon }) {
+export function StubPage({
+  title,
+  desc,
+  icon: Icon,
+}: {
+  title: string;
+  desc: string;
+  icon: LucideIcon;
+}) {
   return (
     <div className="space-y-6">
       <div>

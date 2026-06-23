@@ -3,9 +3,36 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import {
-  ArrowRight, ShieldCheck, BarChart3, Zap, Cpu, Wrench, Users, Star, Mail, CheckCircle2,
-  Sparkles, Keyboard, Mouse, Headphones, Monitor, Camera, Mic, Truck, PackageCheck, PlayCircle,
-  Volume2, ShieldAlert, Check, RefreshCw, Clock, X, Heart, ShoppingBag, LayoutGrid, Terminal
+  ArrowRight,
+  ShieldCheck,
+  BarChart3,
+  Zap,
+  Cpu,
+  Wrench,
+  Users,
+  Star,
+  Mail,
+  CheckCircle2,
+  Sparkles,
+  Keyboard,
+  Mouse,
+  Headphones,
+  Monitor,
+  Camera,
+  Mic,
+  Truck,
+  PackageCheck,
+  PlayCircle,
+  Volume2,
+  ShieldAlert,
+  Check,
+  RefreshCw,
+  Clock,
+  X,
+  Heart,
+  ShoppingBag,
+  LayoutGrid,
+  Terminal,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,7 +46,11 @@ export const Route = createFileRoute("/_public/")({
   head: () => ({
     meta: [
       { title: "LabTrack — Premium Peripheral Inventory & Storefront" },
-      { name: "description", content: "Discover, track and procure beautifully crafted peripherals for the modern computer laboratory with real-time tracking." },
+      {
+        name: "description",
+        content:
+          "Discover, track and procure beautifully crafted peripherals for the modern computer laboratory with real-time tracking.",
+      },
     ],
   }),
   component: HomePage,
@@ -31,7 +62,7 @@ const playKeySound = (switchType: "linear" | "tactile" | "clicky") => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
-    
+
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
@@ -71,12 +102,36 @@ const playKeySound = (switchType: "linear" | "tactile" | "clicky") => {
 const brands = ["Logitech", "Razer", "Dell", "HP", "Corsair", "SteelSeries", "ASUS", "Microsoft"];
 
 const features = [
-  { icon: Cpu, title: "Centralized Inventory", desc: "Every device, brand and serial — one searchable hub." },
-  { icon: BarChart3, title: "Real-time Analytics", desc: "Live status, category and trend dashboards." },
-  { icon: Wrench, title: "Maintenance Tracking", desc: "Log issues, schedule fixes, reduce downtime." },
-  { icon: ShieldCheck, title: "Role-based Security", desc: "Granular admin & staff permissions out of the box." },
-  { icon: Zap, title: "Lightning Fast", desc: "Built on edge infrastructure for instant responses." },
-  { icon: Users, title: "Multi-user Teams", desc: "Designed for lab staff, instructors and procurement." },
+  {
+    icon: Cpu,
+    title: "Centralized Inventory",
+    desc: "Every device, brand and serial — one searchable hub.",
+  },
+  {
+    icon: BarChart3,
+    title: "Real-time Analytics",
+    desc: "Live status, category and trend dashboards.",
+  },
+  {
+    icon: Wrench,
+    title: "Maintenance Tracking",
+    desc: "Log issues, schedule fixes, reduce downtime.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Role-based Security",
+    desc: "Granular admin & staff permissions out of the box.",
+  },
+  {
+    icon: Zap,
+    title: "Lightning Fast",
+    desc: "Built on edge infrastructure for instant responses.",
+  },
+  {
+    icon: Users,
+    title: "Multi-user Teams",
+    desc: "Designed for lab staff, instructors and procurement.",
+  },
 ];
 
 const categories = [
@@ -97,47 +152,126 @@ const stats = [
 
 // Fallback high-quality products if DB query is empty
 const fallbackProducts = [
-  { id: "kb-01", name: "Apex Pro Mechanical Keyboard", brand: "SteelSeries", price: 189.99, category: "Keyboards", image_url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=600", description: "Mechanical keyboard with adjustable OmniPoint switches." },
-  { id: "ms-01", name: "G Pro X Superlight Mouse", brand: "Logitech", price: 149.99, category: "Mice", image_url: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=600", description: "Ultra-lightweight wireless gaming mouse with HERO sensor." },
-  { id: "hs-01", name: "BlackShark V2 Pro Headset", brand: "Razer", price: 129.99, category: "Audio", image_url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=600", description: "Esports wireless headset with noise-canceling microphone." },
-  { id: "mn-01", name: "UltraSharp 27\" 4K USB-C Monitor", brand: "Dell", price: 399.99, category: "Displays", image_url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=600", description: "IPS black technology 4K hub monitor with USB-C power delivery." },
+  {
+    id: "kb-01",
+    name: "Apex Pro Mechanical Keyboard",
+    brand: "SteelSeries",
+    price: 189.99,
+    category: "Keyboards",
+    image_url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=600",
+    description: "Mechanical keyboard with adjustable OmniPoint switches.",
+  },
+  {
+    id: "ms-01",
+    name: "G Pro X Superlight Mouse",
+    brand: "Logitech",
+    price: 149.99,
+    category: "Mice",
+    image_url: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=600",
+    description: "Ultra-lightweight wireless gaming mouse with HERO sensor.",
+  },
+  {
+    id: "hs-01",
+    name: "BlackShark V2 Pro Headset",
+    brand: "Razer",
+    price: 129.99,
+    category: "Audio",
+    image_url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=600",
+    description: "Esports wireless headset with noise-canceling microphone.",
+  },
+  {
+    id: "mn-01",
+    name: 'UltraSharp 27" 4K USB-C Monitor',
+    brand: "Dell",
+    price: 399.99,
+    category: "Displays",
+    image_url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=600",
+    description: "IPS black technology 4K hub monitor with USB-C power delivery.",
+  },
 ];
 
 const testimonials = [
-  { name: "Dr. Aisha Khan", role: "CS Department Chair", quote: "LabTrack replaced our spreadsheets overnight. The analytics alone saved us hours weekly, especially with keyboard replacements." },
-  { name: "Marco Reyes", role: "IT Systems Architect", quote: "Stunningly designed and extremely premium. Our lab assistants onboarded in 10 minutes, and the maintenance logs are perfect." },
-  { name: "Priya Shah", role: "Procurement Lead", quote: "The customized workstation bundles and streamlined requisition checkouts make ordering computer assets painless." },
+  {
+    name: "Dr. Aisha Khan",
+    role: "CS Department Chair",
+    quote:
+      "LabTrack replaced our spreadsheets overnight. The analytics alone saved us hours weekly, especially with keyboard replacements.",
+  },
+  {
+    name: "Marco Reyes",
+    role: "IT Systems Architect",
+    quote:
+      "Stunningly designed and extremely premium. Our lab assistants onboarded in 10 minutes, and the maintenance logs are perfect.",
+  },
+  {
+    name: "Priya Shah",
+    role: "Procurement Lead",
+    quote:
+      "The customized workstation bundles and streamlined requisition checkouts make ordering computer assets painless.",
+  },
 ];
 
 const faqItems = [
-  { q: "Is LabTrack free for academic institutions?", a: "Yes, the core inventory and tracking catalog is completely free for accredited high schools, universities, and student labs." },
-  { q: "Can we configure custom requisition approvals?", a: "Absolutely. Lab Managers can configure multi-level authorization gates before requisition tickets are finalized." },
-  { q: "Does the platform track warranty details?", a: "Yes, you can log warranties, upload invoices, and receive proactive alerts before hardware support contracts expire." },
-  { q: "Is there a student checkout portal?", a: "Yes! Students can check out loaner peripherals (like VR headsets or drawing tablets) by scanning station QR codes." },
+  {
+    q: "Is LabTrack free for academic institutions?",
+    a: "Yes, the core inventory and tracking catalog is completely free for accredited high schools, universities, and student labs.",
+  },
+  {
+    q: "Can we configure custom requisition approvals?",
+    a: "Absolutely. Lab Managers can configure multi-level authorization gates before requisition tickets are finalized.",
+  },
+  {
+    q: "Does the platform track warranty details?",
+    a: "Yes, you can log warranties, upload invoices, and receive proactive alerts before hardware support contracts expire.",
+  },
+  {
+    q: "Is there a student checkout portal?",
+    a: "Yes! Students can check out loaner peripherals (like VR headsets or drawing tablets) by scanning station QR codes.",
+  },
 ];
 
 // CS Labs configurations for Builder
 const builderOptions = {
   keyboards: [
-    { id: "b-kb-1", name: "Pro Mech TKL (Silent Red Switches)", price: 129.99, brand: "LabTrack Edition" },
+    {
+      id: "b-kb-1",
+      name: "Pro Mech TKL (Silent Red Switches)",
+      price: 129.99,
+      brand: "LabTrack Edition",
+    },
     { id: "b-kb-2", name: "Standard Ergonomic Membrane", price: 49.99, brand: "Dell OEM" },
-    { id: "b-kb-3", name: "CyberGlow Hot-Swap RGB (Tactile)", price: 159.99, brand: "Keychron Co." }
+    {
+      id: "b-kb-3",
+      name: "CyberGlow Hot-Swap RGB (Tactile)",
+      price: 159.99,
+      brand: "Keychron Co.",
+    },
   ],
   mice: [
-    { id: "b-ms-1", name: "Ultralight Precision Mouse (Wireless)", price: 89.99, brand: "Logitech" },
+    {
+      id: "b-ms-1",
+      name: "Ultralight Precision Mouse (Wireless)",
+      price: 89.99,
+      brand: "Logitech",
+    },
     { id: "b-ms-2", name: "Ergonomic wired office mouse", price: 29.99, brand: "HP" },
-    { id: "b-ms-3", name: "Carbon-V Precision Wireless", price: 119.99, brand: "Razer" }
+    { id: "b-ms-3", name: "Carbon-V Precision Wireless", price: 119.99, brand: "Razer" },
   ],
   audio: [
-    { id: "b-au-1", name: "Spatial Noise-Canceling Headset", price: 109.99, brand: "Audio-Technica" },
+    {
+      id: "b-au-1",
+      name: "Spatial Noise-Canceling Headset",
+      price: 109.99,
+      brand: "Audio-Technica",
+    },
     { id: "b-au-2", name: "Stereo Lab Earbuds (Pack of 5)", price: 34.99, brand: "Generic" },
-    { id: "b-au-3", name: "Pro Broadcast Studio Mic", price: 149.99, brand: "Shure" }
+    { id: "b-au-3", name: "Pro Broadcast Studio Mic", price: 149.99, brand: "Shure" },
   ],
   deskmats: [
     { id: "b-dm-1", name: "Liquidmorphic Fluid-Art Mat", price: 24.99, brand: "LabTrack Custom" },
     { id: "b-dm-2", name: "Sleek Matte Black Desk Mat", price: 14.99, brand: "LabTrack Standard" },
-    { id: "b-dm-3", name: "Dual-Side Premium Leather Pad", price: 39.99, brand: "Onyx" }
-  ]
+    { id: "b-dm-3", name: "Dual-Side Premium Leather Pad", price: 39.99, brand: "Onyx" },
+  ],
 };
 
 const showroomSetups = [
@@ -145,23 +279,26 @@ const showroomSetups = [
     title: "Esports & Gaming Arena",
     location: "University Tech Center, Room 402",
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200",
-    description: "Configured with hot-swap clicky keyboards, lightweight gaming mice, and surround-sound headsets for high performance.",
-    tag: "High-Performance"
+    description:
+      "Configured with hot-swap clicky keyboards, lightweight gaming mice, and surround-sound headsets for high performance.",
+    tag: "High-Performance",
   },
   {
     title: "CS Software Engineering Lab",
     location: "Main Engineering Hall, Lab B",
     image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200",
-    description: "Fitted with quiet linear switch keyboards, high-precision vertical mice, and ergonomic dual-monitor layouts.",
-    tag: "Acoustic Friendly"
+    description:
+      "Fitted with quiet linear switch keyboards, high-precision vertical mice, and ergonomic dual-monitor layouts.",
+    tag: "Acoustic Friendly",
   },
   {
     title: "AI & Data Science Workspace",
     location: "Science Building, Tower A",
     image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200",
-    description: "Outfitted with wireless productivity peripherals, custom deskmats, and active noise-cancelling overhead monitors.",
-    tag: "Focus Layout"
-  }
+    description:
+      "Outfitted with wireless productivity peripherals, custom deskmats, and active noise-cancelling overhead monitors.",
+    tag: "Focus Layout",
+  },
 ];
 
 function HomePage() {
@@ -169,14 +306,20 @@ function HomePage() {
   const [videoOpen, setVideoOpen] = useState(false);
 
   // States for SECTION 1: Interactive Keyboard Customizer
-  const [customizerTheme, setCustomizerTheme] = useState<"cyberpunk" | "stealth" | "sakura">("cyberpunk");
-  const [customizerSwitch, setCustomizerSwitch] = useState<"linear" | "tactile" | "clicky">("linear");
+  const [customizerTheme, setCustomizerTheme] = useState<"cyberpunk" | "stealth" | "sakura">(
+    "cyberpunk",
+  );
+  const [customizerSwitch, setCustomizerSwitch] = useState<"linear" | "tactile" | "clicky">(
+    "linear",
+  );
   const [lastKeyPressed, setLastKeyPressed] = useState<string>("");
   const [rgbEnabled, setRgbEnabled] = useState(true);
 
   // States for SECTION 2: Real-time Telemetry Dashboard
   const [telemetryLab, setTelemetryLab] = useState<"Lab A" | "Lab B" | "Lab C">("Lab A");
-  const [telemetryChartData, setTelemetryChartData] = useState<{ time: string; keystrokes: number; clicks: number }[]>([]);
+  const [telemetryChartData, setTelemetryChartData] = useState<
+    { time: string; keystrokes: number; clicks: number }[]
+  >([]);
   const [liveLogs, setLiveLogs] = useState<string[]>([
     "Scanning Lab Station arrays...",
     "Lab A: Apex Pro Mechanical Keyboard connected.",
@@ -229,13 +372,17 @@ function HomePage() {
         const next = [...prev.slice(1)];
         next.push({
           time: "Just now",
-          keystrokes: Math.floor(Math.random() * 60) + (telemetryLab === "Lab A" ? 50 : telemetryLab === "Lab B" ? 30 : 20),
-          clicks: Math.floor(Math.random() * 35) + (telemetryLab === "Lab A" ? 25 : telemetryLab === "Lab B" ? 15 : 10),
+          keystrokes:
+            Math.floor(Math.random() * 60) +
+            (telemetryLab === "Lab A" ? 50 : telemetryLab === "Lab B" ? 30 : 20),
+          clicks:
+            Math.floor(Math.random() * 35) +
+            (telemetryLab === "Lab A" ? 25 : telemetryLab === "Lab B" ? 15 : 10),
         });
         // Rename time fields for clean visual labels
         return next.map((item, idx) => ({
           ...item,
-          time: idx === next.length - 1 ? "Now" : `${next.length - 1 - idx}s ago`
+          time: idx === next.length - 1 ? "Now" : `${next.length - 1 - idx}s ago`,
         }));
       });
 
@@ -246,7 +393,7 @@ function HomePage() {
         "Automatic latency optimization completed",
         "New device checkout request received",
         "Maintenance timeline updated: Lab B",
-        "Calibration checklist complete: Lab C"
+        "Calibration checklist complete: Lab C",
       ];
       setLiveLogs((prev) => {
         const nextLog = `${telemetryLab}: ${events[Math.floor(Math.random() * events.length)]}`;
@@ -280,10 +427,34 @@ function HomePage() {
 
   const handleAddBundleToCart = () => {
     // Add all 4 items to cart
-    add({ id: selectedKb.id, name: selectedKb.name, brand: selectedKb.brand, price: selectedKb.price, image_url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=150" });
-    add({ id: selectedMs.id, name: selectedMs.name, brand: selectedMs.brand, price: selectedMs.price, image_url: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=150" });
-    add({ id: selectedAu.id, name: selectedAu.name, brand: selectedAu.brand, price: selectedAu.price, image_url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=150" });
-    add({ id: selectedDm.id, name: selectedDm.name, brand: selectedDm.brand, price: selectedDm.price, image_url: null });
+    add({
+      id: selectedKb.id,
+      name: selectedKb.name,
+      brand: selectedKb.brand,
+      price: selectedKb.price,
+      image_url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=150",
+    });
+    add({
+      id: selectedMs.id,
+      name: selectedMs.name,
+      brand: selectedMs.brand,
+      price: selectedMs.price,
+      image_url: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=150",
+    });
+    add({
+      id: selectedAu.id,
+      name: selectedAu.name,
+      brand: selectedAu.brand,
+      price: selectedAu.price,
+      image_url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=150",
+    });
+    add({
+      id: selectedDm.id,
+      name: selectedDm.name,
+      brand: selectedDm.brand,
+      price: selectedDm.price,
+      image_url: null,
+    });
     toast.success("Complete custom workstation bundle added to your cart!");
   };
 
@@ -298,7 +469,12 @@ function HomePage() {
         <defs>
           <filter id="liquid-goo">
             <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="goo" />
+            <feColorMatrix
+              in="blur"
+              mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10"
+              result="goo"
+            />
             <feBlend in="SourceGraphic" in2="goo" />
           </filter>
         </defs>
@@ -310,14 +486,20 @@ function HomePage() {
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="aurora-bg absolute inset-0 opacity-40" />
           <div className="ai-grid absolute inset-0 opacity-50" />
-          
+
           {/* Gooey morphing containers */}
           <div style={{ filter: "url(#liquid-goo)" }} className="absolute inset-0">
             <div className="liquid-orb animate-blob absolute -top-20 -left-20 h-[380px] w-[380px] bg-primary/45 opacity-80" />
-            <div className="liquid-orb animate-blob absolute top-1/4 right-5 h-[420px] w-[420px] bg-accent/35 opacity-70" style={{ animationDelay: "-4s" }} />
-            <div className="liquid-orb animate-blob absolute -bottom-20 left-1/4 h-[350px] w-[350px] bg-primary/30 opacity-70" style={{ animationDelay: "-8s" }} />
+            <div
+              className="liquid-orb animate-blob absolute top-1/4 right-5 h-[420px] w-[420px] bg-accent/35 opacity-70"
+              style={{ animationDelay: "-4s" }}
+            />
+            <div
+              className="liquid-orb animate-blob absolute -bottom-20 left-1/4 h-[350px] w-[350px] bg-primary/30 opacity-70"
+              style={{ animationDelay: "-8s" }}
+            />
           </div>
-          
+
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
         </div>
 
@@ -344,7 +526,8 @@ function HomePage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-                Catalog, monitor telemetry, schedule maintenance, and requisition premium computer devices. Built for educational computer laboratories and gaming arenas.
+                Catalog, monitor telemetry, schedule maintenance, and requisition premium computer
+                devices. Built for educational computer laboratories and gaming arenas.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -420,7 +603,9 @@ function HomePage() {
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Active Scans</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                      Active Scans
+                    </p>
                     <p className="text-sm font-extrabold">All 12 Labs Operational</p>
                   </div>
                 </div>
@@ -438,7 +623,9 @@ function HomePage() {
                     <Truck className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Fast Transit</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                      Fast Transit
+                    </p>
                     <p className="text-sm font-extrabold">24h Institutional Dispatch</p>
                   </div>
                 </div>
@@ -456,7 +643,10 @@ function HomePage() {
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-50 hover:opacity-80 transition-opacity">
             {brands.map((b) => (
-              <span key={b} className="text-sm font-bold tracking-widest uppercase hover:text-primary transition-colors cursor-default">
+              <span
+                key={b}
+                className="text-sm font-bold tracking-widest uppercase hover:text-primary transition-colors cursor-default"
+              >
                 {b}
               </span>
             ))}
@@ -469,7 +659,7 @@ function HomePage() {
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="liquid-orb absolute right-1/4 top-1/4 h-[380px] w-[380px] bg-accent/20 opacity-60" />
         </div>
-        
+
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <Badge className="bg-primary/10 text-primary border border-primary/20 py-1 px-3 mb-4">
@@ -479,7 +669,8 @@ function HomePage() {
               Customizer Studio & Switch Sandbox
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Test different mechanical switches and keycap themes directly in your browser. Click the keycap deck to play synthesized mechanical click feedback.
+              Test different mechanical switches and keycap themes directly in your browser. Click
+              the keycap deck to play synthesized mechanical click feedback.
             </p>
           </div>
 
@@ -489,15 +680,21 @@ function HomePage() {
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Keyboard className="h-5 w-5 text-primary" /> Keyboard Options
               </h3>
-              
+
               {/* Color Scheme Picker */}
               <div className="mt-8">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Keycap Color Theme</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Keycap Color Theme
+                </span>
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   {[
-                    { id: "cyberpunk", label: "Cyberpunk", colors: "from-purple-500 to-yellow-400" },
+                    {
+                      id: "cyberpunk",
+                      label: "Cyberpunk",
+                      colors: "from-purple-500 to-yellow-400",
+                    },
                     { id: "stealth", label: "Stealth Black", colors: "from-zinc-800 to-zinc-950" },
-                    { id: "sakura", label: "Sakura Pink", colors: "from-pink-300 to-rose-400" }
+                    { id: "sakura", label: "Sakura Pink", colors: "from-pink-300 to-rose-400" },
                   ].map((theme) => (
                     <button
                       key={theme.id}
@@ -517,12 +714,29 @@ function HomePage() {
 
               {/* Switches Selection */}
               <div className="mt-8">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Mechanical Switch Profile</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Mechanical Switch Profile
+                </span>
                 <div className="mt-3 flex flex-col gap-2">
                   {[
-                    { id: "linear", label: "Cherry MX Red (Linear)", desc: "Quiet, smooth, click-less thud", color: "bg-rose-500" },
-                    { id: "tactile", label: "Cherry MX Brown (Tactile)", desc: "Moderate bump, balanced sound", color: "bg-amber-600" },
-                    { id: "clicky", label: "Cherry MX Blue (Clicky)", desc: "Loud tactile crisp high snap", color: "bg-sky-500" }
+                    {
+                      id: "linear",
+                      label: "Cherry MX Red (Linear)",
+                      desc: "Quiet, smooth, click-less thud",
+                      color: "bg-rose-500",
+                    },
+                    {
+                      id: "tactile",
+                      label: "Cherry MX Brown (Tactile)",
+                      desc: "Moderate bump, balanced sound",
+                      color: "bg-amber-600",
+                    },
+                    {
+                      id: "clicky",
+                      label: "Cherry MX Blue (Clicky)",
+                      desc: "Loud tactile crisp high snap",
+                      color: "bg-sky-500",
+                    },
                   ].map((sw) => (
                     <button
                       key={sw.id}
@@ -576,10 +790,10 @@ function HomePage() {
                   !rgbEnabled
                     ? "bg-transparent"
                     : customizerTheme === "cyberpunk"
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_80px_oklch(0.58_0.24_274/0.6)]"
-                    : customizerTheme === "stealth"
-                    ? "bg-gradient-to-r from-zinc-700 to-zinc-400"
-                    : "bg-gradient-to-r from-pink-400 to-rose-300 shadow-[0_0_80px_oklch(0.78_0.16_210/0.5)]"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_80px_oklch(0.58_0.24_274/0.6)]"
+                      : customizerTheme === "stealth"
+                        ? "bg-gradient-to-r from-zinc-700 to-zinc-400"
+                        : "bg-gradient-to-r from-pink-400 to-rose-300 shadow-[0_0_80px_oklch(0.78_0.16_210/0.5)]"
                 }`}
               />
 
@@ -590,7 +804,7 @@ function HomePage() {
                   {/* Row 1 */}
                   {["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"].map((key) => {
                     const isPressed = lastKeyPressed === key;
-                    
+
                     // Determine key color styles based on selected customizer theme
                     let keyColor = "bg-zinc-800 hover:bg-zinc-700 text-zinc-300";
                     if (customizerTheme === "cyberpunk") {
@@ -634,8 +848,8 @@ function HomePage() {
                       customizerTheme === "cyberpunk"
                         ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                         : customizerTheme === "sakura"
-                        ? "bg-rose-300 text-white"
-                        : "bg-zinc-800 text-zinc-400"
+                          ? "bg-rose-300 text-white"
+                          : "bg-zinc-800 text-zinc-400"
                     } ${lastKeyPressed === "SPACE" ? "translate-y-1 shadow-none" : ""}`}
                   >
                     SPACEBAR
@@ -648,7 +862,11 @@ function HomePage() {
               <div className="mt-6 text-center">
                 {lastKeyPressed ? (
                   <p className="text-sm font-semibold flex items-center gap-1.5">
-                    Pressed <span className="px-2 py-0.5 rounded bg-card text-primary font-mono">{lastKeyPressed}</span> - Feedback: <Volume2 className="h-4 w-4 text-accent inline" /> click synthesized
+                    Pressed{" "}
+                    <span className="px-2 py-0.5 rounded bg-card text-primary font-mono">
+                      {lastKeyPressed}
+                    </span>{" "}
+                    - Feedback: <Volume2 className="h-4 w-4 text-accent inline" /> click synthesized
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
@@ -669,7 +887,6 @@ function HomePage() {
 
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] items-center">
-            
             {/* Live Chart & Metrics Panel */}
             <div className="space-y-6">
               <div>
@@ -680,7 +897,8 @@ function HomePage() {
                   Institutional Telemetry & Live Laboratory Pulse
                 </h2>
                 <p className="mt-4 text-muted-foreground leading-relaxed">
-                  Every device tracked via LabTrack streams performance updates. View bandwidth, cumulative keystrokes, and diagnostic logs in real time.
+                  Every device tracked via LabTrack streams performance updates. View bandwidth,
+                  cumulative keystrokes, and diagnostic logs in real time.
                 </p>
               </div>
 
@@ -709,7 +927,11 @@ function HomePage() {
                 <div className="liquid-card p-4 rounded-xl text-center">
                   <p className="text-xs text-muted-foreground">Active Hubs</p>
                   <p className="text-xl font-black text-primary mt-1">
-                    {telemetryLab === "Lab A" ? "42 / 45" : telemetryLab === "Lab B" ? "28 / 30" : "15 / 15"}
+                    {telemetryLab === "Lab A"
+                      ? "42 / 45"
+                      : telemetryLab === "Lab B"
+                        ? "28 / 30"
+                        : "15 / 15"}
                   </p>
                 </div>
                 <div className="liquid-card p-4 rounded-xl text-center">
@@ -736,7 +958,9 @@ function HomePage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="inline-block h-2 w-2 rounded-full bg-success animate-ping" />
-                  <span className="text-[10px] font-mono font-semibold text-success">STREAMING LIVE</span>
+                  <span className="text-[10px] font-mono font-semibold text-success">
+                    STREAMING LIVE
+                  </span>
                 </div>
               </div>
 
@@ -744,7 +968,10 @@ function HomePage() {
               <div className="h-56 w-full mt-4">
                 {telemetryChartData.length > 0 && (
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={telemetryChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart
+                      data={telemetryChartData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
                       <defs>
                         <linearGradient id="colorKeystrokes" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.5} />
@@ -755,11 +982,38 @@ function HomePage() {
                           <stop offset="95%" stopColor="var(--color-accent)" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="time" tick={{ fontSize: 9 }} stroke="var(--color-muted-foreground)" />
+                      <XAxis
+                        dataKey="time"
+                        tick={{ fontSize: 9 }}
+                        stroke="var(--color-muted-foreground)"
+                      />
                       <YAxis tick={{ fontSize: 9 }} stroke="var(--color-muted-foreground)" />
-                      <Tooltip contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: "11px" }} />
-                      <Area type="monotone" dataKey="keystrokes" name="Keystrokes/sec" stroke="var(--color-primary)" fillOpacity={1} fill="url(#colorKeystrokes)" strokeWidth={2} />
-                      <Area type="monotone" dataKey="clicks" name="Mouse Clicks" stroke="var(--color-accent)" fillOpacity={1} fill="url(#colorClicks)" strokeWidth={2} />
+                      <Tooltip
+                        contentStyle={{
+                          background: "var(--color-card)",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "8px",
+                          fontSize: "11px",
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="keystrokes"
+                        name="Keystrokes/sec"
+                        stroke="var(--color-primary)"
+                        fillOpacity={1}
+                        fill="url(#colorKeystrokes)"
+                        strokeWidth={2}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="clicks"
+                        name="Mouse Clicks"
+                        stroke="var(--color-accent)"
+                        fillOpacity={1}
+                        fill="url(#colorClicks)"
+                        strokeWidth={2}
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
@@ -781,7 +1035,6 @@ function HomePage() {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -801,23 +1054,22 @@ function HomePage() {
               Lab Station Requisition Wizard
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Assemble specialized bundles (Keyboards, Mice, Audio, and Deskmats) designed for student workstation setups and check institutional compatibility.
+              Assemble specialized bundles (Keyboards, Mice, Audio, and Deskmats) designed for
+              student workstation setups and check institutional compatibility.
             </p>
           </div>
 
           {/* Stepper Wizard Main Layout */}
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-start">
-            
             {/* Left Steps Panel */}
             <div className="liquid-card rounded-3xl p-8 border-border/60">
-              
               {/* Stepper Progress Header */}
               <div className="flex justify-between items-center mb-8 border-b border-border/30 pb-6">
                 {[
                   { step: 1, label: "Workspace Focus" },
                   { step: 2, label: "Input Deck" },
                   { step: 3, label: "Acoustics & Mat" },
-                  { step: 4, label: "Final Bundle" }
+                  { step: 4, label: "Final Bundle" },
                 ].map((s) => (
                   <div key={s.step} className="flex flex-col items-center flex-1">
                     <button
@@ -826,8 +1078,8 @@ function HomePage() {
                         builderStep === s.step
                           ? "bg-primary border-primary text-primary-foreground shadow-glow"
                           : builderStep > s.step
-                          ? "bg-success border-success text-success-foreground cursor-pointer"
-                          : "bg-card border-border text-muted-foreground cursor-not-allowed"
+                            ? "bg-success border-success text-success-foreground cursor-pointer"
+                            : "bg-card border-border text-muted-foreground cursor-not-allowed"
                       }`}
                     >
                       {builderStep > s.step ? <Check className="h-4 w-4" /> : s.step}
@@ -841,18 +1093,35 @@ function HomePage() {
 
               {/* Wizard Content Panels */}
               <div className="min-h-[280px]">
-                
                 {/* STEP 1: PRESETS */}
                 {builderStep === 1 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <h3 className="text-lg font-bold mb-2">Choose Workspace Configuration Type</h3>
-                    <p className="text-sm text-muted-foreground mb-6">Select a preset tailored to your laboratory's usage profile. You can tweak specific devices later.</p>
-                    
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Select a preset tailored to your laboratory's usage profile. You can tweak
+                      specific devices later.
+                    </p>
+
                     <div className="grid gap-4 sm:grid-cols-3">
                       {[
-                        { id: "coding", label: "CS Development Lab", desc: "Acoustic-friendly linear keys, precision comfort wireless mice.", icon: CodePresetIcon },
-                        { id: "gaming", label: "Esports Arena Setup", desc: "Vibrant RGB keys, speed gaming mice, virtual surround audio.", icon: GamePresetIcon },
-                        { id: "office", label: "General Office / Desk", desc: "Classic robust keyboards, durable mice, eco-mats.", icon: OfficePresetIcon }
+                        {
+                          id: "coding",
+                          label: "CS Development Lab",
+                          desc: "Acoustic-friendly linear keys, precision comfort wireless mice.",
+                          icon: CodePresetIcon,
+                        },
+                        {
+                          id: "gaming",
+                          label: "Esports Arena Setup",
+                          desc: "Vibrant RGB keys, speed gaming mice, virtual surround audio.",
+                          icon: GamePresetIcon,
+                        },
+                        {
+                          id: "office",
+                          label: "General Office / Desk",
+                          desc: "Classic robust keyboards, durable mice, eco-mats.",
+                          icon: OfficePresetIcon,
+                        },
                       ].map((preset) => (
                         <button
                           key={preset.id}
@@ -865,7 +1134,9 @@ function HomePage() {
                         >
                           <preset.icon className="h-8 w-8 text-primary mb-4" />
                           <h4 className="font-extrabold text-sm text-foreground">{preset.label}</h4>
-                          <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{preset.desc}</p>
+                          <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                            {preset.desc}
+                          </p>
                         </button>
                       ))}
                     </div>
@@ -874,23 +1145,33 @@ function HomePage() {
 
                 {/* STEP 2: INPUT DECKS */}
                 {builderStep === 2 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-6"
+                  >
                     <div>
                       <h3 className="text-lg font-bold">Configure Input Peripherals</h3>
-                      <p className="text-sm text-muted-foreground">Select matching mechanical keyboards and tracking mice.</p>
+                      <p className="text-sm text-muted-foreground">
+                        Select matching mechanical keyboards and tracking mice.
+                      </p>
                     </div>
 
                     <div className="grid gap-6 sm:grid-cols-2">
                       {/* Keyboards */}
                       <div>
-                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Keyboard Options</label>
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Keyboard Options
+                        </label>
                         <div className="mt-3 flex flex-col gap-2">
                           {builderOptions.keyboards.map((kb) => (
                             <button
                               key={kb.id}
                               onClick={() => setSelectedKb(kb)}
                               className={`flex justify-between items-center p-3 rounded-xl border text-left text-xs ${
-                                selectedKb.id === kb.id ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card/20 hover:bg-card/40"
+                                selectedKb.id === kb.id
+                                  ? "border-primary bg-primary/5 text-foreground"
+                                  : "border-border bg-card/20 hover:bg-card/40"
                               }`}
                             >
                               <div>
@@ -905,14 +1186,18 @@ function HomePage() {
 
                       {/* Mice */}
                       <div>
-                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Mice Options</label>
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Mice Options
+                        </label>
                         <div className="mt-3 flex flex-col gap-2">
                           {builderOptions.mice.map((ms) => (
                             <button
                               key={ms.id}
                               onClick={() => setSelectedMs(ms)}
                               className={`flex justify-between items-center p-3 rounded-xl border text-left text-xs ${
-                                selectedMs.id === ms.id ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card/20 hover:bg-card/40"
+                                selectedMs.id === ms.id
+                                  ? "border-primary bg-primary/5 text-foreground"
+                                  : "border-border bg-card/20 hover:bg-card/40"
                               }`}
                             >
                               <div>
@@ -930,23 +1215,33 @@ function HomePage() {
 
                 {/* STEP 3: AUDIO & EXTRAS */}
                 {builderStep === 3 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-6"
+                  >
                     <div>
                       <h3 className="text-lg font-bold">Configure Audio & Accessories</h3>
-                      <p className="text-sm text-muted-foreground">Select acoustic headsets and premium surface protection mats.</p>
+                      <p className="text-sm text-muted-foreground">
+                        Select acoustic headsets and premium surface protection mats.
+                      </p>
                     </div>
 
                     <div className="grid gap-6 sm:grid-cols-2">
                       {/* Audio */}
                       <div>
-                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Audio & Headsets</label>
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Audio & Headsets
+                        </label>
                         <div className="mt-3 flex flex-col gap-2">
                           {builderOptions.audio.map((au) => (
                             <button
                               key={au.id}
                               onClick={() => setSelectedAu(au)}
                               className={`flex justify-between items-center p-3 rounded-xl border text-left text-xs ${
-                                selectedAu.id === au.id ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card/20 hover:bg-card/40"
+                                selectedAu.id === au.id
+                                  ? "border-primary bg-primary/5 text-foreground"
+                                  : "border-border bg-card/20 hover:bg-card/40"
                               }`}
                             >
                               <div>
@@ -961,14 +1256,18 @@ function HomePage() {
 
                       {/* Deskmats */}
                       <div>
-                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Deskmat Surface</label>
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                          Deskmat Surface
+                        </label>
                         <div className="mt-3 flex flex-col gap-2">
                           {builderOptions.deskmats.map((dm) => (
                             <button
                               key={dm.id}
                               onClick={() => setSelectedDm(dm)}
                               className={`flex justify-between items-center p-3 rounded-xl border text-left text-xs ${
-                                selectedDm.id === dm.id ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card/20 hover:bg-card/40"
+                                selectedDm.id === dm.id
+                                  ? "border-primary bg-primary/5 text-foreground"
+                                  : "border-border bg-card/20 hover:bg-card/40"
                               }`}
                             >
                               <div>
@@ -988,29 +1287,39 @@ function HomePage() {
                 {builderStep === 4 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <h3 className="text-lg font-bold mb-4">Station Requisition Preview</h3>
-                    
+
                     <div className="grid gap-3 bg-black/40 border border-border/40 p-5 rounded-2xl">
                       <div className="flex justify-between text-xs py-1 border-b border-border/10">
                         <span className="text-muted-foreground">Keyboard: {selectedKb.name}</span>
-                        <span className="font-mono text-foreground font-semibold">${selectedKb.price}</span>
+                        <span className="font-mono text-foreground font-semibold">
+                          ${selectedKb.price}
+                        </span>
                       </div>
                       <div className="flex justify-between text-xs py-1 border-b border-border/10">
                         <span className="text-muted-foreground">Mouse: {selectedMs.name}</span>
-                        <span className="font-mono text-foreground font-semibold">${selectedMs.price}</span>
+                        <span className="font-mono text-foreground font-semibold">
+                          ${selectedMs.price}
+                        </span>
                       </div>
                       <div className="flex justify-between text-xs py-1 border-b border-border/10">
                         <span className="text-muted-foreground">Audio: {selectedAu.name}</span>
-                        <span className="font-mono text-foreground font-semibold">${selectedAu.price}</span>
+                        <span className="font-mono text-foreground font-semibold">
+                          ${selectedAu.price}
+                        </span>
                       </div>
                       <div className="flex justify-between text-xs py-1 border-b border-border/10">
                         <span className="text-muted-foreground">Deskmat: {selectedDm.name}</span>
-                        <span className="font-mono text-foreground font-semibold">${selectedDm.price}</span>
+                        <span className="font-mono text-foreground font-semibold">
+                          ${selectedDm.price}
+                        </span>
                       </div>
 
                       {/* Package Discount */}
                       <div className="flex justify-between text-xs py-1 text-success-foreground bg-success/15 px-2 rounded mt-2">
                         <span className="font-semibold">Institutional Bundle discount (10%)</span>
-                        <span className="font-mono font-extrabold">-${(calculateSubtotal() * 0.1).toFixed(2)}</span>
+                        <span className="font-mono font-extrabold">
+                          -${(calculateSubtotal() * 0.1).toFixed(2)}
+                        </span>
                       </div>
 
                       <div className="flex justify-between text-sm pt-4 border-t border-border/40 font-bold">
@@ -1025,13 +1334,16 @@ function HomePage() {
                     <div className="mt-4 flex items-center gap-2.5 bg-success/10 border border-success/30 rounded-xl p-3.5">
                       <ShieldCheck className="h-5 w-5 text-success" />
                       <div>
-                        <p className="text-xs font-bold text-success">Hardware Compatibility Checked</p>
-                        <p className="text-[10px] text-muted-foreground">All peripherals support standard USB-C telemetry daisy chains.</p>
+                        <p className="text-xs font-bold text-success">
+                          Hardware Compatibility Checked
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          All peripherals support standard USB-C telemetry daisy chains.
+                        </p>
                       </div>
                     </div>
                   </motion.div>
                 )}
-
               </div>
 
               {/* Navigation Action Buttons */}
@@ -1068,8 +1380,10 @@ function HomePage() {
 
             {/* Right Summary Live Cards */}
             <div className="liquid-card rounded-3xl p-6 border-primary/20 sticky top-24">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted-foreground mb-4">Workspace Bundle Showcase</h3>
-              
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted-foreground mb-4">
+                Workspace Bundle Showcase
+              </h3>
+
               <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-card/30 to-background/50 aspect-video flex items-center justify-center p-4">
                 {stationType === "gaming" ? (
                   <img
@@ -1092,15 +1406,21 @@ function HomePage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                   <div>
-                    <Badge className="bg-primary/20 text-primary border-none text-[10px]">{stationType.toUpperCase()} LAYOUT</Badge>
-                    <p className="text-xs text-zinc-400 mt-1">Configured for active lab environments</p>
+                    <Badge className="bg-primary/20 text-primary border-none text-[10px]">
+                      {stationType.toUpperCase()} LAYOUT
+                    </Badge>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Configured for active lab environments
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Dynamic specs indicators */}
               <div className="mt-6 space-y-3">
-                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Configured Hardware Specifications</h4>
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Configured Hardware Specifications
+                </h4>
                 <div className="flex items-center gap-2 text-xs">
                   <Keyboard className="h-4 w-4 text-primary" />
                   <span>{selectedKb.name}</span>
@@ -1119,7 +1439,6 @@ function HomePage() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -1139,7 +1458,8 @@ function HomePage() {
               Proactive Servicing & Predictive Maintenance
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Check real-time hardware status updates, resolved work tickets, and AI-predicted battery notifications.
+              Check real-time hardware status updates, resolved work tickets, and AI-predicted
+              battery notifications.
             </p>
           </div>
 
@@ -1148,13 +1468,12 @@ function HomePage() {
             <div className="absolute left-4 sm:left-1/2 top-4 bottom-4 w-0.5 bg-gradient-to-b from-primary via-accent to-zinc-800 -translate-x-1/2" />
 
             <div className="space-y-12">
-              
               {/* Event 1 */}
               <div className="relative flex flex-col sm:flex-row items-start justify-between sm:odd:flex-row-reverse group">
                 <div className="absolute left-4 sm:left-1/2 h-8 w-8 rounded-full bg-zinc-950 border-2 border-success flex items-center justify-center -translate-x-1/2 z-10 shadow-[0_0_15px_oklch(0.70_0.17_160/0.4)]">
                   <Check className="h-4 w-4 text-success" />
                 </div>
-                
+
                 {/* Panel Card */}
                 <div className="liquid-card ml-12 sm:ml-0 sm:w-[45%] rounded-2xl p-6 border-border/80 hover:border-success/30 transition-all">
                   <span className="text-[10px] font-bold text-success bg-success/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -1163,7 +1482,8 @@ function HomePage() {
                   <h3 className="text-lg font-bold mt-3">Sensor Cleaning Cycle</h3>
                   <p className="text-xs text-muted-foreground mt-1">CS Lab A — Station 12 to 24</p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
-                    Optoelectronic sensors cleared of dust. Scrollwheel encoders checked and calibrated for zero drag.
+                    Optoelectronic sensors cleared of dust. Scrollwheel encoders checked and
+                    calibrated for zero drag.
                   </p>
                   <div className="mt-4 text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Completed 2 hours ago
@@ -1175,9 +1495,12 @@ function HomePage() {
               {/* Event 2 */}
               <div className="relative flex flex-col sm:flex-row items-start justify-between sm:odd:flex-row-reverse group">
                 <div className="absolute left-4 sm:left-1/2 h-8 w-8 rounded-full bg-zinc-950 border-2 border-primary flex items-center justify-center -translate-x-1/2 z-10 shadow-[0_0_15px_oklch(0.58_0.24_274/0.4)]">
-                  <RefreshCw className="h-4 w-4 text-primary animate-spin" style={{ animationDuration: "3s" }} />
+                  <RefreshCw
+                    className="h-4 w-4 text-primary animate-spin"
+                    style={{ animationDuration: "3s" }}
+                  />
                 </div>
-                
+
                 {/* Panel Card */}
                 <div className="liquid-card ml-12 sm:ml-0 sm:w-[45%] rounded-2xl p-6 border-border/80 hover:border-primary/30 transition-all">
                   <span className="text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -1186,7 +1509,8 @@ function HomePage() {
                   <h3 className="text-lg font-bold mt-3">Keycap Refurbishing</h3>
                   <p className="text-xs text-muted-foreground mt-1">CS Lab D — Multi Station</p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
-                    Replacing damaged keycaps with high-density PBT doubleshot keycaps. Custom laser engraving for classroom layouts.
+                    Replacing damaged keycaps with high-density PBT doubleshot keycaps. Custom laser
+                    engraving for classroom layouts.
                   </p>
                   <div className="mt-4 text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Started 24 mins ago
@@ -1200,7 +1524,7 @@ function HomePage() {
                 <div className="absolute left-4 sm:left-1/2 h-8 w-8 rounded-full bg-zinc-950 border-2 border-amber-500 flex items-center justify-center -translate-x-1/2 z-10 shadow-[0_0_15px_rgba(245,158,11,0.4)]">
                   <ShieldAlert className="h-4 w-4 text-amber-500 animate-pulse" />
                 </div>
-                
+
                 {/* Panel Card */}
                 <div className="liquid-card ml-12 sm:ml-0 sm:w-[45%] rounded-2xl p-6 border-border/80 hover:border-amber-500/30 transition-all">
                   <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -1209,7 +1533,8 @@ function HomePage() {
                   <h3 className="text-lg font-bold mt-3">Battery Exhaustion Alert</h3>
                   <p className="text-xs text-muted-foreground mt-1">CS Lab C — Station 08 Mouse</p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
-                    Mouse telemetry registers voltage drop below 1.15V. Replacement scheduled before next laboratory practical.
+                    Mouse telemetry registers voltage drop below 1.15V. Replacement scheduled before
+                    next laboratory practical.
                   </p>
                   <div className="mt-4 text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Warning triggered 1 hour ago
@@ -1217,7 +1542,6 @@ function HomePage() {
                 </div>
                 <div className="hidden sm:block w-[45%]" />
               </div>
-
             </div>
           </div>
         </div>
@@ -1228,10 +1552,15 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-6 mb-16">
             <div>
-              <Badge className="bg-primary/10 text-primary border-none px-3 py-1 mb-4">Academic Showroom</Badge>
-              <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Design Showcases in CS Laboratories</h2>
+              <Badge className="bg-primary/10 text-primary border-none px-3 py-1 mb-4">
+                Academic Showroom
+              </Badge>
+              <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+                Design Showcases in CS Laboratories
+              </h2>
               <p className="mt-3 text-muted-foreground max-w-2xl">
-                Explore real CS classrooms and gaming arenas globally optimized using LabTrack's inventory layouts.
+                Explore real CS classrooms and gaming arenas globally optimized using LabTrack's
+                inventory layouts.
               </p>
             </div>
             <div className="flex gap-2">
@@ -1295,14 +1624,24 @@ function HomePage() {
                   <p className="text-muted-foreground leading-relaxed">
                     {showroomSetups[showroomIndex].description}
                   </p>
-                  
+
                   <div className="p-5 rounded-2xl border border-border/60 bg-card/30 backdrop-blur">
-                    <h4 className="text-sm font-bold text-foreground mb-3">Key Configuration Items</h4>
+                    <h4 className="text-sm font-bold text-foreground mb-3">
+                      Key Configuration Items
+                    </h4>
                     <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Keyboards configured</div>
-                      <div className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Wired/Wireless hybrid</div>
-                      <div className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Dynamic serial tracking</div>
-                      <div className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Multi-station mapping</div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" /> Keyboards configured
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" /> Wired/Wireless hybrid
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" /> Dynamic serial tracking
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" /> Multi-station mapping
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1317,10 +1656,18 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
             <div>
-              <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">Shop by Category</Badge>
-              <h2 className="text-4xl font-extrabold tracking-tight">Find exactly what your laboratory needs</h2>
+              <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">
+                Shop by Category
+              </Badge>
+              <h2 className="text-4xl font-extrabold tracking-tight">
+                Find exactly what your laboratory needs
+              </h2>
             </div>
-            <Button asChild variant="ghost" className="text-primary hover:text-accent font-semibold transition-colors">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-primary hover:text-accent font-semibold transition-colors"
+            >
               <Link to="/products">
                 All categories <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
@@ -1360,7 +1707,7 @@ function HomePage() {
           <div className="pointer-events-none absolute inset-0 -z-10">
             <div className="liquid-orb absolute right-0 top-1/3 h-[420px] w-[420px] bg-primary/15 opacity-60" />
           </div>
-          
+
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="grid items-center gap-12 lg:grid-cols-2">
               <Link
@@ -1385,18 +1732,22 @@ function HomePage() {
                   ⭐ Featured Requisition Pick
                 </Badge>
                 <h3 className="text-4xl font-black tracking-tight">{heroDevice.name}</h3>
-                <p className="mt-2 text-lg text-muted-foreground">{heroDevice.brand} &bull; {heroDevice.category}</p>
+                <p className="mt-2 text-lg text-muted-foreground">
+                  {heroDevice.brand} &bull; {heroDevice.category}
+                </p>
                 {heroDevice.description && (
                   <p className="mt-6 leading-relaxed text-muted-foreground/90 text-sm">
                     {heroDevice.description}
                   </p>
                 )}
-                
+
                 <div className="mt-6 flex items-baseline gap-3">
                   <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-5xl font-black text-transparent">
                     ${Number(heroDevice.price).toFixed(2)}
                   </span>
-                  <span className="text-sm text-muted-foreground/60 line-through">${(Number(heroDevice.price) * 1.2).toFixed(2)}</span>
+                  <span className="text-sm text-muted-foreground/60 line-through">
+                    ${(Number(heroDevice.price) * 1.2).toFixed(2)}
+                  </span>
                 </div>
 
                 <div className="mt-8 flex flex-wrap gap-3">
@@ -1409,7 +1760,12 @@ function HomePage() {
                       View Specifications <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="liquid-card border-border hover:bg-card/45">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="liquid-card border-border hover:bg-card/45"
+                  >
                     <Link to="/products">More Products</Link>
                   </Button>
                 </div>
@@ -1419,11 +1775,16 @@ function HomePage() {
                   {[
                     ["Free", "Lab Calibration"],
                     ["1-Year", "Premium Warranty"],
-                    ["Bulk Check", "Compliant"]
+                    ["Bulk Check", "Compliant"],
                   ].map(([val, label]) => (
-                    <div key={val + label} className="liquid-card rounded-2xl p-4 text-center border-border/60">
+                    <div
+                      key={val + label}
+                      className="liquid-card rounded-2xl p-4 text-center border-border/60"
+                    >
                       <p className="text-lg font-black text-primary">{val}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1 tracking-wider">{label}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1 tracking-wider">
+                        {label}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -1437,7 +1798,9 @@ function HomePage() {
       <section className="relative py-24 border-b border-border/20">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">Core features</Badge>
+            <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">
+              Core features
+            </Badge>
             <h2 className="text-4xl font-extrabold tracking-tight">Everything lab managers need</h2>
             <p className="mt-3 text-muted-foreground text-sm">
               Consolidated hardware logs, procurement gates, and diagnostics tools.
@@ -1471,11 +1834,19 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
             <div>
-              <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent mb-3">Best Sellers</Badge>
+              <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent mb-3">
+                Best Sellers
+              </Badge>
               <h2 className="text-4xl font-extrabold tracking-tight">Top Peripherals This Month</h2>
-              <p className="mt-2 text-muted-foreground text-sm">Hand-picked, classroom-tested hardware with certified warranty.</p>
+              <p className="mt-2 text-muted-foreground text-sm">
+                Hand-picked, classroom-tested hardware with certified warranty.
+              </p>
             </div>
-            <Button asChild variant="outline" className="liquid-card border-border hover:bg-card/45">
+            <Button
+              asChild
+              variant="outline"
+              className="liquid-card border-border hover:bg-card/45"
+            >
               <Link to="/products">
                 View all catalog <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
@@ -1512,7 +1883,9 @@ function HomePage() {
                     </Badge>
                   </div>
                   <div className="p-5">
-                    <p className="text-[10px] text-muted-foreground uppercase font-extrabold tracking-wider">{p.brand}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-extrabold tracking-wider">
+                      {p.brand}
+                    </p>
                     <p className="mt-1 truncate text-sm font-bold text-foreground">{p.name}</p>
                     <div className="mt-4 flex items-center justify-between">
                       <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-lg font-extrabold text-transparent">
@@ -1535,7 +1908,7 @@ function HomePage() {
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="liquid-orb absolute left-1/2 top-1/2 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 bg-primary/10 opacity-70" />
         </div>
-        
+
         <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
           {stats.map((s, i) => (
             <motion.div
@@ -1561,8 +1934,12 @@ function HomePage() {
       <section className="py-24 border-b border-border/20">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">Loved by Educators</Badge>
-            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">What IT admins & academics are saying</h2>
+            <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">
+              Loved by Educators
+            </Badge>
+            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+              What IT admins & academics are saying
+            </h2>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
@@ -1589,11 +1966,17 @@ function HomePage() {
 
                     <div className="mt-6 flex items-center gap-3.5 border-t border-border/20 pt-4">
                       <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-primary to-accent text-sm font-bold text-primary-foreground shadow">
-                        {t.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                        {t.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")}
                       </div>
                       <div>
                         <p className="text-xs font-bold text-foreground">{t.name}</p>
-                        <p className="text-[10px] text-muted-foreground font-semibold uppercase">{t.role}</p>
+                        <p className="text-[10px] text-muted-foreground font-semibold uppercase">
+                          {t.role}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -1608,13 +1991,18 @@ function HomePage() {
       <section className="py-24 border-b border-border/20 bg-card/5">
         <div className="mx-auto max-w-4xl px-4 lg:px-8">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent mb-3">FAQ</Badge>
+            <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent mb-3">
+              FAQ
+            </Badge>
             <h2 className="text-4xl font-extrabold tracking-tight">Frequently Asked Questions</h2>
           </div>
 
           <div className="grid gap-3">
             {faqItems.map((item) => (
-              <details key={item.q} className="liquid-card group rounded-2xl p-5 border-border/60 cursor-pointer">
+              <details
+                key={item.q}
+                className="liquid-card group rounded-2xl p-5 border-border/60 cursor-pointer"
+              >
                 <summary className="flex cursor-pointer items-center justify-between font-bold text-sm select-none">
                   {item.q}
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary group-open:bg-accent group-open:text-accent-foreground transition-all">
@@ -1627,9 +2015,13 @@ function HomePage() {
               </details>
             ))}
           </div>
-          
+
           <div className="mt-8 text-center">
-            <Button asChild variant="outline" className="liquid-card border-border hover:bg-card/45 rounded-xl">
+            <Button
+              asChild
+              variant="outline"
+              className="liquid-card border-border hover:bg-card/45 rounded-xl"
+            >
               <Link to="/faq">Read All Frequently Asked Questions</Link>
             </Button>
           </div>
@@ -1649,7 +2041,8 @@ function HomePage() {
           </div>
           <h2 className="mt-6 text-4xl font-extrabold tracking-tight">Stay in the loop</h2>
           <p className="mt-3 text-muted-foreground text-sm max-w-md mx-auto">
-            Get monthly updates regarding hardware diagnostic patterns, warranty templates, and academic discount lists.
+            Get monthly updates regarding hardware diagnostic patterns, warranty templates, and
+            academic discount lists.
           </p>
 
           <form
@@ -1666,7 +2059,10 @@ function HomePage() {
               placeholder="administrator@school.edu"
               className="flex-1 rounded-full bg-transparent px-4 py-2 text-xs outline-none placeholder:text-muted-foreground/60 text-foreground"
             />
-            <Button type="submit" className="rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold hover:opacity-90 transition-opacity">
+            <Button
+              type="submit"
+              className="rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold hover:opacity-90 transition-opacity"
+            >
               Subscribe
             </Button>
           </form>
@@ -1697,9 +2093,14 @@ function HomePage() {
                 <PlayCircle className="h-16 w-16 text-primary mx-auto animate-pulse" />
                 <h3 className="text-xl font-bold text-white">LabTrack Walkthrough</h3>
                 <p className="text-xs text-zinc-300 max-w-md">
-                  In this demonstration, see how LabTrack monitors active keystrokes, tracks warranty schedules, and automates institutional checks.
+                  In this demonstration, see how LabTrack monitors active keystrokes, tracks
+                  warranty schedules, and automates institutional checks.
                 </p>
-                <Button onClick={() => setVideoOpen(false)} size="sm" className="bg-primary text-primary-foreground">
+                <Button
+                  onClick={() => setVideoOpen(false)}
+                  size="sm"
+                  className="bg-primary text-primary-foreground"
+                >
                   Dismiss
                 </Button>
               </div>
@@ -1714,7 +2115,15 @@ function HomePage() {
 // Icons helper components for Builder presets
 function CodePresetIcon(props: any) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
       <polyline points="16 18 22 12 16 6" />
       <polyline points="8 6 2 12 8 18" />
     </svg>
@@ -1723,7 +2132,15 @@ function CodePresetIcon(props: any) {
 
 function GamePresetIcon(props: any) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
       <line x1="6" y1="12" x2="10" y2="12" />
       <line x1="8" y1="10" x2="8" y2="14" />
       <line x1="15" y1="13" x2="15.01" y2="13" />
@@ -1735,7 +2152,15 @@ function GamePresetIcon(props: any) {
 
 function OfficePresetIcon(props: any) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
       <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
       <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
     </svg>
