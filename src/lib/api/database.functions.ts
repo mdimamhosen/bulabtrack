@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import jwt from "jsonwebtoken";
+import { requireSupabaseAuth } from "../../integrations/supabase/auth-middleware";
 import {
   connectDB,
   UserModel,
@@ -13,6 +14,8 @@ import {
   OrderItemModel,
   ContactMessageModel,
   AuditLogModel,
+  ReviewModel,
+  LikeDislikeModel,
 } from "../db.server";
 
 const JWT_SECRET = process.env.JWT_SECRET || "bulabtrack_secret_key_123456789";
@@ -57,6 +60,10 @@ function getModel(tableName: string) {
       return ContactMessageModel;
     case "audit_log":
       return AuditLogModel;
+    case "reviews":
+      return ReviewModel;
+    case "likes_dislikes":
+      return LikeDislikeModel;
     default:
       throw new Error(`Unknown table: ${tableName}`);
   }
@@ -961,3 +968,181 @@ export const clearAllOrdersServer = createServerFn({ method: "POST" })
       return { success: false, error: err.message };
     }
   });
+
+// 7. Get reviews & likes counts for a product
+export const fetchProductReviewsAndLikes = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      device_id: z.string(),
+      user_id: z.string().nullable().optional(),
+    })
+  )
+  .handler(async ({ data }) => {
+    await connectDB();
+    const { device_id, user_id } = data;
+    try {
+      // Fetch reviews
+      const reviews = await ReviewModel.find({ device_id }).sort({ created_at: -1 });
+
+      let averageRating = 0;
+      if (reviews.length > 0) {
+        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+        averageRating = Number((sum / reviews.length).toFixed(1));
+      }
+
+      // Fetch like/dislike counts
+      const likesCount = await LikeDislikeModel.countDocuments({ device_id, type: "like" });
+      const dislikesCount = await LikeDislikeModel.countDocuments({ device_id, type: "dislike" });
+
+      // Fetch active user's status
+      let userStatus: "like" | "dislike" | null = null;
+      if (user_id) {
+        const doc = await LikeDislikeModel.findOne({ device_id, user_id });
+        if (doc) {
+          userStatus = doc.type as "like" | "dislike";
+        }
+      }
+
+      return {
+        reviews: reviews.map((r) => ({
+          id: r._id,
+          device_id: r.device_id,
+          user_id: r.user_id,
+          user_name: r.user_name,
+          rating: r.rating,
+          comment: r.comment,
+          created_at: r.created_at,
+        })),
+        averageRating,
+        totalReviews: reviews.length,
+        likesCount,
+        dislikesCount,
+        userStatus,
+      };
+    } catch (err: any) {
+      console.error("Error in fetchProductReviewsAndLikes:", err);
+      return {
+        reviews: [],
+        averageRating: 0,
+        totalReviews: 0,
+        likesCount: 0,
+        dislikesCount: 0,
+        userStatus: null,
+        error: err.message,
+      };
+    }
+  });
+
+// 8. Add a review/comment for a product (Auth required)
+export const addProductReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(
+    z.object({
+      device_id: z.string(),
+      rating: z.number().min(1).max(5),
+      comment: z.string(),
+    })
+  )
+  .handler(async ({ data, context }) => {
+    await connectDB();
+    const { device_id, rating, comment } = data;
+    const { userId } = context;
+
+    try {
+      const user = await UserModel.findById(userId);
+      const userName = user?.name || "Customer";
+
+      const review = await ReviewModel.create({
+        _id: crypto.randomUUID(),
+        device_id,
+        user_id: userId,
+        user_name: userName,
+        rating,
+        comment,
+        created_at: new Date(),
+      });
+
+      // Audit Log
+      await AuditLogModel.create({
+        _id: crypto.randomUUID(),
+        action: "Review Added",
+        details: `User ${userName} reviewed device ${device_id} with ${rating} stars`,
+        user_id: userId,
+        created_at: new Date(),
+      });
+
+      return {
+        success: true,
+        review: {
+          id: review._id,
+          device_id: review.device_id,
+          user_id: review.user_id,
+          user_name: review.user_name,
+          rating: review.rating,
+          comment: review.comment,
+          created_at: review.created_at,
+        },
+      };
+    } catch (err: any) {
+      console.error("Error in addProductReview:", err);
+      return { success: false, error: err.message };
+    }
+  });
+
+// 9. Toggle like/dislike for a product (Auth required)
+export const toggleLikeDislike = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(
+    z.object({
+      device_id: z.string(),
+      type: z.enum(["like", "dislike"]),
+    })
+  )
+  .handler(async ({ data, context }) => {
+    await connectDB();
+    const { device_id, type } = data;
+    const { userId } = context;
+
+    try {
+      const existing = await LikeDislikeModel.findOne({ device_id, user_id: userId });
+
+      if (existing) {
+        if (existing.type === type) {
+          // Toggle off
+          await LikeDislikeModel.deleteOne({ _id: existing._id });
+        } else {
+          // Switch type
+          existing.type = type;
+          existing.created_at = new Date();
+          await existing.save();
+        }
+      } else {
+        // Create new
+        await LikeDislikeModel.create({
+          _id: crypto.randomUUID(),
+          device_id,
+          user_id: userId,
+          type,
+          created_at: new Date(),
+        });
+      }
+
+      // Fetch updated counts
+      const likesCount = await LikeDislikeModel.countDocuments({ device_id, type: "like" });
+      const dislikesCount = await LikeDislikeModel.countDocuments({ device_id, type: "dislike" });
+
+      const updated = await LikeDislikeModel.findOne({ device_id, user_id: userId });
+      const userStatus = updated ? updated.type : null;
+
+      return {
+        success: true,
+        likesCount,
+        dislikesCount,
+        userStatus,
+      };
+    } catch (err: any) {
+      console.error("Error in toggleLikeDislike:", err);
+      return { success: false, error: err.message };
+    }
+  });
+

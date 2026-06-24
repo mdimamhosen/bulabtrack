@@ -108,3 +108,28 @@ const AuditLogSchema = new mongoose.Schema({
 });
 
 export const AuditLogModel = mongoose.models.AuditLog || mongoose.model("AuditLog", AuditLogSchema);
+
+// Review Schema
+const ReviewSchema = new mongoose.Schema({
+  _id: { type: String, default: () => crypto.randomUUID() },
+  device_id: { type: String, required: true },
+  user_id: { type: String, required: true },
+  user_name: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  created_at: { type: Date, default: Date.now }
+});
+
+export const ReviewModel = mongoose.models.Review || mongoose.model("Review", ReviewSchema);
+
+// Like/Dislike Interaction Schema
+const LikeDislikeSchema = new mongoose.Schema({
+  _id: { type: String, default: () => crypto.randomUUID() },
+  device_id: { type: String, required: true },
+  user_id: { type: String, required: true },
+  type: { type: String, required: true, enum: ["like", "dislike"] },
+  created_at: { type: Date, default: Date.now }
+});
+
+export const LikeDislikeModel = mongoose.models.LikeDislike || mongoose.model("LikeDislike", LikeDislikeSchema);
+

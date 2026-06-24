@@ -10,6 +10,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme";
 import { supabase } from "@/integrations/supabase/client";
+import { RoleProvider } from "@/lib/role-context";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -132,10 +133,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <Outlet />
-        <Toaster richColors position="top-right" />
-      </ThemeProvider>
+      <RoleProvider>
+        <ThemeProvider>
+          <Outlet />
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
+      </RoleProvider>
     </QueryClientProvider>
   );
 }

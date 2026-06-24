@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
   ShoppingCart,
@@ -27,6 +27,8 @@ import {
   Cpu,
   Layers,
   HelpCircle,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -42,6 +44,12 @@ import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { enhanceProductWithNanoBanana } from "./products";
+import { useRole } from "@/lib/role-context";
+import {
+  fetchProductReviewsAndLikes,
+  addProductReview,
+  toggleLikeDislike,
+} from "@/lib/api/database.functions";
 
 export const Route = createFileRoute("/_public/products/$id")({
   component: ProductDetailPage,
@@ -106,6 +114,9 @@ function ProductDetailPage() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const { add } = useCart();
 
+  const { userId } = useRole();
+  const queryClient = useQueryClient();
+
   // Switch tester states (Keyboard)
   const [switchType, setSwitchType] = useState<"red" | "brown" | "blue">("red");
   const [keypressCount, setKeypressCount] = useState(0);
@@ -122,6 +133,12 @@ function ProductDetailPage() {
   // Audio Equalizer simulator state
   const [eqActive, setEqActive] = useState(false);
 
+  // Form states for reviews
+  const [newComment, setNewComment] = useState("");
+  const [newRating, setNewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
   // Fetch product details
   const { data: dbProduct, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -131,9 +148,101 @@ function ProductDetailPage() {
     },
   });
 
+  // Fetch dynamic reviews and likes/dislikes
+  const { data: feedbackData } = useQuery({
+    queryKey: ["product-feedback", id, userId],
+    queryFn: async () => {
+      const res = await fetchProductReviewsAndLikes({
+        data: {
+          device_id: id,
+          user_id: userId,
+        },
+      });
+      return res;
+    },
+  });
+
   const product = useMemo(() => {
-    return dbProduct ? enhanceProductDetails(dbProduct) : null;
-  }, [dbProduct]);
+    if (!dbProduct) return null;
+    const base = enhanceProductDetails(dbProduct);
+    if (!base) return null;
+
+    // Override with dynamic feedback if it exists and has database entries
+    if (feedbackData && feedbackData.totalReviews > 0) {
+      return {
+        ...base,
+        rating: feedbackData.averageRating.toFixed(1),
+        reviews: feedbackData.totalReviews,
+      };
+    }
+    return base;
+  }, [dbProduct, feedbackData]);
+
+  // Mutations
+  const toggleLikeMutation = useMutation({
+    mutationFn: async (type: "like" | "dislike") => {
+      if (!userId) {
+        toast.error("Please log in to like or dislike products");
+        return;
+      }
+      return toggleLikeDislike({
+        data: {
+          device_id: id,
+          type,
+        },
+      });
+    },
+    onSuccess: (res) => {
+      if (res?.success) {
+        toast.success(
+          res.userStatus === "like"
+            ? "Product liked!"
+            : res.userStatus === "dislike"
+            ? "Product disliked!"
+            : "Feedback removed"
+        );
+        queryClient.invalidateQueries({ queryKey: ["product-feedback", id] });
+      } else {
+        toast.error(res?.error || "Failed to submit feedback");
+      }
+    },
+  });
+
+  const addReviewMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId) {
+        toast.error("Please log in to review products");
+        return;
+      }
+      if (!newComment.trim()) {
+        toast.error("Please write a comment");
+        return;
+      }
+      setIsSubmittingReview(true);
+      return addProductReview({
+        data: {
+          device_id: id,
+          rating: newRating,
+          comment: newComment.trim(),
+        },
+      });
+    },
+    onSuccess: (res) => {
+      setIsSubmittingReview(false);
+      if (res?.success) {
+        toast.success("Review submitted successfully!");
+        setNewComment("");
+        setNewRating(5);
+        queryClient.invalidateQueries({ queryKey: ["product-feedback", id] });
+      } else {
+        toast.error(res?.error || "Failed to submit review");
+      }
+    },
+    onError: (err: any) => {
+      setIsSubmittingReview(false);
+      toast.error(err.message || "Failed to submit review");
+    },
+  });
 
   // Fetch related products
   const { data: dbRelated = [] } = useQuery({
@@ -417,13 +526,45 @@ function ProductDetailPage() {
                   Standard Model: {product.model} &bull; S/N: {product.serial_number}
                 </p>
 
-                {/* Rating */}
-                <div className="flex items-center gap-1.5 font-bold text-foreground">
-                  <Star className="h-4 w-4 fill-current text-accent" />
-                  <span>{product.rating}</span>
-                  <span className="text-muted-foreground/60">
-                    ({product.reviews} academic logs)
-                  </span>
+                {/* Rating & Likes */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5 font-bold text-foreground">
+                    <Star className="h-4 w-4 fill-current text-accent" />
+                    <span>{product.rating}</span>
+                    <span className="text-muted-foreground/60">
+                      ({product.reviews} {product.reviews === 1 ? 'academic log' : 'academic logs'})
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 border-l border-border/20 pl-4">
+                    <button
+                      onClick={() => toggleLikeMutation.mutate("like")}
+                      disabled={toggleLikeMutation.isPending}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full border transition-all duration-300 ${
+                        feedbackData?.userStatus === "like"
+                          ? "bg-primary/20 border-primary text-primary shadow-glow-sm scale-105"
+                          : "border-border/60 hover:bg-secondary/40 hover:text-foreground"
+                      }`}
+                      title="Like this product"
+                    >
+                      <ThumbsUp className={`h-3.5 w-3.5 ${feedbackData?.userStatus === "like" ? "fill-current animate-pulse" : ""}`} />
+                      <span className="font-semibold font-mono">{feedbackData?.likesCount ?? 0}</span>
+                    </button>
+
+                    <button
+                      onClick={() => toggleLikeMutation.mutate("dislike")}
+                      disabled={toggleLikeMutation.isPending}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full border transition-all duration-300 ${
+                        feedbackData?.userStatus === "dislike"
+                          ? "bg-destructive/20 border-destructive text-destructive scale-105"
+                          : "border-border/60 hover:bg-secondary/40 hover:text-foreground"
+                      }`}
+                      title="Dislike this product"
+                    >
+                      <ThumbsDown className={`h-3.5 w-3.5 ${feedbackData?.userStatus === "dislike" ? "fill-current animate-pulse" : ""}`} />
+                      <span className="font-semibold font-mono">{feedbackData?.dislikesCount ?? 0}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -823,6 +964,275 @@ function ProductDetailPage() {
             ))}
           </div>
         </div>
+
+        {/* === CALIBRATION LOGS & USER REVIEWS === */}
+        <section className="mt-16 border-t border-border/20 pt-16">
+          <div className="mb-8">
+            <Badge className="bg-primary/10 border-primary/20 text-primary px-3 py-0.5 mb-2">
+              Telemetry Records
+            </Badge>
+            <h3 className="text-3xl font-extrabold tracking-tight">Calibration Logs & Operator Reviews</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Real-time usability feedback and hardware audit logs from deployed stations.
+            </p>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.5fr] items-start">
+            {/* LEFT COLUMN: STATISTICS AGGREGATION */}
+            <div className="liquid-card rounded-3xl p-6 border-primary/10 bg-gradient-to-br from-card/30 to-background/50 space-y-6">
+              <div>
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
+                  Acoustic & Tactile Rating Summary
+                </h4>
+                <div className="flex items-center gap-4">
+                  <span className="text-5xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {product.rating}
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, idx) => {
+                        const starVal = idx + 1;
+                        const score = Number(product.rating);
+                        return (
+                          <Star
+                            key={idx}
+                            className={`h-5 w-5 ${
+                              starVal <= score
+                                ? "fill-accent text-accent"
+                                : starVal - 0.5 <= score
+                                ? "fill-accent text-accent opacity-70"
+                                : "text-muted-foreground/30"
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 font-semibold">
+                      Based on {product.reviews} {product.reviews === 1 ? "audit entry" : "audit entries"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress bars */}
+              <div className="space-y-2.5 pt-2 border-t border-border/20">
+                {[5, 4, 3, 2, 1].map((stars) => {
+                  let percentage = 0;
+                  const total = feedbackData?.totalReviews || 0;
+                  if (total > 0) {
+                    const count = feedbackData.reviews.filter((r: any) => r.rating === stars).length;
+                    percentage = Math.round((count / total) * 100);
+                  } else {
+                    // Seed mock percentages for display if empty
+                    const mockPercentages: Record<number, number> = { 5: 75, 4: 18, 3: 5, 2: 2, 1: 0 };
+                    percentage = mockPercentages[stars];
+                  }
+
+                  return (
+                    <div key={stars} className="flex items-center gap-3 text-xs">
+                      <span className="w-8 font-bold text-muted-foreground font-mono flex items-center gap-0.5">
+                        {stars} <Star className="h-3 w-3 fill-current text-accent" />
+                      </span>
+                      <div className="flex-1 h-2 bg-secondary/80 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                        />
+                      </div>
+                      <span className="w-8 text-right font-mono font-semibold text-muted-foreground/80">
+                        {percentage}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: SUBMISSION FORM / LOGIN CTA */}
+            <div className="liquid-card rounded-3xl p-6 border-primary/10 bg-gradient-to-br from-card/30 to-background/50">
+              {userId ? (
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Submit New Calibration Log
+                  </h4>
+
+                  {/* Rating Selector */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                      Usability Calibration (Star Rating)
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      {Array.from({ length: 5 }).map((_, idx) => {
+                        const starVal = idx + 1;
+                        const isActive = hoverRating !== null ? starVal <= hoverRating : starVal <= newRating;
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setNewRating(starVal)}
+                            onMouseEnter={() => setHoverRating(starVal)}
+                            onMouseLeave={() => setHoverRating(null)}
+                            className="text-muted-foreground hover:scale-110 transition-transform cursor-pointer focus:outline-none"
+                          >
+                            <Star
+                              className={`h-7 w-7 transition-colors duration-200 ${
+                                isActive ? "fill-accent text-accent drop-shadow-glow" : "text-muted-foreground/40"
+                              }`}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Comments input */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                      Usability Calibration Comments
+                    </label>
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Input telemetry observations, sound tests, and hardware build impressions..."
+                      rows={4}
+                      className="w-full rounded-2xl border border-border/80 bg-zinc-950/40 p-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
+                      maxLength={1000}
+                    />
+                    <div className="flex justify-between items-center text-[10px] text-muted-foreground/60 px-1">
+                      <span>Be descriptive & mention firmware versions if applicable.</span>
+                      <span>{newComment.length}/1000</span>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    onClick={() => addReviewMutation.mutate()}
+                    disabled={isSubmittingReview || !newComment.trim()}
+                    className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold rounded-2xl h-11"
+                  >
+                    {isSubmittingReview ? (
+                      <span className="flex items-center gap-2">
+                        <RefreshCw className="h-4 w-4 animate-spin" /> WRITING TELEMETRY LOG...
+                      </span>
+                    ) : (
+                      "SUBMIT CALIBRATION LOG"
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center p-6 space-y-4 h-full min-h-[220px]">
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/15 text-primary">
+                    <ShieldCheck className="h-6 w-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground">TELEMETRY ACCESS RESTRICTED</h4>
+                    <p className="text-xs text-muted-foreground max-w-xs mt-1 leading-relaxed">
+                      Please sign in to write reviews, calibrate device diagnostics, and submit telemetry feedback.
+                    </p>
+                  </div>
+                  <Button asChild size="sm" className="rounded-xl font-bold bg-primary hover:bg-primary/95 text-primary-foreground px-5 h-9">
+                    <Link to="/auth" search={{ redirect: `/products/${id}` }}>
+                      Sign In to Review
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* TELEMETRY FEEDBACK ARCHIVE LIST */}
+          <div className="mt-12 space-y-4">
+            <div className="flex items-center justify-between border-b border-border/20 pb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Telemetry Log Archive
+              </h4>
+              <Badge variant="outline" className="text-[10px] border-border/60">
+                {feedbackData?.reviews?.length || 0} Dynamic entries
+              </Badge>
+            </div>
+
+            {feedbackData?.reviews && feedbackData.reviews.length > 0 ? (
+              <div className="grid gap-4">
+                {feedbackData.reviews.map((rev: any) => {
+                  const initials = (rev.user_name || "Customer")
+                    .split(" ")
+                    .map((n: string) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2);
+
+                  const formattedDate = new Date(rev.created_at).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  });
+
+                  return (
+                    <motion.div
+                      key={rev.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="liquid-card rounded-2xl p-5 border-border/40 hover:border-primary/20 transition-all flex gap-4"
+                    >
+                      {/* Avatar */}
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center text-sm font-black text-foreground shrink-0 border border-primary/20">
+                        {initials}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 space-y-1.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                          <div>
+                            <span className="text-sm font-bold text-foreground block sm:inline">
+                              {rev.user_name}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground/60 sm:ml-2.5 font-bold uppercase tracking-wider">
+                              Verified Operator
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-muted-foreground/70 font-mono">
+                            {formattedDate}
+                          </span>
+                        </div>
+
+                        {/* Stars */}
+                        <div className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star
+                              key={idx}
+                              className={`h-3.5 w-3.5 ${
+                                idx < rev.rating ? "fill-accent text-accent" : "text-muted-foreground/20"
+                              }`}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Review text */}
+                        <p className="text-xs leading-relaxed text-muted-foreground/90 whitespace-pre-wrap pt-0.5">
+                          {rev.comment}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="liquid-card rounded-2xl p-8 text-center border-dashed border-border/80 flex flex-col items-center justify-center space-y-3">
+                <div className="h-10 w-10 rounded-full bg-secondary/80 flex items-center justify-center text-muted-foreground">
+                  <Star className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">NO USABILITY RECORDS AVAILABLE</p>
+                  <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                    This unit has not received user validation calibration logs yet.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* === RELATED RECOMMENDATIONS === */}
         {related.length > 0 && (

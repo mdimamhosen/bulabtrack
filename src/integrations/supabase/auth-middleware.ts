@@ -28,8 +28,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     }
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string };
-      
+      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string }; 
       return next({
         context: {
           userId: decoded.sub,
