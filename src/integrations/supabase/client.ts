@@ -1,4 +1,5 @@
 import { executeDbAction, executeDbRpc, executeAuthAction, saveUploadedFileServer } from "@/lib/api/database.functions";
+import { toast } from "sonner";
 
 const STORAGE_KEY = "sb-xvnoorzxozuticwyappx-auth-token";
 
@@ -107,6 +108,11 @@ class QueryBuilder {
 
   maybeSingle() {
     this.operations.push({ type: "maybeSingle", args: [] });
+    return this;
+  }
+
+  limit(val: number) {
+    this.operations.push({ type: "limit", args: [val] });
     return this;
   }
 
@@ -261,7 +267,7 @@ export const supabase = {
   storage: {
     from(bucket: string) {
       return {
-        async upload(filePath: string, file: File) {
+        async upload(filePath: string, file: File, options?: any) {
           const reader = new FileReader();
           const base64Promise = new Promise<string>((resolve) => {
             reader.onloadend = () => resolve(reader.result as string);

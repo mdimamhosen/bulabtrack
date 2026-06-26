@@ -165,7 +165,7 @@ function LoginForm({ onDone }: { onDone: () => void }) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth`,
     });
-    if (error) return toast.error(error.message);
+    if (error) return toast.error((error as any).message);
     toast.success("Password reset email sent");
     setForgot(false);
   };

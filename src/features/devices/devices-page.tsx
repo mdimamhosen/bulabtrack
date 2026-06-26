@@ -82,22 +82,22 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   // Enhance devices using storefront logic
   const devices = useMemo(() => {
-    return rawDevices.map(enhanceProductWithNanoBanana).filter(Boolean);
+    return rawDevices.map(enhanceProductWithNanoBanana).filter(Boolean) as any[];
   }, [rawDevices]);
 
   // Extract dynamic categories and brands from devices
   const categoriesList = useMemo(() => {
-    return Array.from(new Set(devices.map((d) => d.peripheralType).filter(Boolean))).sort();
+    return Array.from(new Set(devices.map((d: any) => d.peripheralType).filter(Boolean))).sort() as string[];
   }, [devices]);
 
   const brandsList = useMemo(() => {
-    return Array.from(new Set(devices.map((d) => d.brand).filter(Boolean))).sort();
+    return Array.from(new Set(devices.map((d: any) => d.brand).filter(Boolean))).sort() as string[];
   }, [devices]);
 
   // Dynamic filter counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    devices.forEach((d) => {
+    devices.forEach((d: any) => {
       const matchesSearch =
         !q || `${d.name} ${d.brand} ${d.model}`.toLowerCase().includes(q.toLowerCase());
       const matchesStatus = status === "all" || d.status === status;
@@ -118,7 +118,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   const brandCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    devices.forEach((d) => {
+    devices.forEach((d: any) => {
       const matchesSearch =
         !q || `${d.name} ${d.brand} ${d.model}`.toLowerCase().includes(q.toLowerCase());
       const matchesStatus = status === "all" || d.status === status;
@@ -139,7 +139,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   // Apply filters
   const filtered = useMemo(() => {
-    return devices.filter((d) => {
+    return devices.filter((d: any) => {
       if (status !== "all" && d.status !== status) return false;
       if (category !== "all" && d.peripheralType !== category) return false;
       if (brand !== "all" && d.brand !== brand) return false;
@@ -390,7 +390,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                   <span className="text-[9px] text-muted-foreground/60">({devices.length})</span>
                 )}
               </button>
-              {categoriesList.map((type) => {
+              {categoriesList.map((type: string) => {
                 const count = categoryCounts[type] || 0;
                 return (
                   <button
@@ -435,7 +435,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                   <span className="text-[9px] text-muted-foreground/60">({devices.length})</span>
                 )}
               </button>
-              {brandsList.map((br) => {
+              {brandsList.map((br: string) => {
                 const count = brandCounts[br] || 0;
                 return (
                   <button
@@ -705,7 +705,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((d) => (
+                    {filtered.map((d: any) => (
                       <TableRow
                         key={d.id}
                         className="border-b border-border/40 hover:bg-secondary/20"

@@ -15,6 +15,7 @@ import {
   Loader2,
   Save,
   KeyRound,
+  Brain,
 } from "lucide-react";
 import {
   Card,
@@ -70,6 +71,28 @@ export function SettingsPage() {
   const [securityNotifications, setSecurityNotifications] = useState(true);
   const [systemNotifications, setSystemNotifications] = useState(false);
 
+  // Gemini API states
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("gemini_api_key");
+      if (stored) setGeminiApiKey(stored);
+    }
+  }, []);
+
+  const handleSaveGeminiKey = () => {
+    localStorage.setItem("gemini_api_key", geminiApiKey.trim());
+    toast.success("Gemini API Key saved to browser local storage");
+  };
+
+  const handleClearGeminiKey = () => {
+    setGeminiApiKey("");
+    localStorage.removeItem("gemini_api_key");
+    toast.info("Gemini API Key removed from browser");
+  };
+
   // Fetch current user details & profile
   const { data: profile, isLoading } = useQuery({
     queryKey: ["current-profile"],
@@ -90,7 +113,7 @@ export function SettingsPage() {
       return {
         ...data,
         authEmail: user.email,
-        emailConfirmedAt: user.email_confirmed_at,
+        emailConfirmedAt: (user as any).email_confirmed_at,
       };
     },
   });
@@ -257,6 +280,7 @@ export function SettingsPage() {
             { id: "profile", label: "Profile Details", icon: User },
             { id: "security", label: "Security & Login", icon: Shield },
             { id: "preferences", label: "System Preferences", icon: Bell },
+            { id: "ai", label: "Gemini AI Settings", icon: Brain },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -624,6 +648,72 @@ export function SettingsPage() {
                 <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-xl p-3 text-primary text-xs">
                   <Sparkles className="h-4 w-4 shrink-0 animate-pulse" />
                   <span>These settings sync automatically to your local browser storage.</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* GEMINI AI CONFIGURATION TAB */}
+          {activeTab === "ai" && (
+            <Card className="liquid-card border-border/60 shadow-xl rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-primary animate-pulse" /> Gemini AI Settings
+                </CardTitle>
+                <CardDescription>
+                  Configure your Gemini API key to enable the RAG chatbot assistant.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="gemini-key-input"
+                      className="text-xs font-bold uppercase tracking-wider text-zinc-400"
+                    >
+                      Gemini API Key
+                    </Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                      <Input
+                        id="gemini-key-input"
+                        type={showApiKey ? "text" : "password"}
+                        placeholder="AIzaSy..."
+                        value={geminiApiKey}
+                        onChange={(e) => setGeminiApiKey(e.target.value)}
+                        className="glass-input pl-10 pr-20 h-10 px-3 text-sm rounded-xl font-mono"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-7 px-2 rounded-lg text-[10px] uppercase font-bold"
+                      >
+                        {showApiKey ? "Hide" : "Show"}
+                      </Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
+                      Your Gemini API key is stored securely in your browser's local storage and is only used to connect to Google's API for processing your prompts. It is never stored on our database server.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <Button
+                    onClick={handleSaveGeminiKey}
+                    className="bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold rounded-xl h-10 px-5 shadow-glow"
+                  >
+                    <Save className="mr-2 h-4 w-4" /> Save API Key
+                  </Button>
+                  {geminiApiKey && (
+                    <Button
+                      onClick={handleClearGeminiKey}
+                      variant="outline"
+                      className="border-rose-500/30 text-rose-500 hover:bg-rose-500/10 rounded-xl h-10 px-5"
+                    >
+                      Clear Key
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

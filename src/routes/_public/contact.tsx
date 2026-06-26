@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
+import { ContactSkeleton } from "@/components/page-skeletons";
+
 export const Route = createFileRoute("/_public/contact")({
   head: () => ({
     meta: [
@@ -37,6 +39,7 @@ export const Route = createFileRoute("/_public/contact")({
     ],
   }),
   component: ContactPage,
+  pendingComponent: ContactSkeleton,
 });
 
 const schema = z.object({

@@ -64,7 +64,7 @@ export function UsersPage() {
   const [submittingStaff, setSubmittingStaff] = useState(false);
 
   // Queries
-  const { data: profiles = [], isLoading: profilesLoading } = useQuery({
+  const { data: rawProfiles = [], isLoading: profilesLoading } = useQuery({
     queryKey: ["users-profiles"],
     queryFn: async () => {
       const { data, error } = await supabase.from("profiles").select("*");
@@ -72,8 +72,9 @@ export function UsersPage() {
       return data ?? [];
     },
   });
+  const profiles = rawProfiles as any[];
 
-  const { data: rolesList = [], isLoading: rolesLoading } = useQuery({
+  const { data: rawRolesList = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["users-roles"],
     queryFn: async () => {
       const { data, error } = await supabase.from("user_roles").select("*");
@@ -81,8 +82,9 @@ export function UsersPage() {
       return data ?? [];
     },
   });
+  const rolesList = rawRolesList as any[];
 
-  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+  const { data: rawOrders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["users-orders"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -93,6 +95,7 @@ export function UsersPage() {
       return data ?? [];
     },
   });
+  const orders = rawOrders as any[];
 
   // Map staff roles in memory
   const mappedStaff = useMemo(() => {
@@ -241,7 +244,7 @@ export function UsersPage() {
       });
 
       if (signUpError) throw signUpError;
-      if (!signUpData.user) throw new Error("Failed to create user session");
+      if (!signUpData || !signUpData.user) throw new Error("Failed to create user session");
 
       const { error: assignError } = await supabase.rpc("assign_staff_role_by_admin", {
         target_user_id: signUpData.user.id,

@@ -51,7 +51,7 @@ export function ReportsPage() {
   const [timePeriod, setTimePeriod] = useState("6m");
 
   // Fetch all orders
-  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+  const { data: rawOrders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["reports-orders"],
     queryFn: async () => {
       const { data, error } = await supabase.from("orders").select("*");
@@ -59,9 +59,10 @@ export function ReportsPage() {
       return data ?? [];
     }
   });
+  const orders = rawOrders as any[];
 
   // Fetch all devices/products
-  const { data: devices = [], isLoading: devicesLoading } = useQuery({
+  const { data: rawDevices = [], isLoading: devicesLoading } = useQuery({
     queryKey: ["reports-devices"],
     queryFn: async () => {
       const { data, error } = await supabase.from("devices").select("*");
@@ -69,6 +70,7 @@ export function ReportsPage() {
       return data ?? [];
     }
   });
+  const devices = rawDevices as any[];
 
   const loading = ordersLoading || devicesLoading;
 

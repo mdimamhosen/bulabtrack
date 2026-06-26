@@ -12,6 +12,7 @@ import {
   Globe,
   Boxes,
   X,
+  Brain,
 } from "lucide-react";
 
 export type NavItem = { to: string; label: string; icon: LucideIcon };
@@ -24,6 +25,7 @@ export const adminNavItems = (base: string): NavItem[] => [
   { to: `${base}/reports`, label: "Reports", icon: BarChart3 },
   { to: `${base}/users`, label: "Users", icon: Users },
   { to: `${base}/activity`, label: "Activity", icon: Activity },
+  { to: `${base}/ai`, label: "AI Assistant", icon: Brain },
   { to: `${base}/settings`, label: "Settings", icon: Settings },
 ];
 
@@ -33,12 +35,14 @@ export const staffNavItems = (base: string): NavItem[] => [
   { to: `${base}/orders`, label: "Orders", icon: ShoppingBag },
   { to: `${base}/maintenance`, label: "Maintenance", icon: Wrench },
   { to: `${base}/reports`, label: "Reports", icon: BarChart3 },
+  { to: `${base}/ai`, label: "AI Assistant", icon: Brain },
   { to: `${base}/settings`, label: "Settings", icon: Settings },
 ];
 
 export const customerNavItems = (base: string): NavItem[] => [
   { to: `${base}/dashboard`, label: "My Orders", icon: LayoutDashboard },
   { to: "/products", label: "Storefront", icon: Globe },
+  { to: `${base}/ai`, label: "AI Assistant", icon: Brain },
   { to: `${base}/settings`, label: "Settings", icon: Settings },
 ];
 

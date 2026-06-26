@@ -56,6 +56,8 @@ import {
 import { format } from "date-fns";
 import { generateFakeOrdersAndCustomers, clearAllOrders } from "@/lib/db-seeder";
 import { toast } from "sonner";
+import { DashboardCalendar } from "./components/dashboard-calendar";
+import { OrderGraphTracker } from "@/components/order-graph-tracker";
 
 const STATUS_COLORS: Record<string, string> = {
   Available: "var(--color-success)",
@@ -351,58 +353,8 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="pt-6 pb-8">
-              <div className="relative flex items-center justify-between max-w-2xl mx-auto px-4">
-                {/* Background Line */}
-                <div className="absolute left-6 right-6 top-4 h-[3px] bg-border/40 -translate-y-1/2 z-0" />
-                {/* Progress Line */}
-                <div
-                  className="absolute left-6 top-4 h-[3px] bg-primary -translate-y-1/2 z-0 transition-all duration-700"
-                  style={{ width: `${((currentStep - 1) / 4) * 88}%` }}
-                />
-
-                {/* Steps */}
-                {[
-                  { label: "Submitted", status: "Pending", sub: "Under review" },
-                  { label: "Confirmed", status: "Confirmed", sub: "Approved" },
-                  { label: "Processing", status: "Processing", sub: "Preparing" },
-                  { label: "Shipped", status: "Shipped", sub: "In transit" },
-                  { label: "Delivered", status: "Delivered", sub: "Completed" },
-                ].map((step, idx) => {
-                  const stepNum = idx + 1;
-                  const isCompleted = currentStep > stepNum;
-                  const isActive = currentStep === stepNum;
-                  return (
-                    <div key={step.label} className="relative z-10 flex flex-col items-center">
-                      <div
-                        className={`h-8 w-8 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 ${
-                          isCompleted
-                            ? "bg-primary border-primary text-primary-foreground shadow-glow scale-105"
-                            : isActive
-                              ? "bg-background border-primary text-primary scale-110 shadow-glow ring-4 ring-primary/10"
-                              : "bg-background border-border/80 text-muted-foreground"
-                        }`}
-                      >
-                        {isCompleted ? "✓" : stepNum}
-                      </div>
-                      <span
-                        className={`text-[10px] font-bold mt-2 text-center transition-colors ${
-                          isActive
-                            ? "text-primary font-extrabold"
-                            : isCompleted
-                              ? "text-foreground"
-                              : "text-muted-foreground"
-                        }`}
-                      >
-                        {step.label}
-                      </span>
-                      <span className="text-[8px] text-muted-foreground text-center font-medium mt-0.5 max-w-[65px] hidden sm:block">
-                        {step.sub}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+            <CardContent className="pt-4 pb-4">
+              <OrderGraphTracker currentStatus={latestActiveOrder.status} />
             </CardContent>
           </Card>
         )}
@@ -647,6 +599,11 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
           </div>
         </div>
 
+        {/* Dynamic Scheduler & Event Calendar Section */}
+        <div className="pt-4">
+          <DashboardCalendar />
+        </div>
+
         {/* Order Details dialog (Modal) */}
         <Dialog open={!!selectedOrder} onOpenChange={(v) => !v && setSelectedOrder(null)}>
           <DialogContent className="max-w-2xl rounded-2xl border-border bg-card">
@@ -766,30 +723,30 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
   // ADMIN/STAFF DASHBOARD VIEW
   // ----------------------------------------------------
   const totalDevices = devices.length;
-  const totalUnits = devices.reduce((s, d) => s + (d.quantity ?? 0), 0);
-  const available = devices.filter((d) => d.status === "Available").length;
-  const maintenance = devices.filter((d) => d.status === "Under Maintenance").length;
-  const inUse = devices.filter((d) => d.status === "In Use").length;
-  const damaged = devices.filter((d) => d.status === "Damaged").length;
-  const grandValue = devices.reduce((s, d) => s + Number(d.price) * (d.quantity ?? 1), 0);
+  const totalUnits = devices.reduce((s: number, d: any) => s + (d.quantity ?? 0), 0);
+  const available = devices.filter((d: any) => d.status === "Available").length;
+  const maintenance = devices.filter((d: any) => d.status === "Under Maintenance").length;
+  const inUse = devices.filter((d: any) => d.status === "In Use").length;
+  const damaged = devices.filter((d: any) => d.status === "Damaged").length;
+  const grandValue = devices.reduce((s: number, d: any) => s + Number(d.price) * (d.quantity ?? 1), 0);
 
   const byCategory = Object.entries(
-    devices.reduce<Record<string, number>>((acc, d) => {
+    (devices as any[]).reduce((acc: Record<string, number>, d: any) => {
       acc[d.category] = (acc[d.category] ?? 0) + (d.quantity ?? 1);
       return acc;
     }, {}),
-  ).map(([name, value]) => ({ name, value }));
+  ).map(([name, value]) => ({ name, value: value as number }));
 
-  const byStatus = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"].map((s) => ({
+  const byStatus = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"].map((s: string) => ({
     name: s,
-    count: devices.filter((d) => d.status === s).length,
+    count: devices.filter((d: any) => d.status === s).length,
   }));
 
-  const deviceMonthly = Array.from({ length: 6 }).map((_, idx) => {
+  const deviceMonthly = Array.from({ length: 6 }).map((_, idx: number) => {
     const d = new Date();
     d.setMonth(d.getMonth() - (5 - idx));
     const key = format(d, "MMM");
-    const count = devices.filter((dev) => {
+    const count = devices.filter((dev: any) => {
       const dt = new Date(dev.created_at);
       return dt.getMonth() === d.getMonth() && dt.getFullYear() === d.getFullYear();
     }).length;
@@ -798,24 +755,24 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
 
   const totalOrders = orders.length;
   const totalSales = orders
-    .filter((o) => o.status !== "Cancelled")
-    .reduce((s, o) => s + Number(o.total), 0);
-  const totalCustomers = Array.from(new Set(orders.map((o) => o.email.toLowerCase()))).length;
+    .filter((o: any) => o.status !== "Cancelled")
+    .reduce((s: number, o: any) => s + Number(o.total), 0);
+  const totalCustomers = Array.from(new Set(orders.map((o: any) => o.email.toLowerCase()))).length;
   const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
   const orderStatusDistribution = Object.entries(
-    orders.reduce<Record<string, number>>((acc, o) => {
+    (orders as any[]).reduce((acc: Record<string, number>, o: any) => {
       acc[o.status] = (acc[o.status] ?? 0) + 1;
       return acc;
     }, {}),
-  ).map(([name, value]) => ({ name, value }));
+  ).map(([name, value]) => ({ name, value: value as number }));
 
   const salesMonthly = Array.from({ length: 6 }).map((_, idx) => {
     const d = new Date();
     d.setMonth(d.getMonth() - (5 - idx));
     const key = format(d, "MMM");
     const totalAmount = orders
-      .filter((o) => {
+      .filter((o: any) => {
         const dt = new Date(o.created_at);
         return (
           dt.getMonth() === d.getMonth() &&
@@ -823,7 +780,7 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
           o.status !== "Cancelled"
         );
       })
-      .reduce((s, o) => s + Number(o.total), 0);
+      .reduce((s: number, o: any) => s + Number(o.total), 0);
     return { month: key, Sales: totalAmount };
   });
 
@@ -873,12 +830,15 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 max-w-[400px] rounded-xl border border-border bg-card/65 p-1">
+        <TabsList className="grid w-full grid-cols-3 max-w-[580px] rounded-xl border border-border bg-card/65 p-1">
           <TabsTrigger value="overview" className="rounded-lg text-xs font-bold transition-all">
             Inventory Overview
           </TabsTrigger>
           <TabsTrigger value="sales" className="rounded-lg text-xs font-bold transition-all">
             Sales & Customers
+          </TabsTrigger>
+          <TabsTrigger value="planner" className="rounded-lg text-xs font-bold transition-all">
+            Lab Planner & Calendar
           </TabsTrigger>
         </TabsList>
 
@@ -1428,6 +1388,10 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
             </Card>
           </div>
         </TabsContent>
+
+        <TabsContent value="planner" className="outline-none">
+          <DashboardCalendar />
+        </TabsContent>
       </Tabs>
 
       {/* Order Details dialog (Modal) */}
@@ -1491,6 +1455,9 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
                     </p>
                   </div>
                 )}
+              </div>
+              <div className="my-4">
+                <OrderGraphTracker currentStatus={selectedOrder.status} />
               </div>
               <div className="rounded-xl border border-border overflow-hidden">
                 <div className="border-b border-border bg-secondary/20 px-4 py-2.5 text-[10px] font-bold uppercase text-muted-foreground">

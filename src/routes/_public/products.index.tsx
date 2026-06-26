@@ -33,6 +33,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { enhanceProductWithNanoBanana } from "./products";
 
+import { CatalogSkeleton } from "@/components/page-skeletons";
+
 export const Route = createFileRoute("/_public/products/")({
   head: () => ({
     meta: [
@@ -45,6 +47,7 @@ export const Route = createFileRoute("/_public/products/")({
     ],
   }),
   component: ProductsPage,
+  pendingComponent: CatalogSkeleton,
 });
 
 const PAGE_SIZE = 12;
@@ -88,22 +91,22 @@ function ProductsPage() {
 
   // Enhance all products with custom specs and Nano Banana images
   const products = useMemo(() => {
-    return rawProducts.map(enhanceProductWithNanoBanana).filter(Boolean);
+    return rawProducts.map(enhanceProductWithNanoBanana).filter(Boolean) as any[];
   }, [rawProducts]);
 
   // Extract dynamically generated lists
   const brandsList = useMemo(() => {
-    return Array.from(new Set(products.map((p) => p.brand).filter(Boolean))).sort();
+    return Array.from(new Set(products.map((p: any) => p.brand).filter(Boolean))).sort() as string[];
   }, [products]);
 
   const peripheralTypesList = useMemo(() => {
-    return Array.from(new Set(products.map((p) => p.peripheralType).filter(Boolean))).sort();
+    return Array.from(new Set(products.map((p: any) => p.peripheralType).filter(Boolean))).sort() as string[];
   }, [products]);
 
   // Get counts dynamically based on active search/price selections
   const peripheralCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    products.forEach((p) => {
+    products.forEach((p: any) => {
       const matchesSearch =
         !search ||
         `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`
@@ -126,7 +129,7 @@ function ProductsPage() {
 
   const brandCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    products.forEach((p) => {
+    products.forEach((p: any) => {
       const matchesSearch =
         !search ||
         `${p.name} ${p.brand} ${p.model} ${p.specsList.join(" ")}`
@@ -280,7 +283,7 @@ function ProductsPage() {
                     </span>
                   )}
                 </button>
-                {peripheralTypesList.map((type) => {
+                {peripheralTypesList.map((type: string) => {
                   const IconComp = getPeripheralIcon(type);
                   const count = peripheralCounts[type] || 0;
                   return (
@@ -339,7 +342,7 @@ function ProductsPage() {
                     </span>
                   )}
                 </button>
-                {brandsList.map((br) => {
+                {brandsList.map((br: string) => {
                   const count = brandCounts[br] || 0;
                   return (
                     <button
@@ -461,12 +464,42 @@ function ProductsPage() {
 
             {/* Catalog Grid */}
             {isLoading ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-pulse">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-96 animate-pulse rounded-2xl border border-border bg-card/40"
-                  />
+                    className="border border-zinc-900 bg-zinc-950/40 rounded-2xl p-4 h-[360px] flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="h-5 w-16 rounded bg-zinc-800" />
+                          <div className="h-3.5 w-12 rounded bg-zinc-900" />
+                        </div>
+                        <div className="h-7 w-7 rounded-full bg-zinc-900" />
+                      </div>
+                      <div className="h-32 w-full rounded-xl bg-zinc-900" />
+                    </div>
+                    <div className="space-y-2 mt-2">
+                      <div className="flex justify-between">
+                        <div className="h-3.5 w-10 rounded bg-zinc-900" />
+                        <div className="h-3 w-6 rounded bg-zinc-900" />
+                      </div>
+                      <div className="h-4 w-3/4 rounded bg-zinc-800" />
+                      <div className="flex gap-1.5">
+                        <div className="h-4.5 w-8 rounded bg-zinc-900" />
+                        <div className="h-4.5 w-10 rounded bg-zinc-900" />
+                      </div>
+                      <div className="border-t border-zinc-800/60 my-1" />
+                      <div className="flex justify-between items-center pt-1">
+                        <div className="flex flex-col gap-1">
+                          <div className="h-2 w-8 rounded bg-zinc-900" />
+                          <div className="h-4 w-12 rounded bg-zinc-800" />
+                        </div>
+                        <div className="h-8 w-8 rounded-lg bg-zinc-900" />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : pageItems.length === 0 ? (

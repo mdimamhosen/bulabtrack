@@ -3,8 +3,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
-import { Truck, Lock, ArrowLeft } from "lucide-react";
+import { Truck, Lock, ArrowLeft, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { createStripeCheckoutSession } from "@/lib/api/stripe.functions";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+
+import { CheckoutSkeleton } from "@/components/page-skeletons";
 
 export const Route = createFileRoute("/_public/checkout")({
   head: () => ({ meta: [{ title: "Checkout — LabTrack" }] }),
@@ -27,6 +30,7 @@ export const Route = createFileRoute("/_public/checkout")({
     }
   },
   component: CheckoutPage,
+  pendingComponent: CheckoutSkeleton,
 });
 
 const schema = z.object({
@@ -50,6 +54,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "stripe">("cod");
   const {
     register,
     handleSubmit,
@@ -111,11 +116,14 @@ function CheckoutPage() {
     setLoading(true);
     const orderId = crypto.randomUUID();
     const orderNumber = generateOrderNumber();
+    
+    // Save order in Pending state first
     const { error } = await supabase.from("orders").insert({
       id: orderId,
       ...data,
       order_number: orderNumber,
       total: subtotal,
+      status: "Pending", // explicitly set to Pending for safety
     });
 
     if (error) {
@@ -130,13 +138,52 @@ function CheckoutPage() {
       unit_price: i.price,
       quantity: i.quantity,
     }));
+    
     const { error: liErr } = await supabase.from("order_items").insert(lineItems);
-    setLoading(false);
-    if (liErr) return toast.error(liErr.message);
+    if (liErr) {
+      setLoading(false);
+      return toast.error(liErr.message);
+    }
 
-    clear();
-    toast.success("Order placed!");
-    navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
+    if (paymentMethod === "stripe") {
+      try {
+        const stripeItems = items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        }));
+        
+        const res = await createStripeCheckoutSession({
+          data: {
+            orderNumber,
+            total: subtotal,
+            customerName: data.customer_name,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            postalCode: data.postal_code || "",
+            items: stripeItems,
+            origin: window.location.origin,
+          },
+        });
+        
+        if (res.url) {
+          window.location.href = res.url;
+        } else {
+          throw new Error("Failed to generate payment session URL.");
+        }
+      } catch (e: any) {
+        setLoading(false);
+        toast.error(e.message || "Stripe payment initialization failed.");
+      }
+    } else {
+      setLoading(false);
+      clear();
+      toast.success("Order placed successfully (Cash on Delivery)!");
+      navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
+    }
   };
 
   return (
@@ -187,17 +234,51 @@ function CheckoutPage() {
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold">Payment method</h2>
-              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border-2 border-primary bg-primary/5 p-4">
-                <input type="radio" checked readOnly className="mt-1" />
-                <div>
-                  <div className="flex items-center gap-2 font-medium">
-                    <Truck className="h-4 w-4" /> Cash on Delivery
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-all ${
+                  paymentMethod === "cod" 
+                    ? "border-primary bg-primary/5" 
+                    : "border-border bg-card hover:bg-secondary/10"
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="payment_method" 
+                    checked={paymentMethod === "cod"} 
+                    onChange={() => setPaymentMethod("cod")} 
+                    className="mt-1" 
+                  />
+                  <div>
+                    <div className="flex items-center gap-2 font-medium">
+                      <Truck className="h-4 w-4 text-primary" /> Cash on Delivery
+                    </div>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      Pay with cash when your order arrives.
+                    </p>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Pay with cash when your order arrives. No online payment required.
-                  </p>
-                </div>
-              </label>
+                </label>
+
+                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-all ${
+                  paymentMethod === "stripe" 
+                    ? "border-primary bg-primary/5" 
+                    : "border-border bg-card hover:bg-secondary/10"
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="payment_method" 
+                    checked={paymentMethod === "stripe"} 
+                    onChange={() => setPaymentMethod("stripe")} 
+                    className="mt-1" 
+                  />
+                  <div>
+                    <div className="flex items-center gap-2 font-medium">
+                      <CreditCard className="h-4 w-4 text-primary" /> Pay with Card
+                    </div>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      Secure payment with credit card via Stripe.
+                    </p>
+                  </div>
+                </label>
+              </div>
             </CardContent>
           </Card>
 

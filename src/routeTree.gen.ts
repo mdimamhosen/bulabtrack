@@ -32,14 +32,17 @@ import { Route as AuthenticatedStaffReportsRouteImport } from './routes/_authent
 import { Route as AuthenticatedStaffOrdersRouteImport } from './routes/_authenticated/staff/orders'
 import { Route as AuthenticatedStaffMaintenanceRouteImport } from './routes/_authenticated/staff/maintenance'
 import { Route as AuthenticatedStaffDashboardRouteImport } from './routes/_authenticated/staff/dashboard'
+import { Route as AuthenticatedStaffAiRouteImport } from './routes/_authenticated/staff/ai'
 import { Route as AuthenticatedCustomerSettingsRouteImport } from './routes/_authenticated/customer/settings'
 import { Route as AuthenticatedCustomerDashboardRouteImport } from './routes/_authenticated/customer/dashboard'
+import { Route as AuthenticatedCustomerAiRouteImport } from './routes/_authenticated/customer/ai'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 import { Route as AuthenticatedAdminMaintenanceRouteImport } from './routes/_authenticated/admin/maintenance'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminAiRouteImport } from './routes/_authenticated/admin/ai'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin/activity'
 import { Route as AuthenticatedAppUsersRouteImport } from './routes/_authenticated/_app/users'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
@@ -175,6 +178,11 @@ const AuthenticatedStaffDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
+const AuthenticatedStaffAiRoute = AuthenticatedStaffAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AuthenticatedStaffRouteRoute,
+} as any)
 const AuthenticatedCustomerSettingsRoute =
   AuthenticatedCustomerSettingsRouteImport.update({
     id: '/settings',
@@ -187,6 +195,11 @@ const AuthenticatedCustomerDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedCustomerRouteRoute,
   } as any)
+const AuthenticatedCustomerAiRoute = AuthenticatedCustomerAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AuthenticatedCustomerRouteRoute,
+} as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -222,6 +235,11 @@ const AuthenticatedAdminDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAiRoute = AuthenticatedAdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedAdminActivityRoute =
   AuthenticatedAdminActivityRouteImport.update({
     id: '/activity',
@@ -331,14 +349,17 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/users': typeof AuthenticatedAppUsersRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/ai': typeof AuthenticatedAdminAiRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/customer/ai': typeof AuthenticatedCustomerAiRoute
   '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
+  '/staff/ai': typeof AuthenticatedStaffAiRoute
   '/staff/dashboard': typeof AuthenticatedStaffDashboardRoute
   '/staff/maintenance': typeof AuthenticatedStaffMaintenanceRoute
   '/staff/orders': typeof AuthenticatedStaffOrdersRoute
@@ -375,14 +396,17 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/users': typeof AuthenticatedAppUsersRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/ai': typeof AuthenticatedAdminAiRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/customer/ai': typeof AuthenticatedCustomerAiRoute
   '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
+  '/staff/ai': typeof AuthenticatedStaffAiRoute
   '/staff/dashboard': typeof AuthenticatedStaffDashboardRoute
   '/staff/maintenance': typeof AuthenticatedStaffMaintenanceRoute
   '/staff/orders': typeof AuthenticatedStaffOrdersRoute
@@ -424,14 +448,17 @@ export interface FileRoutesById {
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/_app/users': typeof AuthenticatedAppUsersRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/_authenticated/admin/ai': typeof AuthenticatedAdminAiRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/customer/ai': typeof AuthenticatedCustomerAiRoute
   '/_authenticated/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
   '/_authenticated/customer/settings': typeof AuthenticatedCustomerSettingsRoute
+  '/_authenticated/staff/ai': typeof AuthenticatedStaffAiRoute
   '/_authenticated/staff/dashboard': typeof AuthenticatedStaffDashboardRoute
   '/_authenticated/staff/maintenance': typeof AuthenticatedStaffMaintenanceRoute
   '/_authenticated/staff/orders': typeof AuthenticatedStaffOrdersRoute
@@ -471,14 +498,17 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/admin/activity'
+    | '/admin/ai'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/customer/ai'
     | '/customer/dashboard'
     | '/customer/settings'
+    | '/staff/ai'
     | '/staff/dashboard'
     | '/staff/maintenance'
     | '/staff/orders'
@@ -515,14 +545,17 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/admin/activity'
+    | '/admin/ai'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/customer/ai'
     | '/customer/dashboard'
     | '/customer/settings'
+    | '/staff/ai'
     | '/staff/dashboard'
     | '/staff/maintenance'
     | '/staff/orders'
@@ -563,14 +596,17 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/users'
     | '/_authenticated/admin/activity'
+    | '/_authenticated/admin/ai'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/maintenance'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/customer/ai'
     | '/_authenticated/customer/dashboard'
     | '/_authenticated/customer/settings'
+    | '/_authenticated/staff/ai'
     | '/_authenticated/staff/dashboard'
     | '/_authenticated/staff/maintenance'
     | '/_authenticated/staff/orders'
@@ -757,6 +793,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffDashboardRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
+    '/_authenticated/staff/ai': {
+      id: '/_authenticated/staff/ai'
+      path: '/ai'
+      fullPath: '/staff/ai'
+      preLoaderRoute: typeof AuthenticatedStaffAiRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
     '/_authenticated/customer/settings': {
       id: '/_authenticated/customer/settings'
       path: '/settings'
@@ -769,6 +812,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/customer/dashboard'
       preLoaderRoute: typeof AuthenticatedCustomerDashboardRouteImport
+      parentRoute: typeof AuthenticatedCustomerRouteRoute
+    }
+    '/_authenticated/customer/ai': {
+      id: '/_authenticated/customer/ai'
+      path: '/ai'
+      fullPath: '/customer/ai'
+      preLoaderRoute: typeof AuthenticatedCustomerAiRouteImport
       parentRoute: typeof AuthenticatedCustomerRouteRoute
     }
     '/_authenticated/admin/users': {
@@ -811,6 +861,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ai': {
+      id: '/_authenticated/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AuthenticatedAdminAiRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/activity': {
@@ -923,6 +980,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
+  AuthenticatedAdminAiRoute: typeof AuthenticatedAdminAiRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminMaintenanceRoute: typeof AuthenticatedAdminMaintenanceRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
@@ -937,6 +995,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
+    AuthenticatedAdminAiRoute: AuthenticatedAdminAiRoute,
     AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
     AuthenticatedAdminMaintenanceRoute: AuthenticatedAdminMaintenanceRoute,
     AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
@@ -954,12 +1013,14 @@ const AuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface AuthenticatedCustomerRouteRouteChildren {
+  AuthenticatedCustomerAiRoute: typeof AuthenticatedCustomerAiRoute
   AuthenticatedCustomerDashboardRoute: typeof AuthenticatedCustomerDashboardRoute
   AuthenticatedCustomerSettingsRoute: typeof AuthenticatedCustomerSettingsRoute
 }
 
 const AuthenticatedCustomerRouteRouteChildren: AuthenticatedCustomerRouteRouteChildren =
   {
+    AuthenticatedCustomerAiRoute: AuthenticatedCustomerAiRoute,
     AuthenticatedCustomerDashboardRoute: AuthenticatedCustomerDashboardRoute,
     AuthenticatedCustomerSettingsRoute: AuthenticatedCustomerSettingsRoute,
   }
@@ -970,6 +1031,7 @@ const AuthenticatedCustomerRouteRouteWithChildren =
   )
 
 interface AuthenticatedStaffRouteRouteChildren {
+  AuthenticatedStaffAiRoute: typeof AuthenticatedStaffAiRoute
   AuthenticatedStaffDashboardRoute: typeof AuthenticatedStaffDashboardRoute
   AuthenticatedStaffMaintenanceRoute: typeof AuthenticatedStaffMaintenanceRoute
   AuthenticatedStaffOrdersRoute: typeof AuthenticatedStaffOrdersRoute
@@ -980,6 +1042,7 @@ interface AuthenticatedStaffRouteRouteChildren {
 
 const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
   {
+    AuthenticatedStaffAiRoute: AuthenticatedStaffAiRoute,
     AuthenticatedStaffDashboardRoute: AuthenticatedStaffDashboardRoute,
     AuthenticatedStaffMaintenanceRoute: AuthenticatedStaffMaintenanceRoute,
     AuthenticatedStaffOrdersRoute: AuthenticatedStaffOrdersRoute,

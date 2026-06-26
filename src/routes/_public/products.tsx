@@ -102,7 +102,7 @@ export function enhanceProductWithNanoBanana(p: any) {
 
   let peripheralType = "Accessory";
   let images = [p.image_url];
-  let tags: string[] = ["Lab-Certified", "High Bandwidth", "Gold-Plated Pins"];
+  let tags: string[] = ["Industrial-Grade", "High Bandwidth", "Gold-Plated Pins"];
   let specsList: [string, string][] = [
     ["Brand", p.brand || "Nano Banana"],
     ["Model", p.model || "NB-Gen1"],
@@ -110,13 +110,13 @@ export function enhanceProductWithNanoBanana(p: any) {
     ["Interface", p.interface || "USB-C"],
     ["Serial #", p.serial_number || "NB-SERIAL-100"],
   ];
-  let pros = ["Lab-tested durability", "Highly ergonomic", "Plug & play setup"];
+  let pros = ["Industrial-tested durability", "Highly ergonomic", "Plug & play setup"];
   let cons = ["Requires USB-C port", "High initial cost"];
   let boxContents = [
     "Nano Banana Hardware Unit",
     "1.8m Braided USB-C Cable",
     "Calibration Guide",
-    "Academic Warranty Card",
+    "Standard Warranty Card",
   ];
 
   if (isKeyboard) {
@@ -232,7 +232,7 @@ export function enhanceProductWithNanoBanana(p: any) {
     ];
     ((pros = [
       "Extremely sharp 4K resolution",
-      "Excellent performance in dim laboratory lighting",
+      "Excellent performance in dim warehouse lighting",
       "Dynamic AI auto-framing",
     ]),
       (cons = ["No manual focus ring override", "Gets warm during extended 4K broadcasts"]));
@@ -460,7 +460,7 @@ export function enhanceProductWithNanoBanana(p: any) {
     ];
     ((pros = [
       "Cinematic color accuracy",
-      "High brightness fits daytime labs",
+      "High brightness fits daytime workspaces",
       "Low input delay for smooth presentation scrolling",
     ]),
       (cons = ["Cooling fan produces audible hum", "Replacement lamp cost is substantial"]));
@@ -540,12 +540,12 @@ export function enhanceProductWithNanoBanana(p: any) {
     boxContents = ["7-Port USB-C Hub Dongle", "Velvet carrying bag", "User Quick start card"];
   } else {
     peripheralType = "Accessory";
-    tags = ["Lab-Certified", "High Bandwidth", "Gold-Plated"];
+    tags = ["Industrial-Grade", "High Bandwidth", "Gold-Plated"];
     images = [
       "https://images.unsplash.com/photo-1616440347437-b1c73416efc2?q=80&w=800", // Minimal desk accessory
     ];
     specsList = [
-      ["Compliance", "Lab-Certified Compliance standard"],
+      ["Compliance", "Industrial-Grade Compliance standard"],
       ["Interface Port", p.interface || "USB-C Plug & Play"],
       ["Bandwidth Support", "High Speed Telemetry data stream"],
       ["Connector Pins", "Gold-Plated corrosion resistant pins"],

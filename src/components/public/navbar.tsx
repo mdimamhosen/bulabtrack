@@ -5,6 +5,8 @@ import { ThemeToggle } from "@/components/theme";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { CartDrawer } from "./cart-drawer";
+import { useRole } from "@/lib/role-context";
+import { dashboardPath } from "@/lib/roles";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -20,6 +22,7 @@ export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { count } = useCart();
+  const { userId, role, loading } = useRole();
 
   useEffect(() => {
     setOpen(false);
@@ -86,13 +89,23 @@ export function PublicNavbar() {
                 </span>
               )}
             </button>
-            <Button
-              asChild
-              size="sm"
-              className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-            >
-              <Link to="/auth">Login</Link>
-            </Button>
+            {!loading && userId ? (
+              <Button
+                asChild
+                size="sm"
+                className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              >
+                <Link to={dashboardPath(role)}>Dashboard</Link>
+              </Button>
+            ) : !loading ? (
+              <Button
+                asChild
+                size="sm"
+                className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              >
+                <Link to="/auth">Login</Link>
+              </Button>
+            ) : null}
             <button
               onClick={() => setOpen((o) => !o)}
               className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/60 bg-card/50 backdrop-blur-md"
@@ -121,12 +134,21 @@ export function PublicNavbar() {
                   </Link>
                 );
               })}
-              <Link
-                to="/auth"
-                className="mt-2 rounded-md bg-gradient-to-r from-primary to-accent px-3 py-2 text-center text-sm font-medium text-primary-foreground shadow-lg"
-              >
-                Login
-              </Link>
+              {!loading && userId ? (
+                <Link
+                  to={dashboardPath(role)}
+                  className="mt-2 rounded-md bg-gradient-to-r from-primary to-accent px-3 py-2 text-center text-sm font-medium text-primary-foreground shadow-lg"
+                >
+                  Dashboard
+                </Link>
+              ) : !loading ? (
+                <Link
+                  to="/auth"
+                  className="mt-2 rounded-md bg-gradient-to-r from-primary to-accent px-3 py-2 text-center text-sm font-medium text-primary-foreground shadow-lg"
+                >
+                  Login
+                </Link>
+              ) : null}
             </nav>
           </div>
         )}

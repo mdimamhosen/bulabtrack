@@ -61,22 +61,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LabTrack — Peripheral Inventory" },
+      { title: "LabTrack — Warehouse Peripheral Inventory" },
       {
         name: "description",
-        content: "Modern peripheral inventory management system for computer laboratories.",
+        content: "Modern peripheral inventory management system for warehouses and logistics hubs.",
       },
       { name: "theme-color", content: "#0F172A" },
-      { property: "og:title", content: "LabTrack — Peripheral Inventory" },
+      { property: "og:title", content: "LabTrack — Warehouse Peripheral Inventory" },
       {
         property: "og:description",
-        content: "Modern peripheral inventory management system for computer laboratories.",
+        content: "Modern peripheral inventory management system for warehouses and logistics hubs.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "LabTrack — Peripheral Inventory" },
+      { name: "twitter:title", content: "LabTrack — Warehouse Peripheral Inventory" },
       {
         name: "twitter:description",
-        content: "Modern peripheral inventory management system for computer laboratories.",
+        content: "Modern peripheral inventory management system for warehouses and logistics hubs.",
       },
       {
         property: "og:image",

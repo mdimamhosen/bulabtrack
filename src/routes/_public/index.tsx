@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
   ShieldCheck,
@@ -42,18 +42,21 @@ import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+import { HomepageSkeleton } from "@/components/page-skeletons";
+
 export const Route = createFileRoute("/_public/")({
   head: () => ({
     meta: [
-      { title: "LabTrack — Premium Peripheral Inventory & Storefront" },
+      { title: "LabTrack — Premium Warehouse Peripheral Inventory" },
       {
         name: "description",
         content:
-          "Discover, track and procure beautifully crafted peripherals for the modern computer laboratory with real-time tracking.",
+          "Discover, track and procure beautifully crafted peripherals for the modern warehouse inventory with real-time tracking.",
       },
     ],
   }),
   component: HomePage,
+  pendingComponent: HomepageSkeleton,
 });
 
 // Sound synthesis for interactive keyboard keys (Web Audio API)
@@ -130,7 +133,7 @@ const features = [
   {
     icon: Users,
     title: "Multi-user Teams",
-    desc: "Designed for lab staff, instructors and procurement.",
+    desc: "Designed for warehouse staff, operators and procurement.",
   },
 ];
 
@@ -145,7 +148,7 @@ const categories = [
 
 const stats = [
   { label: "Devices tracked", value: "850+" },
-  { label: "Lab locations", value: "12" },
+  { label: "Warehouse hubs", value: "12" },
   { label: "Uptime", value: "99.99%" },
   { label: "Active users", value: "240+" },
 ];
@@ -192,16 +195,16 @@ const fallbackProducts = [
 
 const testimonials = [
   {
-    name: "Dr. Aisha Khan",
-    role: "CS Department Chair",
+    name: "Aisha Khan",
+    role: "Logistics Director",
     quote:
-      "LabTrack replaced our spreadsheets overnight. The analytics alone saved us hours weekly, especially with keyboard replacements.",
+      "LabTrack replaced our spreadsheets overnight. The tracking alone saved us hours weekly, especially with warehouse peripheral replacements.",
   },
   {
     name: "Marco Reyes",
-    role: "IT Systems Architect",
+    role: "Operations Architect",
     quote:
-      "Stunningly designed and extremely premium. Our lab assistants onboarded in 10 minutes, and the maintenance logs are perfect.",
+      "Stunningly designed and extremely premium. Our warehouse staff onboarded in 10 minutes, and the inventory logs are perfect.",
   },
   {
     name: "Priya Shah",
@@ -213,20 +216,20 @@ const testimonials = [
 
 const faqItems = [
   {
-    q: "Is LabTrack free for academic institutions?",
-    a: "Yes, the core inventory and tracking catalog is completely free for accredited high schools, universities, and student labs.",
+    q: "Is LabTrack scalable for large warehouse hubs?",
+    a: "Yes, LabTrack scales from single-room inventories up to large multi-dock warehouse networks with real-time replication.",
   },
   {
     q: "Can we configure custom requisition approvals?",
-    a: "Absolutely. Lab Managers can configure multi-level authorization gates before requisition tickets are finalized.",
+    a: "Absolutely. Warehouse Managers can configure multi-level authorization gates before requisition tickets are finalized.",
   },
   {
     q: "Does the platform track warranty details?",
     a: "Yes, you can log warranties, upload invoices, and receive proactive alerts before hardware support contracts expire.",
   },
   {
-    q: "Is there a student checkout portal?",
-    a: "Yes! Students can check out loaner peripherals (like VR headsets or drawing tablets) by scanning station QR codes.",
+    q: "Is there a staff barcode checkout portal?",
+    a: "Yes! Staff can check out loaner peripherals (like rugged scanners or tablets) by scanning bin QR codes.",
   },
 ];
 
@@ -264,7 +267,7 @@ const builderOptions = {
       price: 109.99,
       brand: "Audio-Technica",
     },
-    { id: "b-au-2", name: "Stereo Lab Earbuds (Pack of 5)", price: 34.99, brand: "Generic" },
+    { id: "b-au-2", name: "Stereo Warehouse Headsets (Pack of 5)", price: 34.99, brand: "Generic" },
     { id: "b-au-3", name: "Pro Broadcast Studio Mic", price: 149.99, brand: "Shure" },
   ],
   deskmats: [
@@ -276,24 +279,24 @@ const builderOptions = {
 
 const showroomSetups = [
   {
-    title: "Esports & Gaming Arena",
-    location: "University Tech Center, Room 402",
+    title: "Fulfillment & Sorting Arena",
+    location: "Logistics Hub Alpha, Section 4",
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200",
     description:
       "Configured with hot-swap clicky keyboards, lightweight gaming mice, and surround-sound headsets for high performance.",
     tag: "High-Performance",
   },
   {
-    title: "CS Software Engineering Lab",
-    location: "Main Engineering Hall, Lab B",
+    title: "Engineering Station",
+    location: "Fulfillment Area, Bay B",
     image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200",
     description:
       "Fitted with quiet linear switch keyboards, high-precision vertical mice, and ergonomic dual-monitor layouts.",
     tag: "Acoustic Friendly",
   },
   {
-    title: "AI & Data Science Workspace",
-    location: "Science Building, Tower A",
+    title: "Logistics Admin Desk",
+    location: "Operations Tower, Station A",
     image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200",
     description:
       "Outfitted with wireless productivity peripherals, custom deskmats, and active noise-cancelling overhead monitors.",
@@ -301,9 +304,174 @@ const showroomSetups = [
   },
 ];
 
+const storageBins = Array.from({ length: 24 }).map((_, i) => {
+  const id = String(i + 1).padStart(2, "0");
+  let status: "online" | "in-use" | "maintenance" | "alert" = "online";
+  if (i === 7 || i === 15) status = "maintenance";
+  else if (i === 11) status = "alert";
+  else if (i % 3 === 0) status = "in-use";
+
+  const keyboards = ["Apex Pro Mech", "Logitech G915", "Keychron Q1", "Dell QuietKey"];
+  const mice = ["G Pro X Superlight", "Razer DeathAdder", "MX Master 3S", "HP OEM Wired"];
+  const displays = ["Dell 27\" 4K", "ASUS ROG 24\"", "LG UltraWide 34\"", "HP ProDisplay 22\""];
+  const audio = ["Razer BlackShark V2", "Corsair Virtuoso", "Audio-Technica M50x", "Standard USB Headset"];
+
+  return {
+    name: `BIN-${id}`,
+    status,
+    keyboard: keyboards[i % keyboards.length],
+    keyboardHealth: 80 + (i * 7) % 21,
+    mouse: mice[i % mice.length],
+    mouseHealth: 75 + (i * 9) % 26,
+    display: displays[i % displays.length],
+    displayHealth: 90 + (i * 3) % 11,
+    audio: audio[i % audio.length],
+    audioHealth: 85 + (i * 5) % 16,
+    uptime: (98.5 + (i * 0.1) % 1.5).toFixed(2) + "%",
+    temp: (20.5 + (i * 0.3) % 4.0).toFixed(1) + "°C",
+    lastAudit: `${(1 + i % 5)} hours ago`,
+  };
+});
+
+function PlexusCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    const particles: {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+    }[] = [];
+    
+    const particleCount = Math.min(50, Math.floor(width / 25));
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        radius: Math.random() * 2 + 1,
+      });
+    }
+
+    let mouse = { x: -1000, y: -1000 };
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
+        
+        // Move particle
+        p1.x += p1.vx;
+        p1.y += p1.vy;
+
+        // Boundary collision
+        if (p1.x < 0 || p1.x > width) p1.vx *= -1;
+        if (p1.y < 0 || p1.y > height) p1.vy *= -1;
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(234, 179, 8, 0.3)"; // primary color yellow/amber glow
+        ctx.fill();
+
+        // Connect to other particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+          if (dist < 100) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(234, 179, 8, ${0.12 * (1 - dist / 100)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+
+        // Connect to mouse
+        if (mouse.x > -500) {
+          const distMouse = Math.hypot(p1.x - mouse.x, p1.y - mouse.y);
+          if (distMouse < 180) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${0.25 * (1 - distMouse / 180)})`; // accent color purple
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full pointer-events-none z-0" />;
+}
+
 function HomePage() {
   const { add } = useCart();
   const [videoOpen, setVideoOpen] = useState(false);
+  const [activeFlowStep, setActiveFlowStep] = useState<number>(0);
+
+
+  // States for SECTION: Interactive Laboratory Simulator
+  const [activeStation, setActiveStation] = useState<any>(storageBins[0]);
+  const [simulating, setSimulating] = useState(false);
+
+  const handleSimulateDiagnostic = () => {
+    setSimulating(true);
+    setTimeout(() => {
+      setSimulating(false);
+      toast.success(`Diagnostic run complete on ${activeStation.name}. All systems verified.`);
+    }, 1200);
+  };
+
+  const handleFlagIssue = () => {
+    toast.error(`Maintenance ticket created for ${activeStation.name}. Staff alerted.`);
+  };
 
   // States for SECTION 1: Interactive Keyboard Customizer
   const [customizerTheme, setCustomizerTheme] = useState<"cyberpunk" | "stealth" | "sakura">(
@@ -316,13 +484,13 @@ function HomePage() {
   const [rgbEnabled, setRgbEnabled] = useState(true);
 
   // States for SECTION 2: Real-time Telemetry Dashboard
-  const [telemetryLab, setTelemetryLab] = useState<"Lab A" | "Lab B" | "Lab C">("Lab A");
+  const [telemetryWarehouse, setTelemetryWarehouse] = useState<"Warehouse Alpha" | "Warehouse Beta" | "Warehouse Gamma">("Warehouse Alpha");
   const [telemetryChartData, setTelemetryChartData] = useState<
     { time: string; keystrokes: number; clicks: number }[]
   >([]);
   const [liveLogs, setLiveLogs] = useState<string[]>([
-    "Scanning Lab Station arrays...",
-    "Lab A: Apex Pro Mechanical Keyboard connected.",
+    "Scanning Warehouse Bin arrays...",
+    "Warehouse Alpha: Apex Pro Mechanical Keyboard connected.",
     "System status: 100% active and running.",
   ]);
 
@@ -374,10 +542,10 @@ function HomePage() {
           time: "Just now",
           keystrokes:
             Math.floor(Math.random() * 60) +
-            (telemetryLab === "Lab A" ? 50 : telemetryLab === "Lab B" ? 30 : 20),
+            (telemetryWarehouse === "Warehouse Alpha" ? 50 : telemetryWarehouse === "Warehouse Beta" ? 30 : 20),
           clicks:
             Math.floor(Math.random() * 35) +
-            (telemetryLab === "Lab A" ? 25 : telemetryLab === "Lab B" ? 15 : 10),
+            (telemetryWarehouse === "Warehouse Alpha" ? 25 : telemetryWarehouse === "Warehouse Beta" ? 15 : 10),
         });
         // Rename time fields for clean visual labels
         return next.map((item, idx) => ({
@@ -388,21 +556,21 @@ function HomePage() {
 
       // Add a simulated log
       const events = [
-        "Keystroke threshold exceeded on Station 04",
-        "Battery low alert: Station 12 Mouse",
+        "Link rate latency drop detected on Bin 04",
+        "Battery low alert: Bin 12 Scanner",
         "Automatic latency optimization completed",
-        "New device checkout request received",
-        "Maintenance timeline updated: Lab B",
-        "Calibration checklist complete: Lab C",
+        "New peripheral checkout request received",
+        "Maintenance timeline updated: Warehouse Beta",
+        "Calibration checklist complete: Warehouse Gamma",
       ];
       setLiveLogs((prev) => {
-        const nextLog = `${telemetryLab}: ${events[Math.floor(Math.random() * events.length)]}`;
+        const nextLog = `${telemetryWarehouse}: ${events[Math.floor(Math.random() * events.length)]}`;
         return [nextLog, ...prev.slice(0, 4)];
       });
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [telemetryLab]);
+  }, [telemetryWarehouse]);
 
   // Adjust selections automatically based on station builder workspace preset
   const handlePresetSelect = (preset: "gaming" | "coding" | "office") => {
@@ -482,25 +650,27 @@ function HomePage() {
 
       {/* ===== HERO ===== */}
       <section className="relative min-h-[92vh] flex items-center pt-8 pb-16">
-        {/* Background animation blobs */}
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="aurora-bg absolute inset-0 opacity-40" />
-          <div className="ai-grid absolute inset-0 opacity-50" />
-
-          {/* Gooey morphing containers */}
-          <div style={{ filter: "url(#liquid-goo)" }} className="absolute inset-0">
-            <div className="liquid-orb animate-blob absolute -top-20 -left-20 h-[380px] w-[380px] bg-primary/45 opacity-80" />
-            <div
-              className="liquid-orb animate-blob absolute top-1/4 right-5 h-[420px] w-[420px] bg-accent/35 opacity-70"
-              style={{ animationDelay: "-4s" }}
+        {/* Background animation video + plexus canvas */}
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-zinc-950">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover opacity-[0.22] mix-blend-screen select-none pointer-events-none"
+          >
+            <source
+              src="https://player.vimeo.com/external/435674703.sd.mp4?s=7fdf3176efdc2d8bcf51cb1c9cb42db8120ec01d&profile_id=139&oauth2_token_id=57447761"
+              type="video/mp4"
             />
-            <div
-              className="liquid-orb animate-blob absolute -bottom-20 left-1/4 h-[350px] w-[350px] bg-primary/30 opacity-70"
-              style={{ animationDelay: "-8s" }}
-            />
-          </div>
+          </video>
+          
+          <div className="aurora-bg absolute inset-0 opacity-20" />
+          <div className="ai-grid absolute inset-0 opacity-40" />
+          
+          <PlexusCanvas />
 
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/45 to-background" />
         </div>
 
         <div className="mx-auto max-w-7xl px-4 lg:px-8 w-full">
@@ -514,27 +684,27 @@ function HomePage() {
               <div className="liquid-card inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs border border-primary/20 backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 text-accent animate-pulse" />
                 <span className="neon-text font-semibold uppercase tracking-wider text-[10px]">
-                  Next-Gen Computer Lab Telemetry
+                  Next-Gen Warehouse Telemetry
                 </span>
               </div>
 
-              <h1 className="mt-6 text-balance text-5xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
-                Peripheral Inventory,
-                <span className="block bg-gradient-to-r from-primary via-accent to-chart-3 bg-clip-text text-transparent animate-gradient-pan">
-                  Liquidmorphic Design.
+              <h1 className="mt-6 text-balance text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+                Warehouse Peripherals,
+                <span className="block bg-gradient-to-r from-primary via-accent to-chart-3 bg-clip-text text-transparent animate-gradient-pan drop-shadow-[0_0_30px_rgba(234,179,8,0.35)]">
+                  Liquidmorphic Sync.
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-                Catalog, monitor telemetry, schedule maintenance, and requisition premium computer
-                devices. Built for educational computer laboratories and gaming arenas.
+              <p className="mt-6 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg leading-relaxed">
+                Catalog, monitor telemetry, schedule maintenance, and manage premium warehouse
+                peripheral assets. Built for storage hubs, logistics centers, and fulfillment facilities.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Button
                   asChild
                   size="lg"
-                  className="h-13 gap-2 bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground font-semibold shadow-glow hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="h-13 gap-2 bg-gradient-to-r from-primary via-primary/95 to-accent text-primary-foreground font-extrabold shadow-glow hover:opacity-95 hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer rounded-2xl"
                 >
                   <Link to="/products">
                     Explore Storefront <ArrowRight className="h-4 w-4" />
@@ -544,7 +714,7 @@ function HomePage() {
                   onClick={() => setVideoOpen(true)}
                   size="lg"
                   variant="outline"
-                  className="liquid-card h-13 gap-2 border-border/80 text-foreground font-semibold hover:border-primary/50 hover:bg-card/40 transition-all cursor-pointer"
+                  className="liquid-card h-13 gap-2 border-border/80 text-foreground font-extrabold hover:border-primary/50 hover:bg-card/40 hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer rounded-2xl"
                 >
                   <PlayCircle className="h-5 w-5 text-accent animate-pulse" /> Watch Showcase
                 </Button>
@@ -556,7 +726,7 @@ function HomePage() {
                   <div className="flex h-5 w-5 items-center justify-center rounded-full bg-success/15 text-success">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                   </div>
-                  <span>Academic discounts applied</span>
+                  <span>Volume discounts applied</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex h-5 w-5 items-center justify-center rounded-full bg-success/15 text-success">
@@ -584,7 +754,7 @@ function HomePage() {
               <div className="liquid-card animate-float-slow relative overflow-hidden rounded-[2.5rem] p-3 border-primary/20 shadow-glow">
                 <img
                   src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200"
-                  alt="Premium laboratory workspace"
+                  alt="Premium warehouse storage workspace"
                   className="aspect-[16/11] w-full rounded-[2rem] object-cover filter brightness-[0.85] contrast-[1.05]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent rounded-[2.5rem]" />
@@ -606,7 +776,7 @@ function HomePage() {
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                       Active Scans
                     </p>
-                    <p className="text-sm font-extrabold">All 12 Labs Operational</p>
+                    <p className="text-sm font-extrabold">All 12 Fulfillment Hubs Operational</p>
                   </div>
                 </div>
               </motion.div>
@@ -626,7 +796,7 @@ function HomePage() {
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                       Fast Transit
                     </p>
-                    <p className="text-sm font-extrabold">24h Institutional Dispatch</p>
+                    <p className="text-sm font-extrabold">24h Logistics Dispatch</p>
                   </div>
                 </div>
               </motion.div>
@@ -879,7 +1049,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ================= SECTION 2: LIVE LAB TELEMETRY & ANALYTICS ================= */}
+      {/* ================= SECTION 2: LIVE WAREHOUSE TELEMETRY & ANALYTICS ================= */}
       <section className="relative py-24 bg-card/10 border-b border-border/20">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="liquid-orb absolute left-1/4 bottom-10 h-[420px] w-[420px] bg-primary/10 opacity-70" />
@@ -894,25 +1064,25 @@ function HomePage() {
                   Telemetry Channel active
                 </Badge>
                 <h2 className="text-4xl font-extrabold tracking-tight">
-                  Institutional Telemetry & Live Laboratory Pulse
+                  Logistics Telemetry & Live Warehouse Pulse
                 </h2>
                 <p className="mt-4 text-muted-foreground leading-relaxed">
-                  Every device tracked via LabTrack streams performance updates. View bandwidth,
-                  cumulative keystrokes, and diagnostic logs in real time.
+                  Every peripheral tracked via LabTrack streams utilization updates. View link status,
+                  connection rates, and check logs in real time.
                 </p>
               </div>
 
               {/* Tab options for switching labs */}
               <div className="flex gap-2 p-1.5 bg-card/30 border border-border/50 rounded-2xl max-w-md backdrop-blur">
-                {["Lab A", "Lab B", "Lab C"].map((lab) => (
+                {["Warehouse Alpha", "Warehouse Beta", "Warehouse Gamma"].map((lab) => (
                   <button
                     key={lab}
                     onClick={() => {
-                      setTelemetryLab(lab as any);
+                      setTelemetryWarehouse(lab as any);
                       toast.info(`Switched telemetry stream to ${lab}`);
                     }}
                     className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
-                      telemetryLab === lab
+                      telemetryWarehouse === lab
                         ? "bg-primary text-primary-foreground shadow"
                         : "text-muted-foreground hover:text-foreground hover:bg-card/45"
                     }`}
@@ -927,9 +1097,9 @@ function HomePage() {
                 <div className="liquid-card p-4 rounded-xl text-center">
                   <p className="text-xs text-muted-foreground">Active Hubs</p>
                   <p className="text-xl font-black text-primary mt-1">
-                    {telemetryLab === "Lab A"
+                    {telemetryWarehouse === "Warehouse Alpha"
                       ? "42 / 45"
-                      : telemetryLab === "Lab B"
+                      : telemetryWarehouse === "Warehouse Beta"
                         ? "28 / 30"
                         : "15 / 15"}
                   </p>
@@ -937,7 +1107,7 @@ function HomePage() {
                 <div className="liquid-card p-4 rounded-xl text-center">
                   <p className="text-xs text-muted-foreground">Active Inputs</p>
                   <p className="text-xl font-black text-accent mt-1 animate-pulse">
-                    {telemetryLab === "Lab A" ? "92%" : telemetryLab === "Lab B" ? "88%" : "100%"}
+                    {telemetryWarehouse === "Warehouse Alpha" ? "92%" : telemetryWarehouse === "Warehouse Beta" ? "88%" : "100%"}
                   </p>
                 </div>
                 <div className="liquid-card p-4 rounded-xl text-center">
@@ -953,7 +1123,7 @@ function HomePage() {
                 <div className="flex items-center gap-2">
                   <Terminal className="h-5 w-5 text-accent animate-pulse" />
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                    Stream // {telemetryLab} Dashboard
+                    Stream // {telemetryWarehouse} Dashboard
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -1039,6 +1209,237 @@ function HomePage() {
         </div>
       </section>
 
+      {/* ================= SECTION: INTERACTIVE WAREHOUSE SIMULATOR ================= */}
+      <section className="relative py-24 border-b border-border/20">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="liquid-orb absolute left-1/4 top-1/4 h-[400px] w-[400px] bg-accent/15 opacity-60" />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <Badge className="bg-primary/10 text-primary border border-primary/20 py-1 px-3 mb-4">
+              Live Warehouse Telemetry
+            </Badge>
+            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+              Interactive Warehouse Simulator
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg">
+              Click on any of the 24 storage bins in Warehouse Alpha to check peripheral status, connectivity metrics, and trigger diagnostic routines.
+            </p>
+          </div>
+
+          <div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr] items-start">
+            {/* Left: 6x4 Grid of Stations */}
+            <div className="liquid-card rounded-3xl p-8 border-border/60">
+              <div className="flex items-center justify-between mb-6 border-b border-border/10 pb-4">
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Warehouse Alpha Rack Layout (Bin Arrays)
+                </span>
+                <div className="flex flex-wrap gap-3 text-[10px] font-bold text-muted-foreground">
+                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-success" /> Online</div>
+                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-primary" /> In Use</div>
+                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-warning" /> Maintenance</div>
+                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" /> Alert</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                {storageBins.map((station) => {
+                  const isActive = activeStation.name === station.name;
+                  const statusColors = {
+                    online: "bg-success shadow-[0_0_12px_rgba(34,197,94,0.4)]",
+                    "in-use": "bg-primary shadow-[0_0_12px_var(--color-primary)]",
+                    maintenance: "bg-warning shadow-[0_0_12px_rgba(245,158,11,0.4)]",
+                    alert: "bg-destructive shadow-[0_0_12px_rgba(239,68,68,0.4)] animate-pulse",
+                  };
+                  return (
+                    <button
+                      key={station.name}
+                      type="button"
+                      onClick={() => {
+                        setActiveStation(station);
+                        setSimulating(false);
+                      }}
+                      className={`p-3 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center gap-2 cursor-pointer ${
+                        isActive
+                          ? "border-primary bg-primary/10 shadow-glow ring-2 ring-primary/20 scale-[1.05]"
+                          : "border-border/50 bg-card/20 hover:border-primary/30 hover:bg-card/45"
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold tracking-wider text-muted-foreground font-mono">
+                        {station.name}
+                      </span>
+                      <span className={`h-2.5 w-2.5 rounded-full ${statusColors[station.status]}`} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right: Telemetry Details Panel */}
+            <div className="liquid-card rounded-3xl p-6 border-primary/20 sticky top-24">
+              <div className="flex items-center justify-between border-b border-border/10 pb-4 mb-6">
+                <div>
+                  <h3 className="font-extrabold text-foreground text-sm flex items-center gap-1.5">
+                    {activeStation.name} Telemetry
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    Bin Telemetry Details
+                  </p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={`text-[9px] font-bold uppercase capitalize font-mono px-2.5 py-0.5 border ${
+                    activeStation.status === "online"
+                      ? "border-success/30 text-success bg-success/5"
+                      : activeStation.status === "in-use"
+                        ? "border-primary/30 text-primary bg-primary/5"
+                        : activeStation.status === "maintenance"
+                          ? "border-warning/30 text-warning bg-warning/5"
+                          : "border-destructive/30 text-destructive bg-destructive/5"
+                  }`}
+                >
+                  {activeStation.status}
+                </Badge>
+              </div>
+
+              {/* Specs & Health */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                  Peripheral Health Status
+                </h4>
+
+                {/* Keyboard */}
+                <div className="text-xs">
+                  <div className="flex justify-between items-center mb-1 text-muted-foreground">
+                    <span className="flex items-center gap-1 text-foreground font-semibold">
+                      <Keyboard className="h-3.5 w-3.5 text-primary" /> {activeStation.keyboard}
+                    </span>
+                    <span className="font-mono text-[10px]">{activeStation.keyboardHealth}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-950/60 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        activeStation.keyboardHealth > 90
+                          ? "bg-success"
+                          : activeStation.keyboardHealth > 80
+                            ? "bg-primary"
+                            : "bg-warning"
+                      }`}
+                      style={{ width: `${activeStation.keyboardHealth}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Mouse */}
+                <div className="text-xs">
+                  <div className="flex justify-between items-center mb-1 text-muted-foreground">
+                    <span className="flex items-center gap-1 text-foreground font-semibold">
+                      <Mouse className="h-3.5 w-3.5 text-accent" /> {activeStation.mouse}
+                    </span>
+                    <span className="font-mono text-[10px]">{activeStation.mouseHealth}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-950/60 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        activeStation.mouseHealth > 90
+                          ? "bg-success"
+                          : activeStation.mouseHealth > 80
+                            ? "bg-primary"
+                            : "bg-warning"
+                      }`}
+                      style={{ width: `${activeStation.mouseHealth}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Display */}
+                <div className="text-xs">
+                  <div className="flex justify-between items-center mb-1 text-muted-foreground">
+                    <span className="flex items-center gap-1 text-foreground font-semibold">
+                      <Monitor className="h-3.5 w-3.5 text-chart-3" /> {activeStation.display}
+                    </span>
+                    <span className="font-mono text-[10px]">{activeStation.displayHealth}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-950/60 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        activeStation.displayHealth > 90
+                          ? "bg-success"
+                          : activeStation.displayHealth > 80
+                            ? "bg-primary"
+                            : "bg-warning"
+                      }`}
+                      style={{ width: `${activeStation.displayHealth}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Audio */}
+                <div className="text-xs">
+                  <div className="flex justify-between items-center mb-1 text-muted-foreground">
+                    <span className="flex items-center gap-1 text-foreground font-semibold">
+                      <Headphones className="h-3.5 w-3.5 text-success" /> {activeStation.audio}
+                    </span>
+                    <span className="font-mono text-[10px]">{activeStation.audioHealth}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-950/60 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        activeStation.audioHealth > 90
+                          ? "bg-success"
+                          : activeStation.audioHealth > 80
+                            ? "bg-primary"
+                            : "bg-warning"
+                      }`}
+                      style={{ width: `${activeStation.audioHealth}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Telemetry Stats */}
+              <div className="mt-6 pt-6 border-t border-border/10 space-y-3 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ambient Temp:</span>
+                  <span className="font-semibold text-foreground font-mono">{activeStation.temp}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Uptime Rate:</span>
+                  <span className="font-semibold text-foreground font-mono">{activeStation.uptime}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Serial Audit:</span>
+                  <span className="font-semibold text-foreground font-mono">{activeStation.lastAudit}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-8 grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  onClick={handleSimulateDiagnostic}
+                  disabled={simulating}
+                  variant="outline"
+                  className="rounded-xl border-border hover:bg-card/45 h-9 text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer text-foreground"
+                >
+                  {simulating ? "Scanning..." : "Run Diagnostic"}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleFlagIssue}
+                  className="rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground h-9 text-[10px] font-extrabold flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  Report Alert
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
       {/* ================= SECTION 3: INTERACTIVE WORKSTATION BUILDER ================= */}
       <section className="relative py-24 border-b border-border/20">
         <div className="pointer-events-none absolute inset-0 -z-10">
@@ -1051,11 +1452,11 @@ function HomePage() {
               Station Configurator
             </Badge>
             <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-              Lab Station Requisition Wizard
+              Warehouse Workstation Configurator
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
               Assemble specialized bundles (Keyboards, Mice, Audio, and Deskmats) designed for
-              student workstation setups and check institutional compatibility.
+              warehouse staff workstation setups and check system compatibility.
             </p>
           </div>
 
@@ -1098,7 +1499,7 @@ function HomePage() {
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <h3 className="text-lg font-bold mb-2">Choose Workspace Configuration Type</h3>
                     <p className="text-sm text-muted-foreground mb-6">
-                      Select a preset tailored to your laboratory's usage profile. You can tweak
+                      Select a preset tailored to your facility's usage profile. You can tweak
                       specific devices later.
                     </p>
 
@@ -1106,19 +1507,19 @@ function HomePage() {
                       {[
                         {
                           id: "coding",
-                          label: "CS Development Lab",
+                          label: "Engineering Station",
                           desc: "Acoustic-friendly linear keys, precision comfort wireless mice.",
                           icon: CodePresetIcon,
                         },
                         {
                           id: "gaming",
-                          label: "Esports Arena Setup",
+                          label: "High-Speed Fulfillment Setup",
                           desc: "Vibrant RGB keys, speed gaming mice, virtual surround audio.",
                           icon: GamePresetIcon,
                         },
                         {
                           id: "office",
-                          label: "General Office / Desk",
+                          label: "Logistics Office / Desk",
                           desc: "Classic robust keyboards, durable mice, eco-mats.",
                           icon: OfficePresetIcon,
                         },
@@ -1286,7 +1687,7 @@ function HomePage() {
                 {/* STEP 4: FINAL BUNDLE PREVIEW */}
                 {builderStep === 4 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <h3 className="text-lg font-bold mb-4">Station Requisition Preview</h3>
+                    <h3 className="text-lg font-bold mb-4">Workstation Bundle Preview</h3>
 
                     <div className="grid gap-3 bg-black/40 border border-border/40 p-5 rounded-2xl">
                       <div className="flex justify-between text-xs py-1 border-b border-border/10">
@@ -1316,7 +1717,7 @@ function HomePage() {
 
                       {/* Package Discount */}
                       <div className="flex justify-between text-xs py-1 text-success-foreground bg-success/15 px-2 rounded mt-2">
-                        <span className="font-semibold">Institutional Bundle discount (10%)</span>
+                        <span className="font-semibold">Volume Bundle discount (10%)</span>
                         <span className="font-mono font-extrabold">
                           -${(calculateSubtotal() * 0.1).toFixed(2)}
                         </span>
@@ -1410,7 +1811,7 @@ function HomePage() {
                       {stationType.toUpperCase()} LAYOUT
                     </Badge>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Configured for active lab environments
+                      Configured for active warehouse environments
                     </p>
                   </div>
                 </div>
@@ -1480,7 +1881,7 @@ function HomePage() {
                     RESOLVED
                   </span>
                   <h3 className="text-lg font-bold mt-3">Sensor Cleaning Cycle</h3>
-                  <p className="text-xs text-muted-foreground mt-1">CS Lab A — Station 12 to 24</p>
+                  <p className="text-xs text-muted-foreground mt-1">Warehouse Alpha — Bin 12 to 24</p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
                     Optoelectronic sensors cleared of dust. Scrollwheel encoders checked and
                     calibrated for zero drag.
@@ -1507,10 +1908,10 @@ function HomePage() {
                     IN PROGRESS
                   </span>
                   <h3 className="text-lg font-bold mt-3">Keycap Refurbishing</h3>
-                  <p className="text-xs text-muted-foreground mt-1">CS Lab D — Multi Station</p>
+                  <p className="text-xs text-muted-foreground mt-1">Warehouse Delta — Multi Bins</p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
                     Replacing damaged keycaps with high-density PBT doubleshot keycaps. Custom laser
-                    engraving for classroom layouts.
+                    engraving for warehouse hotkeys.
                   </p>
                   <div className="mt-4 text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Started 24 mins ago
@@ -1531,10 +1932,10 @@ function HomePage() {
                     AI PREDICTIVE WARNING
                   </span>
                   <h3 className="text-lg font-bold mt-3">Battery Exhaustion Alert</h3>
-                  <p className="text-xs text-muted-foreground mt-1">CS Lab C — Station 08 Mouse</p>
+                  <p className="text-xs text-muted-foreground mt-1">Warehouse Gamma — Bin 08 Scanner</p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
-                    Mouse telemetry registers voltage drop below 1.15V. Replacement scheduled before
-                    next laboratory practical.
+                    Scanner telemetry registers voltage drop below 1.15V. Replacement scheduled before
+                    next warehouse audit.
                   </p>
                   <div className="mt-4 text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Warning triggered 1 hour ago
@@ -1547,19 +1948,410 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ================= SECTION 5: ACADEMIC LAB SHOWROOM CAROUSEL ================= */}
+      {/* ================= NEW SECTION: SUPPLY CHAIN FLOW GRAPH ================= */}
+      <section className="relative py-24 bg-zinc-950 border-b border-border/20">
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="liquid-orb absolute right-10 top-10 h-[400px] w-[400px] bg-primary/5 opacity-50" />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <Badge className="bg-primary/10 text-primary border border-primary/20 py-1 px-3 mb-4">
+              Logistics Infrastructure
+            </Badge>
+            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl animate-fade-in">
+              Automated Requisition & Supply Flow
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg">
+              Click on any stage in our directed logistics graph to inspect real-time SLA metrics, compliance gates, and inventory workflows.
+            </p>
+          </div>
+
+          {/* Interactive DAG Flowchart */}
+          <div className="grid gap-8">
+            <div className="liquid-card rounded-3xl p-8 border-border/60 overflow-x-auto">
+              <div className="flex items-center justify-between min-w-[900px] gap-4 py-6 relative">
+                {/* Connecting SVG Path Line Behind Nodes */}
+                <svg className="absolute inset-0 h-full w-full pointer-events-none -z-10" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="flow-line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="var(--color-primary)" />
+                      <stop offset="50%" stopColor="var(--color-accent)" />
+                      <stop offset="100%" stopColor="var(--color-success)" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M 50 70 L 250 70 L 450 70 L 650 70 L 850 70"
+                    fill="none"
+                    stroke="url(#flow-line-grad)"
+                    strokeWidth="3"
+                    strokeDasharray="8 6"
+                    className="animate-dash"
+                  />
+                </svg>
+
+                {[
+                  { title: "1. Requisition Ingest", desc: "SLA Ticket Parsing", metric: "1.2 min SLA", status: "Active" },
+                  { title: "2. Security & SLA Gate", desc: "Role Check & Sign", metric: "FIPS 140-3 Check", status: "Secured" },
+                  { title: "3. Bin Allocation", desc: "Optimal Storage Rack", metric: "99.98% Precision", status: "Ready" },
+                  { title: "4. Payment Gate", desc: "Stripe & Invoicing", metric: "Real-time Sync", status: "Enabled" },
+                  { title: "5. Dispatch Transit", desc: "Logistics Routing", metric: "24h Turnaround", status: "Shipping" },
+                ].map((step, idx) => {
+                  const isActive = activeFlowStep === idx;
+                  return (
+                    <button
+                      key={step.title}
+                      onClick={() => {
+                        setActiveFlowStep(idx);
+                        toast.info(`Inspecting logistics flow: ${step.title}`);
+                      }}
+                      className={`w-44 flex flex-col items-center text-center p-4 rounded-2xl border transition-all relative z-10 cursor-pointer ${
+                        isActive
+                          ? "border-primary bg-primary/10 ring-2 ring-primary/20 scale-[1.06] shadow-glow"
+                          : "border-border bg-zinc-950/80 hover:border-primary/40 hover:bg-card/30"
+                      }`}
+                    >
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-xs mb-3 ${
+                        isActive ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-muted-foreground"
+                      }`}>
+                        {idx + 1}
+                      </div>
+                      <h4 className="text-xs font-bold text-foreground">{step.title}</h4>
+                      <p className="text-[10px] text-muted-foreground mt-1 truncate w-full">{step.desc}</p>
+                      <Badge variant="outline" className={`mt-3 text-[8px] font-bold py-0.5 ${
+                        isActive ? "border-primary/40 text-primary bg-primary/5" : "border-border text-muted-foreground"
+                      }`}>
+                        {step.metric}
+                      </Badge>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Dynamic Step Detail Card */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeFlowStep}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="liquid-card rounded-3xl p-8 border-primary/20 bg-gradient-to-r from-card/30 via-card/50 to-primary/5"
+              >
+                {[
+                  {
+                    title: "Requisition Submission & Ticket Ingestion",
+                    details: "Incoming hardware checkouts are fed directly into our centralized telemetry database. AI automatically parses the brand, category, and target location. If stock levels are healthy, the requisition status updates to Pending, reserving the matching serial from the rack.",
+                    subMetrics: [["SLA speed", "1.2 min avg"], ["Automation Rate", "98.5%"], ["System State", "Synchronized"]],
+                    compliance: "NIST SP 800 compliant metadata collection."
+                  },
+                  {
+                    title: "Role Auditing & Security Clearance Gate",
+                    details: "Every check-out undergoes strict role-based capability vetting. Requisitions for staff require standard validation, while high-value assets (such as 5K monitors) trigger secondary approval alerts to the Admin panel. Security hashes are stored on our encrypted audit trails.",
+                    subMetrics: [["Vetting protocol", "FIPS 140-3"], ["Authorization Gate", "Role Context check"], ["Alert threshold", "> $200"]],
+                    compliance: "RBAC (Role Based Access Control) enforces granular data segregation."
+                  },
+                  {
+                    title: "Optimal Bin Storage Allocation",
+                    details: "The system allocates reserve items by matching inventory categories to the closest Fulfillment Center Bin. Serial number scanning ensures that the oldest available inventory is checked out first (FIFO policy) to manage hardware warranty cycles effectively.",
+                    subMetrics: [["Shelf Accuracy", "99.98%"], ["Serial Tracking", "Mandatory"], ["LED Rack Guide", "Active on BIN-X"]],
+                    compliance: "Live serial mapping prevents inventory discrepancies."
+                  },
+                  {
+                    title: "Stripe Payments & Procurement Invoicing",
+                    details: "Out-of-pocket checkouts trigger an instant Stripe payment route. Our webhook listener monitors the Stripe API for successful invoice clearance, automatically upgrading the tracking status to Confirmed and generating order dispatch tickets without human intervention.",
+                    subMetrics: [["Payment processing", "Secure Stripe SDK"], ["Webhook Sync", "150ms latency"], ["Invoice generation", "PDF automated"]],
+                    compliance: "PCI-DSS Level 1 secure payment environment."
+                  },
+                  {
+                    title: "Fulfillment Packing & Logistics Transit Route",
+                    details: "Orders are safely packed inside ruggedized, anti-static container units. Barcodes are printed dynamically matching our graph-based tracking database. Once the transit provider triggers the scanner, a live status signal is sent, transitioning the order to Shipped.",
+                    subMetrics: [["Carrier options", "FedEx / DHL / DPD"], ["Dispatch latency", "< 24 hours"], ["Transit Status", "Active nodes"]],
+                    compliance: "Real-time transit updates mapped on visual DAG graph."
+                  }
+                ].map((info, idx) => {
+                  if (activeFlowStep !== idx) return null;
+                  return (
+                    <div key={idx} className="grid gap-6 md:grid-cols-[1.5fr_1fr]">
+                      <div>
+                        <Badge className="bg-primary/20 text-primary border-none px-2.5 py-0.5 text-[9px] uppercase font-bold">
+                          Step {idx + 1} Workflow
+                        </Badge>
+                        <h3 className="text-xl font-extrabold text-foreground mt-2">{info.title}</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed mt-4">
+                          {info.details}
+                        </p>
+                        <p className="text-[10px] text-zinc-500 font-mono mt-6 flex items-center gap-1.5">
+                          <ShieldCheck className="h-4 w-4 text-emerald-400" /> Compliance: {info.compliance}
+                        </p>
+                      </div>
+                      <div className="grid gap-3 bg-black/30 border border-border/40 p-5 rounded-2xl h-fit">
+                        <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                          SLA Performance & Auditing
+                        </h4>
+                        {info.subMetrics.map(([lbl, val]) => (
+                          <div key={lbl} className="flex justify-between items-center text-xs py-1 border-b border-border/10 last:border-0">
+                            <span className="text-muted-foreground">{lbl}</span>
+                            <span className="font-bold text-foreground font-mono">{val}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= NEW SECTION: BLUEPRINT ANATOMY EXPLORER ================= */}
+      <section className="relative py-24 bg-card/10 border-b border-border/20">
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="liquid-orb absolute left-1/3 bottom-10 h-[420px] w-[420px] bg-accent/5 opacity-40" />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <Badge variant="outline" className="border-accent/40 bg-accent/5 text-accent mb-3">
+              Hardware Design Studio
+            </Badge>
+            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+              Peripheral Blueprint Explorer
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg">
+              Hover over the technical blueprint hotspots to explore mechanical keyboard and tracking mouse logistics specifications.
+            </p>
+          </div>
+
+          <div className="grid gap-12 lg:grid-cols-2">
+            {/* Keyboard Explorer */}
+            <div className="liquid-card rounded-3xl p-8 border-border/60 relative overflow-hidden bg-zinc-950/60">
+              <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                <Keyboard className="h-5 w-5 text-primary" /> Industrial Mechanical Keyboard
+              </h3>
+              <p className="text-xs text-muted-foreground mb-6">Interactive parts schematic and warehouse serial count.</p>
+              
+              <div className="relative aspect-[16/10] border border-border/40 rounded-2xl bg-black/50 p-4 flex flex-col items-center justify-center">
+                {/* SVG Blueprint Draw */}
+                <svg className="w-4/5 h-auto text-primary/30" viewBox="0 0 200 100" fill="none" stroke="currentColor" strokeWidth="0.7">
+                  <rect x="10" y="20" width="180" height="60" rx="6" />
+                  <line x1="20" y1="30" x2="180" y2="30" />
+                  <line x1="20" y1="42" x2="180" y2="42" />
+                  <line x1="20" y1="54" x2="180" y2="54" />
+                  <line x1="20" y1="66" x2="180" y2="66" />
+                  {/* Spacebar */}
+                  <rect x="55" y="68" width="90" height="8" rx="2" fill="currentColor" fillOpacity="0.05" />
+                  {/* Hotspots visual pointers */}
+                  <circle cx="35" cy="36" r="3" className="stroke-accent animate-ping" />
+                  <circle cx="100" cy="72" r="3" className="stroke-accent animate-ping" />
+                  <circle cx="145" cy="48" r="3" className="stroke-accent animate-ping" />
+                </svg>
+
+                {/* Hotspot buttons */}
+                {/* Hotspot 1: Switch Stem */}
+                <div className="absolute top-[32%] left-[22%] group/hs">
+                  <span className="relative flex h-5 w-5 cursor-pointer">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">S</span>
+                  </span>
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
+                    <p className="font-extrabold text-foreground text-xs text-primary">Hot-Swap Switches</p>
+                    <p className="mt-1 leading-relaxed">Cherry MX Red & Gateron Brown tactiles. Active stock: <span className="font-bold text-foreground">185 units</span> across Rack 02.</p>
+                  </div>
+                </div>
+
+                {/* Hotspot 2: Keycap */}
+                <div className="absolute top-[48%] left-[72%] group/hs">
+                  <span className="relative flex h-5 w-5 cursor-pointer">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">K</span>
+                  </span>
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
+                    <p className="font-extrabold text-foreground text-xs text-primary">PBT Doubleshot Deck</p>
+                    <p className="mt-1 leading-relaxed">Non-wear doubleshot legends. Bulk replenishment index: <span className="font-bold text-foreground">30 packs</span> reserved in Bin 15.</p>
+                  </div>
+                </div>
+
+                {/* Hotspot 3: Controller */}
+                <div className="absolute top-[68%] left-[50%] group/hs">
+                  <span className="relative flex h-5 w-5 cursor-pointer">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-accent/20 border border-accent flex items-center justify-center font-mono text-[8px] font-bold text-accent hover:bg-accent hover:text-accent-foreground transition-all">C</span>
+                  </span>
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-accent/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
+                    <p className="font-extrabold text-foreground text-xs text-accent">Telemetry Controller</p>
+                    <p className="mt-1 leading-relaxed">Runs dynamic link check and calibration sweeps. Average response sync: <span className="font-bold text-foreground">0.8ms</span>.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mouse Explorer */}
+            <div className="liquid-card rounded-3xl p-8 border-border/60 relative overflow-hidden bg-zinc-950/60">
+              <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                <Mouse className="h-5 w-5 text-accent" /> High-Precision Tracking Mouse
+              </h3>
+              <p className="text-xs text-muted-foreground mb-6">Interactive parts schematic and sensor telemetry metrics.</p>
+
+              <div className="relative aspect-[16/10] border border-border/40 rounded-2xl bg-black/50 p-4 flex flex-col items-center justify-center">
+                {/* SVG Blueprint Draw */}
+                <svg className="w-1/3 h-auto text-accent/30" viewBox="0 0 100 150" fill="none" stroke="currentColor" strokeWidth="0.8">
+                  <rect x="15" y="10" width="70" height="130" rx="35" />
+                  <line x1="50" y1="10" x2="50" y2="60" />
+                  <rect x="42" y="25" width="16" height="25" rx="3" fill="currentColor" fillOpacity="0.05" />
+                  <circle cx="50" cy="90" r="10" strokeDasharray="3 3" />
+                  {/* Hotspots visual pointers */}
+                  <circle cx="50" cy="37" r="3" className="stroke-primary animate-ping" />
+                  <circle cx="50" cy="90" r="3" className="stroke-primary animate-ping" />
+                  <circle cx="20" cy="65" r="3" className="stroke-primary animate-ping" />
+                </svg>
+
+                {/* Hotspot buttons */}
+                {/* Hotspot 1: Wheel */}
+                <div className="absolute top-[22%] left-[50%] group/hs -translate-x-1/2">
+                  <span className="relative flex h-5 w-5 cursor-pointer">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-accent/20 border border-accent flex items-center justify-center font-mono text-[8px] font-bold text-accent hover:bg-accent hover:text-accent-foreground transition-all">W</span>
+                  </span>
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-accent/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
+                    <p className="font-extrabold text-foreground text-xs text-accent">Optical Scroll Encoder</p>
+                    <p className="mt-1 leading-relaxed">Precision scrollwheel mapped for fast scrolling. Calibration interval: <span className="font-bold text-foreground">6 months</span>.</p>
+                  </div>
+                </div>
+
+                {/* Hotspot 2: Sensor */}
+                <div className="absolute top-[60%] left-[50%] group/hs -translate-x-1/2">
+                  <span className="relative flex h-5 w-5 cursor-pointer">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">S</span>
+                  </span>
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
+                    <p className="font-extrabold text-foreground text-xs text-primary">8K Hero Tracker Sensor</p>
+                    <p className="mt-1 leading-relaxed">Tracks on glass surfaces. Active warehouse checkout count: <span className="font-bold text-foreground">112 units</span> checked in.</p>
+                  </div>
+                </div>
+
+                {/* Hotspot 3: Lateral Grip */}
+                <div className="absolute top-[43%] left-[30%] group/hs">
+                  <span className="relative flex h-5 w-5 cursor-pointer">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">G</span>
+                  </span>
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
+                    <p className="font-extrabold text-foreground text-xs text-primary">Ergonomic Grips</p>
+                    <p className="mt-1 leading-relaxed">Textured industrial shell. Replaced during preventative maintenance if wear score exceeds <span className="font-bold text-foreground">75%</span>.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= NEW SECTION: LIVE DISPATCH SHIPMENT TRACKING MAP ================= */}
+      <section className="relative py-24 bg-zinc-950 border-b border-border/20">
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="liquid-orb absolute right-1/4 top-1/4 h-[350px] w-[350px] bg-primary/5 opacity-40" />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] items-center">
+            {/* Details Panel */}
+            <div className="space-y-6">
+              <div>
+                <Badge variant="outline" className="border-success/40 bg-success/5 text-success mb-3">
+                  Logistics Network Live
+                </Badge>
+                <h2 className="text-4xl font-extrabold tracking-tight">
+                  Active Dispatch Operations
+                </h2>
+                <p className="mt-4 text-muted-foreground leading-relaxed">
+                  Our unified logistics network delivers peripherals on-demand. Watch live dispatches stream from Fulfillment Hub Alpha to regional warehouse stations.
+                </p>
+              </div>
+
+              {/* Transit Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl border border-border bg-card/20">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Today's Dispatches</p>
+                  <p className="text-2xl font-black text-primary mt-1">1,480 units</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border bg-card/20">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">On-Time rate</p>
+                  <p className="text-2xl font-black text-success mt-1">99.88%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SVG Dispatch Network Map */}
+            <div className="liquid-card rounded-3xl p-6 border-border/60 bg-black/60 relative aspect-video flex flex-col justify-between overflow-hidden shadow-2xl">
+              <div className="flex items-center justify-between border-b border-border/20 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">Fulfillment Hub Alpha Feed</span>
+                </div>
+                <Badge variant="outline" className="text-[8px] font-bold text-emerald-400 border-emerald-400/20 bg-emerald-400/5">AUTO ROUTING ACTIVE</Badge>
+              </div>
+
+              {/* Map SVG */}
+              <svg className="w-full h-full text-zinc-800" viewBox="0 0 500 250" fill="none">
+                <circle cx="250" cy="125" r="16" className="fill-primary/20 stroke-primary" strokeWidth="2" />
+                <text x="250" y="102" textAnchor="middle" className="fill-foreground font-bold text-[9px]">Hub Alpha</text>
+                
+                {/* Branches to Hubs */}
+                {/* 1. Boston */}
+                <path d="M 250 125 Q 170 60 120 70" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
+                <circle cx="120" cy="70" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
+                <circle cx="120" cy="70" r="12" className="stroke-primary/20 animate-pulse" strokeWidth="1.5" />
+                <text x="120" y="54" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Boston Dock A</text>
+
+                {/* 2. Malibu */}
+                <path d="M 250 125 Q 380 70 420 90" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
+                <circle cx="420" cy="90" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
+                <circle cx="420" cy="90" r="12" className="stroke-accent/20 animate-pulse" strokeWidth="1.5" />
+                <text x="420" y="74" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Malibu Logistics</text>
+
+                {/* 3. Austin */}
+                <path d="M 250 125 Q 350 190 380 200" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
+                <circle cx="380" cy="200" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
+                <circle cx="380" cy="200" r="12" className="stroke-success/20 animate-pulse" strokeWidth="1.5" />
+                <text x="380" y="216" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Austin Storage</text>
+
+                {/* 4. Seattle */}
+                <path d="M 250 125 Q 150 180 80 160" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
+                <circle cx="80" cy="160" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
+                <circle cx="80" cy="160" r="12" className="stroke-primary/20 animate-pulse" strokeWidth="1.5" />
+                <text x="80" y="146" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Seattle Hub</text>
+
+                {/* Pulsing delivery nodes traveling along paths */}
+                <circle cx="210" cy="100" r="3" className="fill-primary animate-pulse" />
+                <circle cx="330" cy="98" r="3" className="fill-accent animate-pulse" />
+                <circle cx="310" cy="165" r="3" className="fill-success animate-pulse" />
+                <circle cx="160" cy="155" r="3" className="fill-primary animate-pulse" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= SECTION 5: WAREHOUSE SHOWROOM CAROUSEL ================= */}
       <section className="relative py-24 border-b border-border/20 bg-gradient-to-b from-transparent to-card/20">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-6 mb-16">
             <div>
               <Badge className="bg-primary/10 text-primary border-none px-3 py-1 mb-4">
-                Academic Showroom
+                Warehouse Showroom
               </Badge>
               <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-                Design Showcases in CS Laboratories
+                Design Showcases in Fulfillment Centers
               </h2>
               <p className="mt-3 text-muted-foreground max-w-2xl">
-                Explore real CS classrooms and gaming arenas globally optimized using LabTrack's
+                Explore modern warehouse hubs and fulfillment centers globally optimized using LabTrack's
                 inventory layouts.
               </p>
             </div>
@@ -1660,7 +2452,7 @@ function HomePage() {
                 Shop by Category
               </Badge>
               <h2 className="text-4xl font-extrabold tracking-tight">
-                Find exactly what your laboratory needs
+                Find exactly what your warehouse needs
               </h2>
             </div>
             <Button
@@ -1839,7 +2631,7 @@ function HomePage() {
               </Badge>
               <h2 className="text-4xl font-extrabold tracking-tight">Top Peripherals This Month</h2>
               <p className="mt-2 text-muted-foreground text-sm">
-                Hand-picked, classroom-tested hardware with certified warranty.
+                Hand-picked, warehouse-tested hardware with certified warranty.
               </p>
             </div>
             <Button
@@ -1854,7 +2646,7 @@ function HomePage() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {devicesShow.slice(0, 8).map((p: any, i) => (
+            {devicesShow.slice(0, 8).map((p: any, i: number) => (
               <motion.div
                 key={p.id}
                 initial={{ opacity: 0, y: 15 }}
@@ -1935,10 +2727,10 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mx-auto max-w-2xl text-center mb-16">
             <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary mb-3">
-              Loved by Educators
+              Loved by Logistics Managers
             </Badge>
             <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-              What IT admins & academics are saying
+              What logistics coordinators and IT admins are saying
             </h2>
           </div>
 
@@ -2042,7 +2834,7 @@ function HomePage() {
           <h2 className="mt-6 text-4xl font-extrabold tracking-tight">Stay in the loop</h2>
           <p className="mt-3 text-muted-foreground text-sm max-w-md mx-auto">
             Get monthly updates regarding hardware diagnostic patterns, warranty templates, and
-            academic discount lists.
+            volume discount updates.
           </p>
 
           <form
@@ -2056,7 +2848,7 @@ function HomePage() {
             <input
               required
               type="email"
-              placeholder="administrator@school.edu"
+              placeholder="logistics@warehouse.com"
               className="flex-1 rounded-full bg-transparent px-4 py-2 text-xs outline-none placeholder:text-muted-foreground/60 text-foreground"
             />
             <Button
@@ -2094,7 +2886,7 @@ function HomePage() {
                 <h3 className="text-xl font-bold text-white">LabTrack Walkthrough</h3>
                 <p className="text-xs text-zinc-300 max-w-md">
                   In this demonstration, see how LabTrack monitors active keystrokes, tracks
-                  warranty schedules, and automates institutional checks.
+                  warranty schedules, and automates inventory audits.
                 </p>
                 <Button
                   onClick={() => setVideoOpen(false)}

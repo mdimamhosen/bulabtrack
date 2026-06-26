@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+import { AboutSkeleton } from "@/components/page-skeletons";
+
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: [
@@ -23,18 +25,19 @@ export const Route = createFileRoute("/_public/about")({
       {
         name: "description",
         content:
-          "Learn about LabTrack's mission to modernize peripheral inventory management for computer laboratories.",
+          "Learn about LabTrack's mission to modernize peripheral inventory management for warehouses and logistics hubs.",
       },
     ],
   }),
   component: AboutPage,
+  pendingComponent: AboutSkeleton,
 });
 
 const values = [
   {
     I: Brain,
     t: "Intelligent by design",
-    d: "Every workflow is shaped around real lab staff routines, not generic SaaS templates.",
+    d: "Every workflow is shaped around real warehouse staff routines, not generic SaaS templates.",
   },
   {
     I: Shield,
@@ -57,7 +60,7 @@ const milestones = [
   {
     y: "2025 Q3",
     t: "Requirements gathered",
-    d: "Interviewed lab staff, instructors and IT coordinators across 3 universities.",
+    d: "Interviewed warehouse staff, operators and logistics coordinators across 3 hubs.",
   },
   {
     y: "2025 Q4",
@@ -84,7 +87,7 @@ const milestones = [
 const stats = [
   { v: "30+", l: "Devices tracked" },
   { v: "240+", l: "Active users" },
-  { v: "12", l: "Lab locations" },
+  { v: "12", l: "Warehouse hubs" },
   { v: "99.9%", l: "Uptime" },
 ];
 
@@ -99,6 +102,10 @@ function AboutPage() {
         <div
           className="liquid-orb animate-blob absolute top-1/2 right-0 h-[420px] w-[420px] opacity-50"
           style={{ animationDelay: "-8s" }}
+        />
+        <div
+          className="liquid-orb animate-blob absolute bottom-0 left-10 h-[500px] w-[500px] opacity-35"
+          style={{ animationDelay: "-12s" }}
         />
       </div>
 
@@ -115,11 +122,11 @@ function AboutPage() {
             <span className="neon-text font-medium">About LabTrack</span>
           </div>
           <h1 className="mt-6 text-balance text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-            Bringing labs out of the
+            Bringing warehouses out of the
             <span className="block neon-text">spreadsheet era.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-            A modern, open platform built to give institutions full, intelligent control over every
+            A modern, open platform built to give logistics teams full, intelligent control over every
             peripheral they own — from catalog to checkout.
           </p>
         </motion.div>
@@ -149,12 +156,12 @@ function AboutPage() {
             {
               I: Target,
               t: "Our Mission",
-              d: "Empower educators and lab staff with effortless inventory management that scales with their institution — without sacrificing beauty or rigor.",
+              d: "Empower warehouse managers and operators with effortless inventory management that scales with their business — without sacrificing beauty or efficiency.",
             },
             {
               I: Lightbulb,
               t: "Our Vision",
-              d: "Become the default operating system for academic computer laboratories worldwide, blending intelligent automation with delightful UX.",
+              d: "Become the default operating system for warehouse logistics environments worldwide, blending intelligent automation with delightful UX.",
             },
           ].map(({ I, t, d }, i) => (
             <motion.div
@@ -212,7 +219,7 @@ function AboutPage() {
               Benefits
             </Badge>
             <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Built for institutions, loved by staff
+              Built for warehouses, loved by staff
             </h2>
           </div>
           <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -221,7 +228,7 @@ function AboutPage() {
               "Cut maintenance response time by 60%",
               "Streamline procurement with built-in storefront",
               "Empower staff with clear role-based access",
-              "Beautiful reports for accreditation reviews",
+              "Beautiful reports for operations audits",
               "Save budget with smarter purchase decisions",
             ].map((b, i) => (
               <motion.li
@@ -274,6 +281,101 @@ function AboutPage() {
                     <p className="mt-1 text-base font-semibold">{m.t}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{m.d}</p>
                   </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ===== MASONRY GALLERY SECTION ===== */}
+        <section className="mt-24">
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="liquid-card">
+              Visual Showcase
+            </Badge>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              Warehouse life in pixels
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
+              A glimpse into the real hubs, custom setups, and hardware workstations monitored under the LabTrack ecosystem.
+            </p>
+          </div>
+
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+            {[
+              {
+                src: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=600",
+                title: "Fulfillment Bay B",
+                desc: "Optimized workstation layouts for sorting operators.",
+                tag: "Fulfillment",
+                aspect: "aspect-[3/4]",
+              },
+              {
+                src: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=600",
+                title: "Stabilizer Lubing Station",
+                desc: "Custom mechanical switch maintenance testing deck.",
+                tag: "Maintenance",
+                aspect: "aspect-[1/1]",
+              },
+              {
+                src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600",
+                title: "Logistics Dock 402",
+                desc: "Equipped with rugged handheld terminals and scanners.",
+                tag: "Docking",
+                aspect: "aspect-[16/10]",
+              },
+              {
+                src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=600",
+                title: "Core Server Cabinet",
+                desc: "Row-level database synchronizations and edge routing.",
+                tag: "Infrastructure",
+                aspect: "aspect-[3/5]",
+              },
+              {
+                src: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=600",
+                title: "Acoustic Audio Deck",
+                desc: "Pro headphones with active noise calibration settings.",
+                tag: "Accessories",
+                aspect: "aspect-[16/11]",
+              },
+              {
+                src: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=600",
+                title: "Data Science Station",
+                desc: "Dual displays optimized for low-fatigue telemetry analysis.",
+                tag: "Focus Setup",
+                aspect: "aspect-[1/1]",
+              },
+              {
+                src: "https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?q=80&w=600",
+                title: "Surface Protection Matting",
+                desc: "Custom deskmats aligned with anti-static standards.",
+                tag: "Safety",
+                aspect: "aspect-[16/10]",
+              },
+            ].map((img, i) => (
+              <motion.div
+                key={img.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="break-inside-avoid liquid-card rounded-2xl overflow-hidden p-2 group hover:neon-ring hover:scale-[1.03] transition-all duration-300 flex flex-col"
+              >
+                <div className={`relative w-full overflow-hidden rounded-xl bg-black ${img.aspect}`}>
+                  <img
+                    src={img.src}
+                    alt={img.title}
+                    className="h-full w-full object-cover filter brightness-[0.85] contrast-[1.05] transition-all duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-primary/20 text-primary border-none text-[9px] font-bold uppercase tracking-wider font-mono">
+                      {img.tag}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <h4 className="font-extrabold text-foreground text-sm">{img.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{img.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -359,7 +461,7 @@ function AboutPage() {
               </div>
               <h2 className="mt-4 text-3xl font-bold tracking-tight">Built in 2026</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                A capstone-quality, production-ready academic project — engineered to ship.
+                A production-ready logistics software solution — engineered to ship.
               </p>
               <div className="mt-5 inline-flex items-center gap-2 text-xs text-muted-foreground">
                 <Calendar className="h-3.5 w-3.5" /> Last updated this quarter

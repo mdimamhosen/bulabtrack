@@ -51,8 +51,11 @@ import {
   toggleLikeDislike,
 } from "@/lib/api/database.functions";
 
+import { ProductDetailSkeleton } from "@/components/page-skeletons";
+
 export const Route = createFileRoute("/_public/products/$id")({
   component: ProductDetailPage,
+  pendingComponent: ProductDetailSkeleton,
 });
 
 const SUPPORT_PHONE = "+1 (800) 555-0142";
@@ -354,8 +357,69 @@ function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-20">
-        <div className="liquid-card h-96 animate-pulse rounded-3xl" />
+      <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16 animate-pulse">
+        {/* Breadcrumb Skeleton */}
+        <div className="mb-8 flex items-center gap-2">
+          <div className="h-4 w-12 rounded bg-zinc-850" />
+          <span className="text-muted-foreground/30">/</span>
+          <div className="h-4 w-16 rounded bg-zinc-850" />
+          <span className="text-muted-foreground/30">/</span>
+          <div className="h-4 w-28 rounded bg-zinc-850" />
+        </div>
+
+        <div className="mb-8 h-5 w-40 rounded bg-zinc-850" />
+
+        {/* Main Grid */}
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-start">
+          {/* Left Column (Images) */}
+          <div className="space-y-4">
+            <div className="border border-zinc-900 bg-zinc-950/40 rounded-[2rem] aspect-square p-3">
+              <div className="h-full w-full rounded-2xl bg-zinc-900" />
+            </div>
+            <div className="flex gap-2.5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-20 w-20 rounded-xl bg-zinc-900 border border-zinc-950" />
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column (Details) */}
+          <div className="space-y-6">
+            <div className="space-y-2.5">
+              <div className="h-5 w-24 rounded bg-zinc-850" />
+              <div className="h-10 w-4/5 rounded bg-zinc-850" />
+              <div className="h-4 w-1/3 rounded bg-zinc-900" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="h-4 w-full rounded bg-zinc-900" />
+              <div className="h-4 w-5/6 rounded bg-zinc-900" />
+            </div>
+
+            <div className="flex items-baseline gap-3">
+              <div className="h-12 w-28 rounded bg-zinc-850" />
+              <div className="h-6 w-16 rounded bg-zinc-900" />
+            </div>
+
+            <div className="border-y border-border/10 py-6 space-y-4">
+              <div className="flex gap-3">
+                <div className="h-12 w-32 rounded bg-zinc-850" />
+                <div className="h-12 w-full rounded bg-zinc-900" />
+              </div>
+            </div>
+
+            {/* Specifications list skeleton */}
+            <div className="space-y-3 pt-4">
+              <div className="h-5 w-32 rounded bg-zinc-850" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-8 rounded bg-zinc-900" />
+                <div className="h-8 rounded bg-zinc-900" />
+                <div className="h-8 rounded bg-zinc-900" />
+                <div className="h-8 rounded bg-zinc-900" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1019,7 +1083,7 @@ function ProductDetailPage() {
                 {[5, 4, 3, 2, 1].map((stars) => {
                   let percentage = 0;
                   const total = feedbackData?.totalReviews || 0;
-                  if (total > 0) {
+                  if (total > 0 && feedbackData?.reviews) {
                     const count = feedbackData.reviews.filter((r: any) => r.rating === stars).length;
                     percentage = Math.round((count / total) * 100);
                   } else {
@@ -1155,7 +1219,7 @@ function ProductDetailPage() {
 
             {feedbackData?.reviews && feedbackData.reviews.length > 0 ? (
               <div className="grid gap-4">
-                {feedbackData.reviews.map((rev: any) => {
+                {feedbackData?.reviews.map((rev: any) => {
                   const initials = (rev.user_name || "Customer")
                     .split(" ")
                     .map((n: string) => n[0])
