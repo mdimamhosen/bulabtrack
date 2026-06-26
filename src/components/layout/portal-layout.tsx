@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RoleProvider, useRole } from "@/lib/role-context";
 import { ThemeToggle } from "@/components/theme";
 import { AccountOverlays } from "@/components/layout/account-overlays";
+import { FloatingChatbot } from "@/components/layout/floating-chatbot";
 import {
   PortalSidebar,
   adminNavItems,
@@ -83,6 +84,7 @@ function AppShellInner({
       </div>
 
       <AccountOverlays profile={profile} onProfileUpdate={(p) => setProfile(p)} />
+      <FloatingChatbot />
     </div>
   );
 }
