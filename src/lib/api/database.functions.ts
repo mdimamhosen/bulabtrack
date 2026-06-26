@@ -117,7 +117,7 @@ export const executeDbAction = createServerFn({ method: "POST" })
           const responseData = users.map((u) => ({
             id: u._id,
             user_id: u._id,
-            role: u.role,
+            role: u.role === "customer" ? null : u.role,
           }));
           const isSingle = operations.some((o) => o.type === "single");
           const isMaybeSingle = operations.some((o) => o.type === "maybeSingle");

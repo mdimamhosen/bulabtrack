@@ -14,6 +14,7 @@ import {
   Clock,
   Database,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -60,40 +61,154 @@ function parseInline(text: string) {
 
 function MiniMarkdown({ content }: { content: string }) {
   const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let currentTableLines: string[] = [];
+  let insideTable = false;
+
+  const renderTable = (tableLines: string[], key: number) => {
+    if (tableLines.length < 2) return null;
+    
+    const headerLine = tableLines[0];
+    const headers = headerLine
+      .split("|")
+      .map((h) => h.trim())
+      .filter((_, i, arr) => i > 0 && i < arr.length - 1);
+      
+    const alignLine = tableLines[1];
+    const alignments = alignLine
+      .split("|")
+      .map((a) => a.trim())
+      .filter((_, i, arr) => i > 0 && i < arr.length - 1)
+      .map((a) => {
+        if (a.startsWith(":") && a.endsWith(":")) return "center";
+        if (a.endsWith(":")) return "right";
+        return "left";
+      });
+
+    const bodyRows = tableLines.slice(2).map((rowLine) => {
+      return rowLine
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter((_, i, arr) => i > 0 && i < arr.length - 1);
+    });
+
+    return (
+      <div key={key} className="overflow-x-auto w-full border border-border/30 rounded-xl my-2 bg-muted/5">
+        <table className="w-full border-collapse text-left text-[10px]">
+          <thead>
+            <tr className="bg-muted/70 border-b border-border/40">
+              {headers.map((h, idx) => {
+                const align = alignments[idx] || "left";
+                return (
+                  <th
+                    key={idx}
+                    className="px-2 py-1 font-bold text-foreground border-r border-border/20 last:border-r-0"
+                    style={{ textAlign: align as any }}
+                  >
+                    {parseInline(h)}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {bodyRows.map((row, rIdx) => (
+              <tr
+                key={rIdx}
+                className="border-b border-border/20 last:border-b-0 hover:bg-muted/20 odd:bg-muted/5 transition-colors"
+              >
+                {row.map((cell, cIdx) => {
+                  const align = alignments[cIdx] || "left";
+                  return (
+                    <td
+                      key={cIdx}
+                      className="px-2 py-1 text-muted-foreground border-r border-border/10 last:border-r-0"
+                      style={{ textAlign: align as any }}
+                    >
+                      {parseInline(cell)}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const processLine = (line: string, idx: number) => {
+    if (line.startsWith("### ")) {
+      return <h5 key={idx} className="text-xs font-bold text-primary mt-1.5">{line.slice(4)}</h5>;
+    }
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      return (
+        <div key={idx} className="flex gap-1.5 items-start pl-1">
+          <span className="text-primary mt-1">•</span>
+          <span>{parseInline(line.slice(2))}</span>
+        </div>
+      );
+    }
+    if (line === "---") {
+      return <hr key={idx} className="border-border/20 my-2" />;
+    }
+    if (!line.trim()) {
+      return <div key={idx} className="h-1" />;
+    }
+    return <p key={idx}>{parseInline(line)}</p>;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+    const isTableLine = trimmed.startsWith("|");
+
+    if (isTableLine) {
+      if (!insideTable) {
+        insideTable = true;
+        currentTableLines = [];
+      }
+      currentTableLines.push(rawLine);
+    } else {
+      if (insideTable) {
+        insideTable = false;
+        elements.push(renderTable(currentTableLines, i - 1));
+      }
+      elements.push(processLine(rawLine, i));
+    }
+  }
+
+  if (insideTable) {
+    elements.push(renderTable(currentTableLines, lines.length - 1));
+  }
+
   return (
     <div className="space-y-1 text-xs leading-relaxed text-foreground">
-      {lines.map((line, idx) => {
-        if (line.startsWith("### ")) {
-          return <h5 key={idx} className="text-xs font-bold text-primary mt-1.5">{line.slice(4)}</h5>;
-        }
-        if (line.startsWith("- ") || line.startsWith("* ")) {
-          return (
-            <div key={idx} className="flex gap-1.5 items-start pl-1">
-              <span className="text-primary mt-1">•</span>
-              <span>{parseInline(line.slice(2))}</span>
-            </div>
-          );
-        }
-        if (line === "---") {
-          return <hr key={idx} className="border-border/20 my-2" />;
-        }
-        if (!line.trim()) {
-          return <div key={idx} className="h-1" />;
-        }
-        return <p key={idx}>{parseInline(line)}</p>;
-      })}
+      {elements}
     </div>
   );
 }
 
 export function FloatingChatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "model",
-      text: "Hi! I am LabTalk. Ask me anything about our devices, stock levels, orders, or ratings. How can I help?",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("labtalk_chat_history");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          // fallback
+        }
+      }
+    }
+    return [
+      {
+        role: "model",
+        text: "Hi! I am LabTalk. Ask me anything about our devices, stock levels, orders, or ratings. How can I help?",
+      },
+    ];
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState("");
@@ -101,6 +216,11 @@ export function FloatingChatbot() {
   const [apiKeyInput, setApiKeyInput] = useState("");
 
   const scrollViewportRef = useRef<HTMLDivElement>(null);
+
+  // Save to local storage
+  useEffect(() => {
+    localStorage.setItem("labtalk_chat_history", JSON.stringify(messages));
+  }, [messages]);
 
   // Fetch profile to know role
   const { data: profile } = useQuery({
@@ -227,12 +347,31 @@ export function FloatingChatbot() {
                 <p className="text-[9px] text-muted-foreground">Connected to bulabtrack database</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  const defaultMsg: Message[] = [
+                    {
+                      role: "model",
+                      text: "Hi! I am LabTalk. Ask me anything about our devices, stock levels, orders, or ratings. How can I help?",
+                    },
+                  ];
+                  setMessages(defaultMsg);
+                  localStorage.removeItem("labtalk_chat_history");
+                  toast.success("Chat history cleared");
+                }}
+                title="Clear Chat History"
+                className="p-1.5 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           {/* API Key Banner inside Widget */}

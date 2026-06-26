@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "../../integrations/supabase/auth-middleware";
+import { optionalSupabaseAuth } from "../../integrations/supabase/auth-middleware";
 import {
   connectDB,
   UserModel,
@@ -18,7 +18,7 @@ const ChatMessageSchema = z.object({
 });
 
 export const askLabTalk = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([optionalSupabaseAuth])
   .validator(
     z.object({
       message: z.string().min(1),
@@ -28,20 +28,39 @@ export const askLabTalk = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await connectDB();
-    const userId = context.userId;
+    const userId = context?.userId;
 
-    // 1. Fetch current user from MongoDB to check role and email
-    const dbUser = await UserModel.findById(userId);
-    if (!dbUser) {
-      return {
-        success: false,
-        error: "Authenticated user not found in the database.",
-      };
+    // 1. Fetch current user from MongoDB if authenticated
+    let dbUser = null;
+    if (userId) {
+      dbUser = await UserModel.findById(userId);
     }
 
-    const userEmail = dbUser.email;
-    const userRole = dbUser.role || "customer"; // "admin" | "staff" | "customer"
-    const userName = dbUser.name;
+    let userEmail = dbUser ? dbUser.email : null;
+
+    // Extract email from current message or chat history if unauthenticated
+    if (!userEmail) {
+      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+      const emailMatch = data.message.match(emailRegex);
+      if (emailMatch) {
+        userEmail = emailMatch[0].toLowerCase().trim();
+      } else if (data.chatHistory && data.chatHistory.length > 0) {
+        for (let i = data.chatHistory.length - 1; i >= 0; i--) {
+          const hist = data.chatHistory[i];
+          if (hist.role === "user" && hist.parts) {
+            const text = hist.parts.map((p) => p.text).join(" ");
+            const match = text.match(emailRegex);
+            if (match) {
+              userEmail = match[0].toLowerCase().trim();
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    const userRole = dbUser ? (dbUser.role || "customer") : "customer"; // "admin" | "staff" | "customer"
+    const userName = dbUser ? dbUser.name : "Guest";
 
     // 2. Determine Gemini API Key and Model
     const serverApiKey = process.env.GEMINI_API_KEY;
@@ -82,7 +101,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
       }
     } else {
       // Customers can ONLY see their own orders
-      orders = await OrderModel.find({ email: userEmail }).sort({ created_at: -1 });
+      orders = userEmail ? await OrderModel.find({ email: userEmail }).sort({ created_at: -1 }) : [];
       const orderIds = orders.map((o) => o._id);
       orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
     }

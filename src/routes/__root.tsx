@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleProvider } from "@/lib/role-context";
+import { FloatingChatbot } from "@/components/layout/floating-chatbot";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -136,6 +137,7 @@ function RootComponent() {
       <RoleProvider>
         <ThemeProvider>
           <Outlet />
+          <FloatingChatbot />
           <Toaster richColors position="top-right" />
         </ThemeProvider>
       </RoleProvider>

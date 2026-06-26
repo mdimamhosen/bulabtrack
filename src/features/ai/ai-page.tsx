@@ -16,6 +16,7 @@ import {
   ArrowRight,
   ChevronRight,
   AlertTriangle,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,53 +32,148 @@ type Message = {
 // Light regex-based markdown parser to render lists, code, and bold text beautifully
 function LightMarkdown({ content }: { content: string }) {
   const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let currentTableLines: string[] = [];
+  let insideTable = false;
+
+  const renderTable = (tableLines: string[], key: number) => {
+    if (tableLines.length < 2) return null;
+    
+    const headerLine = tableLines[0];
+    const headers = headerLine
+      .split("|")
+      .map((h) => h.trim())
+      .filter((_, i, arr) => i > 0 && i < arr.length - 1);
+      
+    const alignLine = tableLines[1];
+    const alignments = alignLine
+      .split("|")
+      .map((a) => a.trim())
+      .filter((_, i, arr) => i > 0 && i < arr.length - 1)
+      .map((a) => {
+        if (a.startsWith(":") && a.endsWith(":")) return "center";
+        if (a.endsWith(":")) return "right";
+        return "left";
+      });
+
+    const bodyRows = tableLines.slice(2).map((rowLine) => {
+      return rowLine
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter((_, i, arr) => i > 0 && i < arr.length - 1);
+    });
+
+    return (
+      <div key={key} className="overflow-x-auto w-full border border-border/30 rounded-xl my-3 bg-muted/5">
+        <table className="w-full border-collapse text-left text-xs">
+          <thead>
+            <tr className="bg-muted/70 border-b border-border/40">
+              {headers.map((h, idx) => {
+                const align = alignments[idx] || "left";
+                return (
+                  <th
+                    key={idx}
+                    className="px-3 py-2 font-bold text-foreground border-r border-border/20 last:border-r-0"
+                    style={{ textAlign: align as any }}
+                  >
+                    {parseInlineMarkdown(h)}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {bodyRows.map((row, rIdx) => (
+              <tr
+                key={rIdx}
+                className="border-b border-border/20 last:border-b-0 hover:bg-muted/20 odd:bg-muted/5 transition-colors"
+              >
+                {row.map((cell, cIdx) => {
+                  const align = alignments[cIdx] || "left";
+                  return (
+                    <td
+                      key={cIdx}
+                      className="px-3 py-2 text-muted-foreground border-r border-border/10 last:border-r-0"
+                      style={{ textAlign: align as any }}
+                    >
+                      {parseInlineMarkdown(cell)}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const processLine = (line: string, idx: number) => {
+    if (line.startsWith("### ")) {
+      return <h4 key={idx} className="text-base font-bold text-primary mt-3 mb-1">{line.slice(4)}</h4>;
+    }
+    if (line.startsWith("## ")) {
+      return <h3 key={idx} className="text-lg font-bold text-primary mt-4 mb-2">{line.slice(3)}</h3>;
+    }
+    if (line.startsWith("# ")) {
+      return <h2 key={idx} className="text-xl font-bold text-primary mt-5 mb-2">{line.slice(2)}</h2>;
+    }
+
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      return (
+        <div key={idx} className="flex gap-2 items-start pl-2">
+          <span className="text-primary mt-1.5">•</span>
+          <span>{parseInlineMarkdown(line.slice(2))}</span>
+        </div>
+      );
+    }
+
+    if (line === "---") {
+      return <hr key={idx} className="border-border/30 my-4" />;
+    }
+
+    if (line.startsWith("> ")) {
+      return (
+        <blockquote key={idx} className="border-l-2 border-primary bg-primary/5 px-3 py-1.5 rounded-r-lg my-2 italic">
+          {parseInlineMarkdown(line.slice(2))}
+        </blockquote>
+      );
+    }
+
+    if (!line.trim()) {
+      return <div key={idx} className="h-2" />;
+    }
+
+    return <p key={idx}>{parseInlineMarkdown(line)}</p>;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+    const isTableLine = trimmed.startsWith("|");
+
+    if (isTableLine) {
+      if (!insideTable) {
+        insideTable = true;
+        currentTableLines = [];
+      }
+      currentTableLines.push(rawLine);
+    } else {
+      if (insideTable) {
+        insideTable = false;
+        elements.push(renderTable(currentTableLines, i - 1));
+      }
+      elements.push(processLine(rawLine, i));
+    }
+  }
+
+  if (insideTable) {
+    elements.push(renderTable(currentTableLines, lines.length - 1));
+  }
+
   return (
     <div className="space-y-2 text-sm leading-relaxed text-foreground">
-      {lines.map((line, idx) => {
-        // Headers
-        if (line.startsWith("### ")) {
-          return <h4 key={idx} className="text-base font-bold text-primary mt-3 mb-1">{line.slice(4)}</h4>;
-        }
-        if (line.startsWith("## ")) {
-          return <h3 key={idx} className="text-lg font-bold text-primary mt-4 mb-2">{line.slice(3)}</h3>;
-        }
-        if (line.startsWith("# ")) {
-          return <h2 key={idx} className="text-xl font-bold text-primary mt-5 mb-2">{line.slice(2)}</h2>;
-        }
-
-        // List item
-        if (line.startsWith("- ") || line.startsWith("* ")) {
-          const formatted = parseInlineMarkdown(line.slice(2));
-          return (
-            <div key={idx} className="flex gap-2 items-start pl-2">
-              <span className="text-primary mt-1.5">•</span>
-              <span>{formatted}</span>
-            </div>
-          );
-        }
-
-        // Horizontal Rule
-        if (line === "---") {
-          return <hr key={idx} className="border-border/30 my-4" />;
-        }
-
-        // Blockquotes
-        if (line.startsWith("> ")) {
-          return (
-            <blockquote key={idx} className="border-l-2 border-primary bg-primary/5 px-3 py-1.5 rounded-r-lg my-2 italic">
-              {parseInlineMarkdown(line.slice(2))}
-            </blockquote>
-          );
-        }
-
-        // Empty lines
-        if (!line.trim()) {
-          return <div key={idx} className="h-2" />;
-        }
-
-        // Normal paragraph
-        return <p key={idx}>{parseInlineMarkdown(line)}</p>;
-      })}
+      {elements}
     </div>
   );
 }
@@ -120,12 +216,24 @@ function parseInlineMarkdown(text: string) {
 }
 
 export function AiAssistantPage({ roleBase }: { roleBase: string }) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "model",
-      text: "Hello! I am LabTalk, your LabTrack AI Assistant. I can help search devices, check inventory levels, summarize orders, and analyze customer feedback using live data. How can I assist you today?",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("labtalk_assistant_history");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          // fallback
+        }
+      }
+    }
+    return [
+      {
+        role: "model",
+        text: "Hello! I am LabTalk, your LabTrack AI Assistant. I can help search devices, check inventory levels, summarize orders, and analyze customer feedback using live data. How can I assist you today?",
+      },
+    ];
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState("");
@@ -133,6 +241,11 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
   const [apiKeyInput, setApiKeyInput] = useState("");
 
   const scrollViewportRef = useRef<HTMLDivElement>(null);
+
+  // Save to local storage
+  useEffect(() => {
+    localStorage.setItem("labtalk_assistant_history", JSON.stringify(messages));
+  }, [messages]);
 
   // Fetch current profile to customize chips
   const { data: profile } = useQuery({
@@ -313,6 +426,25 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
           >
             <KeyRound className="h-3.5 w-3.5" />
             {apiKey ? "Edit API Key" : "Add API Key"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const defaultMsg: Message[] = [
+                {
+                  role: "model",
+                  text: "Hello! I am LabTalk, your LabTrack AI Assistant. I can help search devices, check inventory levels, summarize orders, and analyze customer feedback using live data. How can I assist you today?",
+                },
+              ];
+              setMessages(defaultMsg);
+              localStorage.removeItem("labtalk_assistant_history");
+              toast.success("Chat history cleared");
+            }}
+            className="border-border/60 hover:bg-secondary hover:text-destructive rounded-xl text-xs flex items-center gap-1 h-9"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear Chat
           </Button>
         </div>
       </div>

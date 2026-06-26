@@ -40,3 +40,56 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     }
   }
 );
+
+export const optionalSupabaseAuth = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    const request = getRequest();
+
+    if (!request?.headers) {
+      return next({
+        context: {
+          userId: undefined as string | undefined,
+          claims: undefined as any,
+        },
+      });
+    }
+
+    const authHeader = request.headers.get("authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next({
+        context: {
+          userId: undefined as string | undefined,
+          claims: undefined as any,
+        },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    if (!token) {
+      return next({
+        context: {
+          userId: undefined as string | undefined,
+          claims: undefined as any,
+        },
+      });
+    }
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string }; 
+      return next({
+        context: {
+          userId: decoded.sub as string | undefined,
+          claims: decoded as any,
+        },
+      });
+    } catch (err) {
+      return next({
+        context: {
+          userId: undefined as string | undefined,
+          claims: undefined as any,
+        },
+      });
+    }
+  }
+);
