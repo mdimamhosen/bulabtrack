@@ -1,14 +1,13 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { CheckCircle2, Package, Home, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, Package, Home, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
-import { useEffect, useState, useRef } from "react";
-import { confirmStripeOrder } from "@/lib/api/stripe.functions";
+import { useEffect } from "react";
+// import { confirmStripeOrder } from "@/lib/api/stripe.functions"; // Stripe temporarily disabled
 import { OrderGraphTracker } from "@/components/order-graph-tracker";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -24,10 +23,11 @@ export const Route = createFileRoute("/_public/order-success/$orderNumber")({
 
 function OrderSuccessPage() {
   const { orderNumber } = useParams({ from: "/_public/order-success/$orderNumber" });
-  const { status, session_id } = Route.useSearch();
+  // Stripe search params disabled temporarily
+  // const { status, session_id } = Route.useSearch();
   const { count, clear } = useCart();
-  const [verifying, setVerifying] = useState(!!session_id);
-  const verificationInitiated = useRef(false);
+  // const [verifying, setVerifying] = useState(!!session_id); // Stripe disabled
+  // const verificationInitiated = useRef(false); // Stripe disabled
 
   // Query order details dynamically from MongoDB
   const { data: order, refetch, isLoading } = useQuery({
@@ -43,25 +43,23 @@ function OrderSuccessPage() {
     },
   });
 
-  // Verify Stripe payment session on success redirect
+  // COD order: just clear cart on arrival
   useEffect(() => {
+    if (count > 0) {
+      clear();
+    }
+    // Stripe verification temporarily disabled
+    /*
     if (status === "success" && session_id) {
       if (verificationInitiated.current) return;
       verificationInitiated.current = true;
       setVerifying(true);
-      confirmStripeOrder({
-        data: {
-          orderNumber,
-          sessionId: session_id,
-        },
-      })
+      confirmStripeOrder({ data: { orderNumber, sessionId: session_id } })
         .then((res) => {
           setVerifying(false);
           if (res.success) {
             toast.success("Payment verified! Order confirmed.");
-            if (count > 0) {
-              clear();
-            }
+            if (count > 0) clear();
             refetch();
           } else {
             toast.error(res.error || "Payment verification failed.");
@@ -72,14 +70,13 @@ function OrderSuccessPage() {
           toast.error("Error connecting to stripe verification service.");
         });
     } else {
-      // Just clear the cart for COD orders
-      if (count > 0) {
-        clear();
-      }
+      if (count > 0) clear();
     }
-  }, [status, session_id, orderNumber, clear, refetch, count]);
+    */
+  }, []);
 
-  const paymentMethod = order?.notes?.includes("stripe") || session_id ? "Credit Card (Stripe)" : "Cash on Delivery";
+  const paymentMethod = "Cash on Delivery"; // Stripe disabled
+  // const paymentMethod = order?.notes?.includes("stripe") || session_id ? "Credit Card (Stripe)" : "Cash on Delivery";
   const displayStatus = order?.status || "Pending";
 
   return (
@@ -91,24 +88,18 @@ function OrderSuccessPage() {
       </div>
 
       <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-primary/10 text-primary">
-        {verifying ? (
-          <Loader2 className="h-10 w-10 animate-spin" />
-        ) : (
-          <CheckCircle2 className="h-10 w-10" />
-        )}
+        <CheckCircle2 className="h-10 w-10" />
       </div>
 
       <h1 className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl">
-        {verifying ? "Verifying Payment..." : "Order placed successfully!"}
+        Order placed successfully!
       </h1>
       <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto">
-        {verifying
-          ? "Please wait while we verify your transaction details with Stripe."
-          : "Thank you for your order! Your shipping requisition has been processed and logged in the inventory system."}
+        Thank you for your order! Your shipping requisition has been processed and logged in the inventory system.
       </p>
 
       {/* Graph Status Tracker (For all roles) */}
-      {!isLoading && !verifying && (
+      {!isLoading && (
         <div className="mt-8">
           <OrderGraphTracker currentStatus={displayStatus} />
         </div>

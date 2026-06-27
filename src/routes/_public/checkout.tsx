@@ -1,11 +1,11 @@
-import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
-import { Truck, Lock, ArrowLeft, CreditCard } from "lucide-react";
+import { Truck, Lock, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { createStripeCheckoutSession } from "@/lib/api/stripe.functions";
+// import { createStripeCheckoutSession } from "@/lib/api/stripe.functions"; // Stripe temporarily disabled
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,17 +18,7 @@ import { CheckoutSkeleton } from "@/components/page-skeletons";
 
 export const Route = createFileRoute("/_public/checkout")({
   head: () => ({ meta: [{ title: "Checkout — LabTrack" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      throw redirect({
-        to: "/auth",
-        search: {
-          redirect: "/checkout",
-        },
-      });
-    }
-  },
+  // Auth redirect removed — checkout now works without login (COD)
   component: CheckoutPage,
   pendingComponent: CheckoutSkeleton,
 });
@@ -54,7 +44,9 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "stripe">("cod");
+  // Stripe temporarily disabled — only COD available
+  // const [paymentMethod, setPaymentMethod] = useState<"cod" | "stripe">("cod");
+  const paymentMethod = "cod";
   const {
     register,
     handleSubmit,
@@ -63,6 +55,7 @@ function CheckoutPage() {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   useEffect(() => {
+    // Try to pre-fill from authenticated user if logged in
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
         setValue("email", user.email || "");
@@ -145,6 +138,8 @@ function CheckoutPage() {
       return toast.error(liErr.message);
     }
 
+    // Stripe temporarily disabled — all orders are COD
+    /*
     if (paymentMethod === "stripe") {
       try {
         const stripeItems = items.map((item) => ({
@@ -153,7 +148,6 @@ function CheckoutPage() {
           price: item.price,
           quantity: item.quantity,
         }));
-        
         const res = await createStripeCheckoutSession({
           data: {
             orderNumber,
@@ -168,7 +162,6 @@ function CheckoutPage() {
             origin: window.location.origin,
           },
         });
-        
         if (res.url) {
           window.location.href = res.url;
         } else {
@@ -179,11 +172,12 @@ function CheckoutPage() {
         toast.error(e.message || "Stripe payment initialization failed.");
       }
     } else {
-      setLoading(false);
-      clear();
-      toast.success("Order placed successfully (Cash on Delivery)!");
-      navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
-    }
+    */
+    setLoading(false);
+    clear();
+    toast.success("Order placed successfully (Cash on Delivery)!");
+    navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
+    // } // end stripe else block
   };
 
   return (
@@ -234,51 +228,25 @@ function CheckoutPage() {
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold">Payment method</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-all ${
-                  paymentMethod === "cod" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-border bg-card hover:bg-secondary/10"
-                }`}>
-                  <input 
-                    type="radio" 
-                    name="payment_method" 
-                    checked={paymentMethod === "cod"} 
-                    onChange={() => setPaymentMethod("cod")} 
-                    className="mt-1" 
-                  />
+              {/* Stripe payment temporarily disabled — only COD available */}
+              <div className="mt-4">
+                <div className="flex items-start gap-3 rounded-lg border-2 border-primary bg-primary/5 p-4">
+                  <Truck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <div className="flex items-center gap-2 font-medium">
-                      <Truck className="h-4 w-4 text-primary" /> Cash on Delivery
-                    </div>
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      Pay with cash when your order arrives.
+                    <div className="font-semibold">Cash on Delivery</div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Pay with cash when your order arrives. Online card payment coming soon.
                     </p>
                   </div>
-                </label>
-
-                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-all ${
-                  paymentMethod === "stripe" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-border bg-card hover:bg-secondary/10"
-                }`}>
-                  <input 
-                    type="radio" 
-                    name="payment_method" 
-                    checked={paymentMethod === "stripe"} 
-                    onChange={() => setPaymentMethod("stripe")} 
-                    className="mt-1" 
-                  />
-                  <div>
-                    <div className="flex items-center gap-2 font-medium">
-                      <CreditCard className="h-4 w-4 text-primary" /> Pay with Card
-                    </div>
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      Secure payment with credit card via Stripe.
-                    </p>
-                  </div>
-                </label>
+                </div>
               </div>
+              {/*
+              STRIPE PAYMENT OPTION — commented out temporarily
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label ...>COD</label>
+                <label ...>Stripe Card</label>
+              </div>
+              */}
             </CardContent>
           </Card>
 
