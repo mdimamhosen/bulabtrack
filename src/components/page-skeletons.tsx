@@ -2,7 +2,11 @@ import { Card, CardContent } from "@/components/ui/card";
 
 // Generic Pulse Base
 function SkeletonPulse({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-zinc-900 border border-zinc-900/60 ${className}`} />;
+  return (
+    <div
+      className={`animate-pulse rounded-xl bg-zinc-900 border border-zinc-900/60 ${className}`}
+    />
+  );
 }
 
 // 1. Homepage Loading Skeleton
@@ -141,7 +145,7 @@ export function DashboardSkeleton() {
     <div className="mx-auto max-w-7xl p-6 space-y-6 animate-pulse">
       {/* Banner */}
       <SkeletonPulse className="h-24 w-full rounded-2xl" />
-      
+
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <SkeletonPulse className="h-24 w-full" />
@@ -174,7 +178,7 @@ export function AboutSkeleton() {
         <SkeletonPulse className="h-12 w-2/3 mx-auto" />
         <SkeletonPulse className="h-6 w-1/2 mx-auto" />
       </div>
-      
+
       {/* Mission Grid */}
       <div className="grid gap-6 sm:grid-cols-3">
         <SkeletonPulse className="h-48 w-full" />

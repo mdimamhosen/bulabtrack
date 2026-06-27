@@ -693,7 +693,9 @@ export function SettingsPage() {
                       </Button>
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
-                      Your Gemini API key is stored securely in your browser's local storage and is only used to connect to Google's API for processing your prompts. It is never stored on our database server.
+                      Your Gemini API key is stored securely in your browser's local storage and is
+                      only used to connect to Google's API for processing your prompts. It is never
+                      stored on our database server.
                     </p>
                   </div>
                 </div>

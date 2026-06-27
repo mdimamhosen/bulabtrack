@@ -16,7 +16,7 @@ import {
   Wrench,
   ShoppingCart,
   Percent,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { format, subMonths } from "date-fns";
 import {
@@ -30,7 +30,7 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 } from "chart.js";
 import { Line, Bar, Pie, Radar } from "react-chartjs-2";
 
@@ -44,7 +44,7 @@ ChartJS.register(
   ArcElement,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 export function ReportsPage() {
@@ -57,7 +57,7 @@ export function ReportsPage() {
       const { data, error } = await supabase.from("orders").select("*");
       if (error) throw error;
       return data ?? [];
-    }
+    },
   });
   const orders = rawOrders as any[];
 
@@ -68,7 +68,7 @@ export function ReportsPage() {
       const { data, error } = await supabase.from("devices").select("*");
       if (error) throw error;
       return data ?? [];
-    }
+    },
   });
   const devices = rawDevices as any[];
 
@@ -79,13 +79,17 @@ export function ReportsPage() {
     const months = Array.from({ length: 6 }).map((_, idx) => {
       return subMonths(new Date(), 5 - idx);
     });
-    const labels = months.map(m => format(m, "MMM yyyy"));
+    const labels = months.map((m) => format(m, "MMM yyyy"));
 
-    const spend = months.map(m => {
+    const spend = months.map((m) => {
       return orders
-        .filter(o => {
+        .filter((o) => {
           const d = new Date(o.created_at);
-          return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear() && o.status !== "Cancelled";
+          return (
+            d.getMonth() === m.getMonth() &&
+            d.getFullYear() === m.getFullYear() &&
+            o.status !== "Cancelled"
+          );
         })
         .reduce((sum, o) => sum + Number(o.total), 0);
     });
@@ -101,16 +105,16 @@ export function ReportsPage() {
           borderWidth: 3,
           fill: true,
           tension: 0.35,
-          pointBackgroundColor: "rgba(16, 185, 129, 1)"
-        }
-      ]
+          pointBackgroundColor: "rgba(16, 185, 129, 1)",
+        },
+      ],
     };
   }, [orders]);
 
   // 2. Inventory Allocation (Devices by Category)
   const categoryData = useMemo(() => {
     const counts: Record<string, number> = {};
-    devices.forEach(d => {
+    devices.forEach((d) => {
       counts[d.category] = (counts[d.category] ?? 0) + (d.quantity ?? 1);
     });
 
@@ -123,17 +127,17 @@ export function ReportsPage() {
           backgroundColor: "rgba(99, 102, 241, 0.8)", // Indigo
           borderRadius: 8,
           borderWidth: 0,
-          maxBarThickness: 32
-        }
-      ]
+          maxBarThickness: 32,
+        },
+      ],
     };
   }, [devices]);
 
   // 3. Device Status Breakdown (Radar Chart)
   const statusData = useMemo(() => {
     const statuses = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"];
-    const counts = statuses.map(s => {
-      return devices.filter(d => d.status === s).length;
+    const counts = statuses.map((s) => {
+      return devices.filter((d) => d.status === s).length;
     });
 
     return {
@@ -145,17 +149,17 @@ export function ReportsPage() {
           backgroundColor: "rgba(244, 63, 94, 0.2)", // Rose
           borderColor: "rgba(244, 63, 94, 0.8)",
           borderWidth: 2,
-          pointBackgroundColor: "rgba(244, 63, 94, 1)"
-        }
-      ]
+          pointBackgroundColor: "rgba(244, 63, 94, 1)",
+        },
+      ],
     };
   }, [devices]);
 
   // 4. Fulfillment Status Breakdown (Pie Chart)
   const fulfillmentData = useMemo(() => {
     const statuses = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"];
-    const counts = statuses.map(s => {
-      return orders.filter(o => o.status === s).length;
+    const counts = statuses.map((s) => {
+      return orders.filter((o) => o.status === s).length;
     });
 
     return {
@@ -165,25 +169,34 @@ export function ReportsPage() {
           data: counts,
           backgroundColor: [
             "rgba(156, 163, 175, 0.8)", // Gray (Pending)
-            "rgba(59, 130, 246, 0.8)",  // Blue (Confirmed)
-            "rgba(139, 92, 246, 0.8)",  // Purple (Processing)
-            "rgba(245, 158, 11, 0.8)",  // Yellow (Shipped)
-            "rgba(16, 185, 129, 0.8)",  // Green (Delivered)
-            "rgba(239, 68, 68, 0.8)"    // Red (Cancelled)
+            "rgba(59, 130, 246, 0.8)", // Blue (Confirmed)
+            "rgba(139, 92, 246, 0.8)", // Purple (Processing)
+            "rgba(245, 158, 11, 0.8)", // Yellow (Shipped)
+            "rgba(16, 185, 129, 0.8)", // Green (Delivered)
+            "rgba(239, 68, 68, 0.8)", // Red (Cancelled)
           ],
           borderColor: "var(--color-card)",
-          borderWidth: 2
-        }
-      ]
+          borderWidth: 2,
+        },
+      ],
     };
   }, [orders]);
 
   // Top metric values
   const metrics = useMemo(() => {
-    const capitalAssetVal = devices.reduce((sum, d) => sum + (Number(d.price) * (d.quantity ?? 1)), 0);
-    const activeRequisitions = orders.filter(o => ["Pending", "Confirmed", "Processing", "Shipped"].includes(o.status)).length;
-    const totalProcuredSpend = orders.filter(o => o.status !== "Cancelled").reduce((sum, o) => sum + Number(o.total), 0);
-    const maintenanceUnits = devices.filter(d => d.status === "Under Maintenance" || d.status === "Damaged").reduce((sum, d) => sum + (d.quantity ?? 1), 0);
+    const capitalAssetVal = devices.reduce(
+      (sum, d) => sum + Number(d.price) * (d.quantity ?? 1),
+      0,
+    );
+    const activeRequisitions = orders.filter((o) =>
+      ["Pending", "Confirmed", "Processing", "Shipped"].includes(o.status),
+    ).length;
+    const totalProcuredSpend = orders
+      .filter((o) => o.status !== "Cancelled")
+      .reduce((sum, o) => sum + Number(o.total), 0);
+    const maintenanceUnits = devices
+      .filter((d) => d.status === "Under Maintenance" || d.status === "Damaged")
+      .reduce((sum, d) => sum + (d.quantity ?? 1), 0);
 
     return { capitalAssetVal, activeRequisitions, totalProcuredSpend, maintenanceUnits };
   }, [orders, devices]);
@@ -193,38 +206,38 @@ export function ReportsPage() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false }
+      legend: { display: false },
     },
     scales: {
       y: {
         grid: { color: "rgba(63, 63, 70, 0.15)" },
-        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } }
+        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } },
       },
       x: {
         grid: { display: false },
-        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } }
-      }
+        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } },
+      },
     },
-    animation: { duration: 1200, easing: "easeInOutCubic" as const }
+    animation: { duration: 1200, easing: "easeInOutCubic" as const },
   };
 
   const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false }
+      legend: { display: false },
     },
     scales: {
       y: {
         grid: { color: "rgba(63, 63, 70, 0.15)" },
-        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } }
+        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } },
       },
       x: {
         grid: { display: false },
-        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } }
-      }
+        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } },
+      },
     },
-    animation: { duration: 1200, easing: "easeOutElastic" as const }
+    animation: { duration: 1200, easing: "easeOutElastic" as const },
   };
 
   const pieOptions = {
@@ -237,28 +250,31 @@ export function ReportsPage() {
           color: "rgba(156, 163, 175, 1)",
           font: { family: "Inter", size: 10, weight: "bold" as const },
           usePointStyle: true,
-          boxWidth: 8
-        }
-      }
+          boxWidth: 8,
+        },
+      },
     },
-    animation: { animateRotate: true, animateScale: true, duration: 1000 }
+    animation: { animateRotate: true, animateScale: true, duration: 1000 },
   };
 
   const radarOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false }
+      legend: { display: false },
     },
     scales: {
       r: {
         angleLines: { color: "rgba(63, 63, 70, 0.2)" },
         grid: { color: "rgba(63, 63, 70, 0.2)" },
-        pointLabels: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 9, weight: "bold" as const } },
-        ticks: { display: false }
-      }
+        pointLabels: {
+          color: "rgba(156, 163, 175, 1)",
+          font: { family: "Inter", size: 9, weight: "bold" as const },
+        },
+        ticks: { display: false },
+      },
     },
-    animation: { duration: 1500, easing: "easeOutElastic" as const }
+    animation: { duration: 1500, easing: "easeOutElastic" as const },
   };
 
   const triggerExport = () => {
@@ -283,7 +299,8 @@ export function ReportsPage() {
             Executive Analytics & Reports
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Generate and visualize peripheral inventory allocations, cost breakdowns, and active orders.
+            Generate and visualize peripheral inventory allocations, cost breakdowns, and active
+            orders.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -324,9 +341,12 @@ export function ReportsPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Procured Capital Spend</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Procured Capital Spend
+              </p>
               <p className="text-2xl font-extrabold text-success mt-1">
-                ${metrics.totalProcuredSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                $
+                {metrics.totalProcuredSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-success/10 text-success">
@@ -337,7 +357,9 @@ export function ReportsPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Capital Asset Value</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Capital Asset Value
+              </p>
               <p className="text-2xl font-extrabold text-primary mt-1">
                 ${metrics.capitalAssetVal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
@@ -350,8 +372,12 @@ export function ReportsPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Active Requisitions</p>
-              <p className="text-2xl font-extrabold text-accent mt-1">{metrics.activeRequisitions}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Active Requisitions
+              </p>
+              <p className="text-2xl font-extrabold text-accent mt-1">
+                {metrics.activeRequisitions}
+              </p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent">
               <ShoppingCart className="h-5 w-5" />
@@ -361,8 +387,12 @@ export function ReportsPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Maintenance Backlog</p>
-              <p className="text-2xl font-extrabold text-warning mt-1">{metrics.maintenanceUnits} Units</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Maintenance Backlog
+              </p>
+              <p className="text-2xl font-extrabold text-warning mt-1">
+                {metrics.maintenanceUnits} Units
+              </p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-warning/10 text-warning">
               <Wrench className="h-5 w-5" />
@@ -374,13 +404,22 @@ export function ReportsPage() {
       {/* Tabs segment */}
       <Tabs defaultValue="financial" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 max-w-[500px] rounded-xl border border-border bg-card/65 p-1">
-          <TabsTrigger value="financial" className="rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+          <TabsTrigger
+            value="financial"
+            className="rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+          >
             <TrendingUp className="h-3.5 w-3.5" /> Capital Costs
           </TabsTrigger>
-          <TabsTrigger value="inventory" className="rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+          <TabsTrigger
+            value="inventory"
+            className="rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+          >
             <Package className="h-3.5 w-3.5" /> Allocations
           </TabsTrigger>
-          <TabsTrigger value="fulfillment" className="rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+          <TabsTrigger
+            value="fulfillment"
+            className="rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+          >
             <ShoppingCart className="h-3.5 w-3.5" /> Requisitions
           </TabsTrigger>
         </TabsList>
@@ -390,7 +429,9 @@ export function ReportsPage() {
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="md:col-span-2 liquid-card border-border/55">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-foreground">Monthly Spend Trend</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground">
+                  Monthly Spend Trend
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Capital investment value of approved equipment purchases.
                 </CardDescription>
@@ -398,7 +439,8 @@ export function ReportsPage() {
               <CardContent className="h-72">
                 {loading ? (
                   <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                    <RefreshCw className="h-4 w-4 animate-spin text-success mr-1.5" /> Loading spend logs...
+                    <RefreshCw className="h-4 w-4 animate-spin text-success mr-1.5" /> Loading spend
+                    logs...
                   </div>
                 ) : (
                   <Line data={financialData} options={lineOptions} />
@@ -415,17 +457,33 @@ export function ReportsPage() {
               </CardHeader>
               <CardContent className="space-y-4 pt-1 text-xs">
                 <div className="rounded-xl border border-border bg-secondary/10 p-3">
-                  <p className="text-[10px] uppercase text-muted-foreground font-semibold">Total Net Procurement</p>
-                  <p className="text-lg font-black text-foreground mt-1">${metrics.totalProcuredSpend.toLocaleString()}</p>
+                  <p className="text-[10px] uppercase text-muted-foreground font-semibold">
+                    Total Net Procurement
+                  </p>
+                  <p className="text-lg font-black text-foreground mt-1">
+                    ${metrics.totalProcuredSpend.toLocaleString()}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-border bg-secondary/10 p-3">
-                  <p className="text-[10px] uppercase text-muted-foreground font-semibold">Inventory Valuation</p>
-                  <p className="text-lg font-black text-foreground mt-1">${metrics.capitalAssetVal.toLocaleString()}</p>
+                  <p className="text-[10px] uppercase text-muted-foreground font-semibold">
+                    Inventory Valuation
+                  </p>
+                  <p className="text-lg font-black text-foreground mt-1">
+                    ${metrics.capitalAssetVal.toLocaleString()}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-border bg-secondary/10 p-3">
-                  <p className="text-[10px] uppercase text-muted-foreground font-semibold">Fulfillment Ratio</p>
+                  <p className="text-[10px] uppercase text-muted-foreground font-semibold">
+                    Fulfillment Ratio
+                  </p>
                   <p className="text-lg font-black text-success mt-1">
-                    {orders.length > 0 ? ((orders.filter(o => o.status === "Delivered").length / orders.length) * 100).toFixed(1) : "0.0"}%
+                    {orders.length > 0
+                      ? (
+                          (orders.filter((o) => o.status === "Delivered").length / orders.length) *
+                          100
+                        ).toFixed(1)
+                      : "0.0"}
+                    %
                   </p>
                 </div>
               </CardContent>
@@ -438,7 +496,9 @@ export function ReportsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="liquid-card border-border/55">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-foreground">Unit Count by Category</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground">
+                  Unit Count by Category
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Distribution of lab stock equipment across primary peripheral groups.
                 </CardDescription>
@@ -446,7 +506,8 @@ export function ReportsPage() {
               <CardContent className="h-72">
                 {loading ? (
                   <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                    <RefreshCw className="h-4 w-4 animate-spin text-primary mr-1.5" /> Loading category allocation...
+                    <RefreshCw className="h-4 w-4 animate-spin text-primary mr-1.5" /> Loading
+                    category allocation...
                   </div>
                 ) : (
                   <Bar data={categoryData} options={barOptions} />
@@ -456,7 +517,9 @@ export function ReportsPage() {
 
             <Card className="liquid-card border-border/55">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-foreground">Device Condition Matrix</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground">
+                  Device Condition Matrix
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Health and operational readiness status distribution.
                 </CardDescription>
@@ -464,7 +527,8 @@ export function ReportsPage() {
               <CardContent className="h-72">
                 {loading ? (
                   <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                    <RefreshCw className="h-4 w-4 animate-spin text-accent mr-1.5" /> Loading health matrix...
+                    <RefreshCw className="h-4 w-4 animate-spin text-accent mr-1.5" /> Loading health
+                    matrix...
                   </div>
                 ) : (
                   <div className="h-64 relative">
@@ -481,7 +545,9 @@ export function ReportsPage() {
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="md:col-span-2 liquid-card border-border/55">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-foreground">Fulfillment Statuses</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground">
+                  Fulfillment Statuses
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Breakdown of customer requisition states.
                 </CardDescription>
@@ -489,7 +555,8 @@ export function ReportsPage() {
               <CardContent className="h-72">
                 {loading ? (
                   <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                    <RefreshCw className="h-4 w-4 animate-spin text-primary mr-1.5" /> Loading fulfillment charts...
+                    <RefreshCw className="h-4 w-4 animate-spin text-primary mr-1.5" /> Loading
+                    fulfillment charts...
                   </div>
                 ) : (
                   <div className="h-64 relative">
@@ -501,25 +568,40 @@ export function ReportsPage() {
 
             <Card className="liquid-card border-border/55">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-foreground">Active Orders Queue</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground">
+                  Active Orders Queue
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Pending requisition orders needing fulfillment.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 pt-1">
-                {orders.filter(o => ["Pending", "Confirmed", "Processing"].includes(o.status)).slice(0, 4).map(o => (
-                  <div key={o.id} className="flex items-center justify-between gap-2 rounded-xl border border-border/55 p-3 bg-secondary/10">
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-foreground font-mono">{o.order_number}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{o.customer_name}</p>
+                {orders
+                  .filter((o) => ["Pending", "Confirmed", "Processing"].includes(o.status))
+                  .slice(0, 4)
+                  .map((o) => (
+                    <div
+                      key={o.id}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-border/55 p-3 bg-secondary/10"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-foreground font-mono">
+                          {o.order_number}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {o.customer_name}
+                        </p>
+                      </div>
+                      <Badge className="text-[9px] font-bold" variant="outline">
+                        {o.status}
+                      </Badge>
                     </div>
-                    <Badge className="text-[9px] font-bold" variant="outline">
-                      {o.status}
-                    </Badge>
-                  </div>
-                ))}
-                {orders.filter(o => ["Pending", "Confirmed", "Processing"].includes(o.status)).length === 0 && (
-                  <p className="text-xs text-muted-foreground py-10 text-center">No active requisitions in queue.</p>
+                  ))}
+                {orders.filter((o) => ["Pending", "Confirmed", "Processing"].includes(o.status))
+                  .length === 0 && (
+                  <p className="text-xs text-muted-foreground py-10 text-center">
+                    No active requisitions in queue.
+                  </p>
                 )}
               </CardContent>
             </Card>

@@ -76,6 +76,9 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <Button asChild className="w-full" onClick={onClose}>
                   <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
+                <Button asChild variant="outline" onClick={onClose} className="w-full border-primary/30 text-primary hover:bg-primary/5">
+                  <Link to="/order-bot">🤖 Order via Chatbot (No Login)</Link>
+                </Button>
                 <Button variant="outline" onClick={onClose}>
                   Continue Shopping
                 </Button>

@@ -1,6 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Table, TableHeader, TableRow, TableCell, TableBody, TableHead } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableHead,
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +22,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   TrendingUp,
-  UserCheck
+  UserCheck,
 } from "lucide-react";
 import { format, subDays, startOfDay, isWithinInterval } from "date-fns";
 import {
@@ -27,7 +34,7 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 } from "chart.js";
 import { Line, Doughnut } from "react-chartjs-2";
 
@@ -39,7 +46,7 @@ ChartJS.register(
   ArcElement,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 interface AuditLog {
@@ -71,7 +78,7 @@ export function ActivityPage() {
           .from("audit_log")
           .select("id, action, created_at, user_id, details")
           .order("created_at", { ascending: false }),
-        supabase.from("profiles").select("id, name, email")
+        supabase.from("profiles").select("id, name, email"),
       ]);
 
       if (logsRes.data) setLogs(logsRes.data as AuditLog[]);
@@ -93,9 +100,10 @@ export function ActivityPage() {
       const matchesSearch =
         log.action.toLowerCase().includes(search.toLowerCase()) ||
         (log.details ?? "").toLowerCase().includes(search.toLowerCase());
-      
-      const matchesFilter = filterAction === "all" || log.action.toLowerCase().includes(filterAction.toLowerCase());
-      
+
+      const matchesFilter =
+        filterAction === "all" || log.action.toLowerCase().includes(filterAction.toLowerCase());
+
       return matchesSearch && matchesFilter;
     });
   }, [logs, search, filterAction]);
@@ -109,9 +117,11 @@ export function ActivityPage() {
 
   // 1. Chart.js Data: Daily activity volume (last 7 days)
   const lineChartData = useMemo(() => {
-    const dates = Array.from({ length: 7 }).map((_, idx) => startOfDay(subDays(new Date(), 6 - idx)));
+    const dates = Array.from({ length: 7 }).map((_, idx) =>
+      startOfDay(subDays(new Date(), 6 - idx)),
+    );
     const labels = dates.map((d) => format(d, "MMM dd"));
-    
+
     const counts = dates.map((d) => {
       const start = d;
       const end = new Date(d.getTime() + 86400000);
@@ -133,9 +143,9 @@ export function ActivityPage() {
           fill: true,
           tension: 0.4,
           pointBackgroundColor: "rgba(99, 102, 241, 1)",
-          pointHoverRadius: 7
-        }
-      ]
+          pointHoverRadius: 7,
+        },
+      ],
     };
   }, [logs]);
 
@@ -149,7 +159,11 @@ export function ActivityPage() {
       else if (log.action.toLowerCase().includes("device")) category = "Device Mgmt";
       else if (log.action.toLowerCase().includes("order")) category = "Order Requisition";
       else if (log.action.toLowerCase().includes("staff")) category = "Staff Mgmt";
-      else if (log.action.toLowerCase().includes("user") || log.action.toLowerCase().includes("auth")) category = "Authentication";
+      else if (
+        log.action.toLowerCase().includes("user") ||
+        log.action.toLowerCase().includes("auth")
+      )
+        category = "Authentication";
 
       actionCounts[category] = (actionCounts[category] ?? 0) + 1;
     });
@@ -164,26 +178,26 @@ export function ActivityPage() {
           data,
           backgroundColor: [
             "rgba(99, 102, 241, 0.85)", // Indigo
-            "rgba(244, 63, 94, 0.85)",  // Rose
-            "rgba(6, 182, 212, 0.85)",  // Cyan
+            "rgba(244, 63, 94, 0.85)", // Rose
+            "rgba(6, 182, 212, 0.85)", // Cyan
             "rgba(245, 158, 11, 0.85)", // Amber
             "rgba(16, 185, 129, 0.85)", // Emerald
-            "rgba(156, 163, 175, 0.85)" // Gray
+            "rgba(156, 163, 175, 0.85)", // Gray
           ],
           borderColor: "var(--color-card)",
           borderWidth: 2,
-          hoverOffset: 6
-        }
-      ]
+          hoverOffset: 6,
+        },
+      ],
     };
   }, [logs]);
 
   // Helper values for stat cards
   const stats = useMemo(() => {
     const totalOps = logs.length;
-    const seedOps = logs.filter(l => l.action.toLowerCase().includes("seed")).length;
-    const deviceOps = logs.filter(l => l.action.toLowerCase().includes("device")).length;
-    const orderOps = logs.filter(l => l.action.toLowerCase().includes("order")).length;
+    const seedOps = logs.filter((l) => l.action.toLowerCase().includes("seed")).length;
+    const deviceOps = logs.filter((l) => l.action.toLowerCase().includes("device")).length;
+    const orderOps = logs.filter((l) => l.action.toLowerCase().includes("order")).length;
     return { totalOps, seedOps, deviceOps, orderOps };
   }, [logs]);
 
@@ -198,23 +212,23 @@ export function ActivityPage() {
         bodyFont: { family: "Inter", size: 12 },
         padding: 10,
         borderColor: "rgba(63, 63, 70, 0.5)",
-        borderWidth: 1
-      }
+        borderWidth: 1,
+      },
     },
     scales: {
       y: {
         grid: { color: "rgba(63, 63, 70, 0.15)" },
-        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } }
+        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } },
       },
       x: {
         grid: { display: false },
-        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } }
-      }
+        ticks: { color: "rgba(156, 163, 175, 1)", font: { family: "Inter", size: 10 } },
+      },
     },
     animation: {
       duration: 1000,
-      easing: "easeOutQuart" as const
-    }
+      easing: "easeOutQuart" as const,
+    },
   };
 
   const doughnutOptions = {
@@ -229,23 +243,23 @@ export function ActivityPage() {
           padding: 12,
           boxWidth: 10,
           boxHeight: 10,
-          usePointStyle: true
-        }
+          usePointStyle: true,
+        },
       },
       tooltip: {
         backgroundColor: "rgba(24, 24, 27, 0.95)",
         bodyFont: { family: "Inter", size: 11 },
         padding: 8,
         borderColor: "rgba(63, 63, 70, 0.5)",
-        borderWidth: 1
-      }
+        borderWidth: 1,
+      },
     },
     animation: {
       animateRotate: true,
       animateScale: true,
       duration: 1000,
-      easing: "easeOutBack" as const
-    }
+      easing: "easeOutBack" as const,
+    },
   };
 
   return (
@@ -282,7 +296,9 @@ export function ActivityPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Operations</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Total Operations
+              </p>
               <p className="text-2xl font-extrabold text-foreground mt-1">{stats.totalOps}</p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -293,7 +309,9 @@ export function ActivityPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Device Operations</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Device Operations
+              </p>
               <p className="text-2xl font-extrabold text-accent mt-1">{stats.deviceOps}</p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent">
@@ -304,7 +322,9 @@ export function ActivityPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Requisitions</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Requisitions
+              </p>
               <p className="text-2xl font-extrabold text-success mt-1">{stats.orderOps}</p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-success/10 text-success">
@@ -315,7 +335,9 @@ export function ActivityPage() {
         <Card className="liquid-card border-border/55">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Database Seeds</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Database Seeds
+              </p>
               <p className="text-2xl font-extrabold text-warning mt-1">{stats.seedOps}</p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-warning/10 text-warning">
@@ -361,7 +383,8 @@ export function ActivityPage() {
           <CardContent className="h-64">
             {loading ? (
               <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                <RefreshCw className="h-4 w-4 animate-spin text-accent mr-1.5" /> Loading distribution...
+                <RefreshCw className="h-4 w-4 animate-spin text-accent mr-1.5" /> Loading
+                distribution...
               </div>
             ) : (
               <div className="h-52 relative">
@@ -429,13 +452,20 @@ export function ActivityPage() {
               </TableHeader>
               <TableBody>
                 {filteredLogs.map((log) => {
-                  let badgeVariant: "default" | "secondary" | "outline" | "destructive" = "secondary";
-                  if (log.action.includes("Seed") || log.action.includes("Database")) badgeVariant = "default";
-                  else if (log.action.includes("Created") || log.action.includes("Added")) badgeVariant = "outline";
-                  else if (log.action.includes("Delete") || log.action.includes("Remove")) badgeVariant = "destructive";
+                  let badgeVariant: "default" | "secondary" | "outline" | "destructive" =
+                    "secondary";
+                  if (log.action.includes("Seed") || log.action.includes("Database"))
+                    badgeVariant = "default";
+                  else if (log.action.includes("Created") || log.action.includes("Added"))
+                    badgeVariant = "outline";
+                  else if (log.action.includes("Delete") || log.action.includes("Remove"))
+                    badgeVariant = "destructive";
 
                   return (
-                    <TableRow key={log.id} className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors">
+                    <TableRow
+                      key={log.id}
+                      className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors"
+                    >
                       <TableCell className="font-semibold text-foreground">
                         <Badge variant={badgeVariant} className="text-[10px] font-bold">
                           {log.action}

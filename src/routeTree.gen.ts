@@ -16,6 +16,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicTermsRouteImport } from './routes/_public/terms'
 import { Route as PublicProductsRouteImport } from './routes/_public/products'
 import { Route as PublicPrivacyRouteImport } from './routes/_public/privacy'
+import { Route as PublicOrderBotRouteImport } from './routes/_public/order-bot'
 import { Route as PublicFaqRouteImport } from './routes/_public/faq'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicCheckoutRouteImport } from './routes/_public/checkout'
@@ -90,6 +91,11 @@ const PublicProductsRoute = PublicProductsRouteImport.update({
 const PublicPrivacyRoute = PublicPrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrderBotRoute = PublicOrderBotRouteImport.update({
+  id: '/order-bot',
+  path: '/order-bot',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicFaqRoute = PublicFaqRouteImport.update({
@@ -338,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof PublicCheckoutRoute
   '/contact': typeof PublicContactRoute
   '/faq': typeof PublicFaqRoute
+  '/order-bot': typeof PublicOrderBotRoute
   '/privacy': typeof PublicPrivacyRoute
   '/products': typeof PublicProductsRouteWithChildren
   '/terms': typeof PublicTermsRoute
@@ -386,6 +393,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof PublicCheckoutRoute
   '/contact': typeof PublicContactRoute
   '/faq': typeof PublicFaqRoute
+  '/order-bot': typeof PublicOrderBotRoute
   '/privacy': typeof PublicPrivacyRoute
   '/terms': typeof PublicTermsRoute
   '/activity': typeof AuthenticatedAppActivityRoute
@@ -436,6 +444,7 @@ export interface FileRoutesById {
   '/_public/checkout': typeof PublicCheckoutRoute
   '/_public/contact': typeof PublicContactRoute
   '/_public/faq': typeof PublicFaqRoute
+  '/_public/order-bot': typeof PublicOrderBotRoute
   '/_public/privacy': typeof PublicPrivacyRoute
   '/_public/products': typeof PublicProductsRouteWithChildren
   '/_public/terms': typeof PublicTermsRoute
@@ -487,6 +496,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/faq'
+    | '/order-bot'
     | '/privacy'
     | '/products'
     | '/terms'
@@ -535,6 +545,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/faq'
+    | '/order-bot'
     | '/privacy'
     | '/terms'
     | '/activity'
@@ -584,6 +595,7 @@ export interface FileRouteTypes {
     | '/_public/checkout'
     | '/_public/contact'
     | '/_public/faq'
+    | '/_public/order-bot'
     | '/_public/privacy'
     | '/_public/products'
     | '/_public/terms'
@@ -679,6 +691,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PublicPrivacyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/order-bot': {
+      id: '/_public/order-bot'
+      path: '/order-bot'
+      fullPath: '/order-bot'
+      preLoaderRoute: typeof PublicOrderBotRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/faq': {
@@ -1121,6 +1140,7 @@ interface PublicRouteChildren {
   PublicCheckoutRoute: typeof PublicCheckoutRoute
   PublicContactRoute: typeof PublicContactRoute
   PublicFaqRoute: typeof PublicFaqRoute
+  PublicOrderBotRoute: typeof PublicOrderBotRoute
   PublicPrivacyRoute: typeof PublicPrivacyRoute
   PublicProductsRoute: typeof PublicProductsRouteWithChildren
   PublicTermsRoute: typeof PublicTermsRoute
@@ -1133,6 +1153,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicCheckoutRoute: PublicCheckoutRoute,
   PublicContactRoute: PublicContactRoute,
   PublicFaqRoute: PublicFaqRoute,
+  PublicOrderBotRoute: PublicOrderBotRoute,
   PublicPrivacyRoute: PublicPrivacyRoute,
   PublicProductsRoute: PublicProductsRouteWithChildren,
   PublicTermsRoute: PublicTermsRoute,

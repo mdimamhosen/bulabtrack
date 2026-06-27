@@ -30,7 +30,10 @@ function OrderSuccessPage() {
   // const verificationInitiated = useRef(false); // Stripe disabled
 
   // Query order details dynamically from MongoDB
-  const { data: order, refetch, isLoading } = useQuery({
+  const {
+    data: order,
+    isLoading,
+  } = useQuery({
     queryKey: ["order-details", orderNumber],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -95,7 +98,8 @@ function OrderSuccessPage() {
         Order placed successfully!
       </h1>
       <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto">
-        Thank you for your order! Your shipping requisition has been processed and logged in the inventory system.
+        Thank you for your order! Your shipping requisition has been processed and logged in the
+        inventory system.
       </p>
 
       {/* Graph Status Tracker (For all roles) */}
@@ -118,12 +122,14 @@ function OrderSuccessPage() {
           </div>
           <div className="mt-6 grid gap-3 text-xs sm:grid-cols-3">
             {[
-              ["Payment Method", verifying ? "Validating..." : paymentMethod],
+              ["Payment Method", paymentMethod],
               ["Order Status", displayStatus],
               ["Estimated Dispatch", "2–5 business days"],
             ].map(([k, v]) => (
               <div key={k} className="rounded-xl border border-border/40 bg-zinc-950/20 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{k}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                  {k}
+                </p>
                 <p className="mt-1 font-bold text-foreground capitalize">{v}</p>
               </div>
             ))}
@@ -132,12 +138,19 @@ function OrderSuccessPage() {
       </Card>
 
       <div className="mt-8 flex justify-center gap-3">
-        <Button asChild variant="outline" className="rounded-xl border-border hover:bg-card/45 cursor-pointer">
+        <Button
+          asChild
+          variant="outline"
+          className="rounded-xl border-border hover:bg-card/45 cursor-pointer"
+        >
           <Link to="/products">
             Keep browsing <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Link>
         </Button>
-        <Button asChild className="rounded-xl bg-gradient-to-r from-primary to-accent font-semibold cursor-pointer">
+        <Button
+          asChild
+          className="rounded-xl bg-gradient-to-r from-primary to-accent font-semibold cursor-pointer"
+        >
           <Link to="/">
             <Home className="h-4 w-4" /> Home
           </Link>

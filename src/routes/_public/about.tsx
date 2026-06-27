@@ -126,8 +126,8 @@ function AboutPage() {
             <span className="block neon-text">spreadsheet era.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-            A modern, open platform built to give logistics teams full, intelligent control over every
-            peripheral they own — from catalog to checkout.
+            A modern, open platform built to give logistics teams full, intelligent control over
+            every peripheral they own — from catalog to checkout.
           </p>
         </motion.div>
 
@@ -297,7 +297,8 @@ function AboutPage() {
               Warehouse life in pixels
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
-              A glimpse into the real hubs, custom setups, and hardware workstations monitored under the LabTrack ecosystem.
+              A glimpse into the real hubs, custom setups, and hardware workstations monitored under
+              the LabTrack ecosystem.
             </p>
           </div>
 
@@ -361,7 +362,9 @@ function AboutPage() {
                 transition={{ delay: i * 0.05 }}
                 className="break-inside-avoid liquid-card rounded-2xl overflow-hidden p-2 group hover:neon-ring hover:scale-[1.03] transition-all duration-300 flex flex-col"
               >
-                <div className={`relative w-full overflow-hidden rounded-xl bg-black ${img.aspect}`}>
+                <div
+                  className={`relative w-full overflow-hidden rounded-xl bg-black ${img.aspect}`}
+                >
                   <img
                     src={img.src}
                     alt={img.title}

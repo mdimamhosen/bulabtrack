@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
   phone: { type: String, default: null },
   status: { type: String, default: "active" }, // "active" | "inactive"
   role: { type: String, default: "customer" }, // "admin" | "staff" | "customer"
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
 export const UserModel = mongoose.models.User || mongoose.model("User", UserSchema);
@@ -49,7 +49,7 @@ const DeviceSchema = new mongoose.Schema({
   image_url: { type: String, default: null },
   created_by: { type: String, default: null },
   created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now }
+  updated_at: { type: Date, default: Date.now },
 });
 
 export const DeviceModel = mongoose.models.Device || mongoose.model("Device", DeviceSchema);
@@ -68,7 +68,7 @@ const OrderSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   status: { type: String, default: "Pending" },
   created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now }
+  updated_at: { type: Date, default: Date.now },
 });
 
 export const OrderModel = mongoose.models.Order || mongoose.model("Order", OrderSchema);
@@ -81,10 +81,11 @@ const OrderItemSchema = new mongoose.Schema({
   device_name: { type: String, required: true },
   unit_price: { type: Number, required: true },
   quantity: { type: Number, required: true },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
-export const OrderItemModel = mongoose.models.OrderItem || mongoose.model("OrderItem", OrderItemSchema);
+export const OrderItemModel =
+  mongoose.models.OrderItem || mongoose.model("OrderItem", OrderItemSchema);
 
 // Contact Message Schema
 const ContactMessageSchema = new mongoose.Schema({
@@ -93,10 +94,11 @@ const ContactMessageSchema = new mongoose.Schema({
   email: { type: String, required: true },
   subject: { type: String, required: true },
   message: { type: String, required: true },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
-export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model("ContactMessage", ContactMessageSchema);
+export const ContactMessageModel =
+  mongoose.models.ContactMessage || mongoose.model("ContactMessage", ContactMessageSchema);
 
 // Audit Log Schema
 const AuditLogSchema = new mongoose.Schema({
@@ -104,7 +106,7 @@ const AuditLogSchema = new mongoose.Schema({
   action: { type: String, required: true },
   details: { type: String, default: null },
   user_id: { type: String, default: null },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
 export const AuditLogModel = mongoose.models.AuditLog || mongoose.model("AuditLog", AuditLogSchema);
@@ -117,7 +119,7 @@ const ReviewSchema = new mongoose.Schema({
   user_name: { type: String, required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, required: true },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
 export const ReviewModel = mongoose.models.Review || mongoose.model("Review", ReviewSchema);
@@ -128,8 +130,8 @@ const LikeDislikeSchema = new mongoose.Schema({
   device_id: { type: String, required: true },
   user_id: { type: String, required: true },
   type: { type: String, required: true, enum: ["like", "dislike"] },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
-export const LikeDislikeModel = mongoose.models.LikeDislike || mongoose.model("LikeDislike", LikeDislikeSchema);
-
+export const LikeDislikeModel =
+  mongoose.models.LikeDislike || mongoose.model("LikeDislike", LikeDislikeSchema);

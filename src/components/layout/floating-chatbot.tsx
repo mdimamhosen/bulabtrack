@@ -34,10 +34,21 @@ function parseInline(text: string) {
 
   return matches.map((match, idx) => {
     if (match.startsWith("**") && match.endsWith("**")) {
-      return <strong key={idx} className="font-bold text-foreground">{match.slice(2, -2)}</strong>;
+      return (
+        <strong key={idx} className="font-bold text-foreground">
+          {match.slice(2, -2)}
+        </strong>
+      );
     }
     if (match.startsWith("`") && match.endsWith("`")) {
-      return <code key={idx} className="px-1 py-0.5 rounded bg-muted font-mono text-[10px] border border-border/40 text-accent">{match.slice(1, -1)}</code>;
+      return (
+        <code
+          key={idx}
+          className="px-1 py-0.5 rounded bg-muted font-mono text-[10px] border border-border/40 text-accent"
+        >
+          {match.slice(1, -1)}
+        </code>
+      );
     }
     if (match.startsWith("[") && match.includes("](")) {
       const closeBracket = match.indexOf("]");
@@ -67,13 +78,13 @@ function MiniMarkdown({ content }: { content: string }) {
 
   const renderTable = (tableLines: string[], key: number) => {
     if (tableLines.length < 2) return null;
-    
+
     const headerLine = tableLines[0];
     const headers = headerLine
       .split("|")
       .map((h) => h.trim())
       .filter((_, i, arr) => i > 0 && i < arr.length - 1);
-      
+
     const alignLine = tableLines[1];
     const alignments = alignLine
       .split("|")
@@ -93,7 +104,10 @@ function MiniMarkdown({ content }: { content: string }) {
     });
 
     return (
-      <div key={key} className="overflow-x-auto w-full border border-border/30 rounded-xl my-2 bg-muted/5">
+      <div
+        key={key}
+        className="overflow-x-auto w-full border border-border/30 rounded-xl my-2 bg-muted/5"
+      >
         <table className="w-full border-collapse text-left text-[10px]">
           <thead>
             <tr className="bg-muted/70 border-b border-border/40">
@@ -139,7 +153,11 @@ function MiniMarkdown({ content }: { content: string }) {
 
   const processLine = (line: string, idx: number) => {
     if (line.startsWith("### ")) {
-      return <h5 key={idx} className="text-xs font-bold text-primary mt-1.5">{line.slice(4)}</h5>;
+      return (
+        <h5 key={idx} className="text-xs font-bold text-primary mt-1.5">
+          {line.slice(4)}
+        </h5>
+      );
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
       return (
@@ -182,11 +200,7 @@ function MiniMarkdown({ content }: { content: string }) {
     elements.push(renderTable(currentTableLines, lines.length - 1));
   }
 
-  return (
-    <div className="space-y-1 text-xs leading-relaxed text-foreground">
-      {elements}
-    </div>
-  );
+  return <div className="space-y-1 text-xs leading-relaxed text-foreground">{elements}</div>;
 }
 
 export function FloatingChatbot() {
@@ -230,11 +244,7 @@ export function FloatingChatbot() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) return null;
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       return data;
     },
   });
@@ -253,7 +263,9 @@ export function FloatingChatbot() {
   // Scroll to bottom
   useEffect(() => {
     if (scrollViewportRef.current) {
-      const scrollContainer = scrollViewportRef.current.querySelector("[data-radix-scroll-area-viewport]");
+      const scrollContainer = scrollViewportRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
@@ -303,10 +315,7 @@ export function FloatingChatbot() {
           },
         ]);
       } else {
-        setMessages((prev) => [
-          ...prev,
-          { role: "model", text: result.answer || "No response." },
-        ]);
+        setMessages((prev) => [...prev, { role: "model", text: result.answer || "No response." }]);
       }
     } catch (error: any) {
       setMessages((prev) => [
@@ -406,7 +415,10 @@ export function FloatingChatbot() {
               {messages.map((m, idx) => {
                 const isUser = m.role === "user";
                 return (
-                  <div key={idx} className={`flex gap-2 max-w-[85%] ${isUser ? "ml-auto flex-row-reverse" : "mr-auto"}`}>
+                  <div
+                    key={idx}
+                    className={`flex gap-2 max-w-[85%] ${isUser ? "ml-auto flex-row-reverse" : "mr-auto"}`}
+                  >
                     <div
                       className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 border ${
                         isUser
@@ -442,7 +454,9 @@ export function FloatingChatbot() {
                     <Brain className="h-3 w-3" />
                   </div>
                   <div className="space-y-0.5">
-                    <span className="text-[9px] font-bold text-muted-foreground uppercase">Thinking...</span>
+                    <span className="text-[9px] font-bold text-muted-foreground uppercase">
+                      Thinking...
+                    </span>
                     <div className="p-3 rounded-xl border bg-card border-border/30 rounded-tl-none flex items-center gap-1.5 text-[10px] text-muted-foreground italic">
                       <span className="flex h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
                       Loading live context...

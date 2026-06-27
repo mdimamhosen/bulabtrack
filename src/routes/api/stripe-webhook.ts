@@ -47,7 +47,7 @@ export default defineEventHandler(async (event: any) => {
       await connectDB();
       await OrderModel.updateOne(
         { order_number: orderNumber },
-        { $set: { status: "Confirmed", updated_at: new Date() } }
+        { $set: { status: "Confirmed", updated_at: new Date() } },
       );
       console.log(`Order ${orderNumber} successfully confirmed via webhook!`);
     }

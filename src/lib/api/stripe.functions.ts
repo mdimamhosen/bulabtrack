@@ -20,10 +20,10 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" })
           name: z.string(),
           price: z.number(),
           quantity: z.number(),
-        })
+        }),
       ),
       origin: z.string(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const stripeSecret = process.env.STRIPE_SECRET_KEY;
@@ -75,7 +75,7 @@ export const confirmStripeOrder = createServerFn({ method: "POST" })
     z.object({
       orderNumber: z.string(),
       sessionId: z.string(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await connectDB();
@@ -93,7 +93,7 @@ export const confirmStripeOrder = createServerFn({ method: "POST" })
       if (session.payment_status === "paid" || session.status === "complete") {
         await OrderModel.updateOne(
           { order_number: data.orderNumber },
-          { $set: { status: "Confirmed", updated_at: new Date() } }
+          { $set: { status: "Confirmed", updated_at: new Date() } },
         );
         return { success: true };
       }

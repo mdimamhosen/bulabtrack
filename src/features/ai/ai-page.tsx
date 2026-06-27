@@ -38,13 +38,13 @@ function LightMarkdown({ content }: { content: string }) {
 
   const renderTable = (tableLines: string[], key: number) => {
     if (tableLines.length < 2) return null;
-    
+
     const headerLine = tableLines[0];
     const headers = headerLine
       .split("|")
       .map((h) => h.trim())
       .filter((_, i, arr) => i > 0 && i < arr.length - 1);
-      
+
     const alignLine = tableLines[1];
     const alignments = alignLine
       .split("|")
@@ -64,7 +64,10 @@ function LightMarkdown({ content }: { content: string }) {
     });
 
     return (
-      <div key={key} className="overflow-x-auto w-full border border-border/30 rounded-xl my-3 bg-muted/5">
+      <div
+        key={key}
+        className="overflow-x-auto w-full border border-border/30 rounded-xl my-3 bg-muted/5"
+      >
         <table className="w-full border-collapse text-left text-xs">
           <thead>
             <tr className="bg-muted/70 border-b border-border/40">
@@ -110,13 +113,25 @@ function LightMarkdown({ content }: { content: string }) {
 
   const processLine = (line: string, idx: number) => {
     if (line.startsWith("### ")) {
-      return <h4 key={idx} className="text-base font-bold text-primary mt-3 mb-1">{line.slice(4)}</h4>;
+      return (
+        <h4 key={idx} className="text-base font-bold text-primary mt-3 mb-1">
+          {line.slice(4)}
+        </h4>
+      );
     }
     if (line.startsWith("## ")) {
-      return <h3 key={idx} className="text-lg font-bold text-primary mt-4 mb-2">{line.slice(3)}</h3>;
+      return (
+        <h3 key={idx} className="text-lg font-bold text-primary mt-4 mb-2">
+          {line.slice(3)}
+        </h3>
+      );
     }
     if (line.startsWith("# ")) {
-      return <h2 key={idx} className="text-xl font-bold text-primary mt-5 mb-2">{line.slice(2)}</h2>;
+      return (
+        <h2 key={idx} className="text-xl font-bold text-primary mt-5 mb-2">
+          {line.slice(2)}
+        </h2>
+      );
     }
 
     if (line.startsWith("- ") || line.startsWith("* ")) {
@@ -134,7 +149,10 @@ function LightMarkdown({ content }: { content: string }) {
 
     if (line.startsWith("> ")) {
       return (
-        <blockquote key={idx} className="border-l-2 border-primary bg-primary/5 px-3 py-1.5 rounded-r-lg my-2 italic">
+        <blockquote
+          key={idx}
+          className="border-l-2 border-primary bg-primary/5 px-3 py-1.5 rounded-r-lg my-2 italic"
+        >
           {parseInlineMarkdown(line.slice(2))}
         </blockquote>
       );
@@ -171,11 +189,7 @@ function LightMarkdown({ content }: { content: string }) {
     elements.push(renderTable(currentTableLines, lines.length - 1));
   }
 
-  return (
-    <div className="space-y-2 text-sm leading-relaxed text-foreground">
-      {elements}
-    </div>
-  );
+  return <div className="space-y-2 text-sm leading-relaxed text-foreground">{elements}</div>;
 }
 
 // Inline formatting parser: **bold**, `code`, [link](url)
@@ -190,10 +204,21 @@ function parseInlineMarkdown(text: string) {
 
   return matches.map((match, idx) => {
     if (match.startsWith("**") && match.endsWith("**")) {
-      return <strong key={idx} className="font-extrabold text-foreground">{match.slice(2, -2)}</strong>;
+      return (
+        <strong key={idx} className="font-extrabold text-foreground">
+          {match.slice(2, -2)}
+        </strong>
+      );
     }
     if (match.startsWith("`") && match.endsWith("`")) {
-      return <code key={idx} className="px-1.5 py-0.5 rounded bg-muted font-mono text-xs border border-border/40 text-accent">{match.slice(1, -1)}</code>;
+      return (
+        <code
+          key={idx}
+          className="px-1.5 py-0.5 rounded bg-muted font-mono text-xs border border-border/40 text-accent"
+        >
+          {match.slice(1, -1)}
+        </code>
+      );
     }
     if (match.startsWith("[") && match.includes("](")) {
       const closeBracket = match.indexOf("]");
@@ -256,11 +281,7 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
       } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
 
       return data;
     },
@@ -282,7 +303,9 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
   // Scroll to bottom on new messages
   useEffect(() => {
     if (scrollViewportRef.current) {
-      const scrollContainer = scrollViewportRef.current.querySelector("[data-radix-scroll-area-viewport]");
+      const scrollContainer = scrollViewportRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
@@ -407,7 +430,8 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
                 LabTalk AI Assistant <Sparkles className="h-4 w-4 text-accent" />
               </h1>
               <p className="text-xs text-muted-foreground">
-                RAG-powered intelligence queries MongoDB for accurate real-time inventory and order lookups.
+                RAG-powered intelligence queries MongoDB for accurate real-time inventory and order
+                lookups.
               </p>
             </div>
           </div>
@@ -458,7 +482,8 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
               <div className="space-y-0.5">
                 <p className="text-sm font-bold text-foreground">Provide Gemini API Key</p>
                 <p className="text-xs text-muted-foreground max-w-xl">
-                  To communicate with the AI assistant, please paste your Google Gemini API Key. It will be kept locally in your browser storage.
+                  To communicate with the AI assistant, please paste your Google Gemini API Key. It
+                  will be kept locally in your browser storage.
                 </p>
               </div>
             </div>
@@ -502,11 +527,7 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
                         : "bg-secondary border-border/60 text-primary"
                     }`}
                   >
-                    {isUser ? (
-                      <User className="h-4 w-4" />
-                    ) : (
-                      <Brain className="h-4 w-4" />
-                    )}
+                    {isUser ? <User className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
                   </div>
 
                   <div className="space-y-1">

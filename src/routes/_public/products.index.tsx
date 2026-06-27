@@ -96,11 +96,15 @@ function ProductsPage() {
 
   // Extract dynamically generated lists
   const brandsList = useMemo(() => {
-    return Array.from(new Set(products.map((p: any) => p.brand).filter(Boolean))).sort() as string[];
+    return Array.from(
+      new Set(products.map((p: any) => p.brand).filter(Boolean)),
+    ).sort() as string[];
   }, [products]);
 
   const peripheralTypesList = useMemo(() => {
-    return Array.from(new Set(products.map((p: any) => p.peripheralType).filter(Boolean))).sort() as string[];
+    return Array.from(
+      new Set(products.map((p: any) => p.peripheralType).filter(Boolean)),
+    ).sort() as string[];
   }, [products]);
 
   // Get counts dynamically based on active search/price selections

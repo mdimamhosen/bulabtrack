@@ -88,7 +88,7 @@ export function DashboardCalendar() {
       const today = new Date();
       const yr = today.getFullYear();
       const mo = String(today.getMonth() + 1).padStart(2, "0");
-      
+
       const mockEvents: PlannerEvent[] = [
         {
           id: "mock-1",
@@ -194,7 +194,7 @@ export function DashboardCalendar() {
     const updated = [...events, newEvent];
     saveEvents(updated);
     toast.success(`Event added for ${format(selectedDate, "MMMM d")}`);
-    
+
     // Reset form
     setTitle("");
     setTime("");
@@ -213,7 +213,6 @@ export function DashboardCalendar() {
   return (
     <div className="liquid-card rounded-3xl border border-border/55 p-6 md:p-8 bg-gradient-to-br from-card via-card to-primary/5">
       <div className="flex flex-col lg:flex-row gap-8">
-        
         {/* LEFT COLUMN: The Calendar Month Grid */}
         <div className="flex-grow flex-1">
           <div className="flex items-center justify-between mb-6">
@@ -226,7 +225,7 @@ export function DashboardCalendar() {
                 <p className="text-xs text-muted-foreground">Schedule peripheral audits & tasks</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -272,7 +271,7 @@ export function DashboardCalendar() {
               const isSelected = isSameDay(day, selectedDate);
               const isToday = isSameDay(day, new Date());
               const dayEvents = getEventsForDate(day);
-              
+
               return (
                 <button
                   key={day.toString()}
@@ -290,7 +289,7 @@ export function DashboardCalendar() {
                   }`}
                 >
                   <span>{format(day, "d")}</span>
-                  
+
                   {/* Event indicators dots */}
                   {dayEvents.length > 0 && (
                     <div className="absolute bottom-1.5 flex gap-1 justify-center w-full">
@@ -319,7 +318,9 @@ export function DashboardCalendar() {
             </h4>
             <div className="space-y-2">
               {allUpcomingEvents.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic py-1">No upcoming scheduled items.</p>
+                <p className="text-xs text-muted-foreground italic py-1">
+                  No upcoming scheduled items.
+                </p>
               ) : (
                 allUpcomingEvents.map((evt) => {
                   const style = CATEGORY_STYLES[evt.category];
@@ -437,10 +438,18 @@ export function DashboardCalendar() {
                         onChange={(e) => setCategory(e.target.value as any)}
                         className="mt-1 h-8 w-full rounded-lg text-xs bg-zinc-900 border border-border/70 text-foreground px-2 focus:ring-1 focus:ring-primary focus:outline-none"
                       >
-                        <option value="general" className="bg-zinc-900 text-foreground">General</option>
-                        <option value="maintenance" className="bg-zinc-900 text-foreground">Maintenance</option>
-                        <option value="audit" className="bg-zinc-900 text-foreground">Audit</option>
-                        <option value="procurement" className="bg-zinc-900 text-foreground">Procurement</option>
+                        <option value="general" className="bg-zinc-900 text-foreground">
+                          General
+                        </option>
+                        <option value="maintenance" className="bg-zinc-900 text-foreground">
+                          Maintenance
+                        </option>
+                        <option value="audit" className="bg-zinc-900 text-foreground">
+                          Audit
+                        </option>
+                        <option value="procurement" className="bg-zinc-900 text-foreground">
+                          Procurement
+                        </option>
                       </select>
                     </div>
                   </div>
@@ -502,7 +511,7 @@ export function DashboardCalendar() {
                             >
                               {style.label}
                             </span>
-                            
+
                             <button
                               type="button"
                               onClick={() => handleDeleteEvent(evt.id)}
@@ -513,8 +522,10 @@ export function DashboardCalendar() {
                             </button>
                           </div>
 
-                          <h5 className="font-extrabold text-foreground text-xs mt-2">{evt.title}</h5>
-                          
+                          <h5 className="font-extrabold text-foreground text-xs mt-2">
+                            {evt.title}
+                          </h5>
+
                           {evt.description && (
                             <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
                               {evt.description}
@@ -532,13 +543,12 @@ export function DashboardCalendar() {
               )}
             </AnimatePresence>
           </div>
-          
+
           <div className="mt-6 pt-4 border-t border-border/10 text-[10px] text-muted-foreground flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
             <span>Updates saved to local storage</span>
           </div>
         </div>
-
       </div>
     </div>
   );

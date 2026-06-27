@@ -201,8 +201,8 @@ function ProductDetailPage() {
           res.userStatus === "like"
             ? "Product liked!"
             : res.userStatus === "dislike"
-            ? "Product disliked!"
-            : "Feedback removed"
+              ? "Product disliked!"
+              : "Feedback removed",
         );
         queryClient.invalidateQueries({ queryKey: ["product-feedback", id] });
       } else {
@@ -596,7 +596,7 @@ function ProductDetailPage() {
                     <Star className="h-4 w-4 fill-current text-accent" />
                     <span>{product.rating}</span>
                     <span className="text-muted-foreground/60">
-                      ({product.reviews} {product.reviews === 1 ? 'academic log' : 'academic logs'})
+                      ({product.reviews} {product.reviews === 1 ? "academic log" : "academic logs"})
                     </span>
                   </div>
 
@@ -611,8 +611,12 @@ function ProductDetailPage() {
                       }`}
                       title="Like this product"
                     >
-                      <ThumbsUp className={`h-3.5 w-3.5 ${feedbackData?.userStatus === "like" ? "fill-current animate-pulse" : ""}`} />
-                      <span className="font-semibold font-mono">{feedbackData?.likesCount ?? 0}</span>
+                      <ThumbsUp
+                        className={`h-3.5 w-3.5 ${feedbackData?.userStatus === "like" ? "fill-current animate-pulse" : ""}`}
+                      />
+                      <span className="font-semibold font-mono">
+                        {feedbackData?.likesCount ?? 0}
+                      </span>
                     </button>
 
                     <button
@@ -625,8 +629,12 @@ function ProductDetailPage() {
                       }`}
                       title="Dislike this product"
                     >
-                      <ThumbsDown className={`h-3.5 w-3.5 ${feedbackData?.userStatus === "dislike" ? "fill-current animate-pulse" : ""}`} />
-                      <span className="font-semibold font-mono">{feedbackData?.dislikesCount ?? 0}</span>
+                      <ThumbsDown
+                        className={`h-3.5 w-3.5 ${feedbackData?.userStatus === "dislike" ? "fill-current animate-pulse" : ""}`}
+                      />
+                      <span className="font-semibold font-mono">
+                        {feedbackData?.dislikesCount ?? 0}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -1035,7 +1043,9 @@ function ProductDetailPage() {
             <Badge className="bg-primary/10 border-primary/20 text-primary px-3 py-0.5 mb-2">
               Telemetry Records
             </Badge>
-            <h3 className="text-3xl font-extrabold tracking-tight">Calibration Logs & Operator Reviews</h3>
+            <h3 className="text-3xl font-extrabold tracking-tight">
+              Calibration Logs & Operator Reviews
+            </h3>
             <p className="text-sm text-muted-foreground mt-1">
               Real-time usability feedback and hardware audit logs from deployed stations.
             </p>
@@ -1064,15 +1074,16 @@ function ProductDetailPage() {
                               starVal <= score
                                 ? "fill-accent text-accent"
                                 : starVal - 0.5 <= score
-                                ? "fill-accent text-accent opacity-70"
-                                : "text-muted-foreground/30"
+                                  ? "fill-accent text-accent opacity-70"
+                                  : "text-muted-foreground/30"
                             }`}
                           />
                         );
                       })}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 font-semibold">
-                      Based on {product.reviews} {product.reviews === 1 ? "audit entry" : "audit entries"}
+                      Based on {product.reviews}{" "}
+                      {product.reviews === 1 ? "audit entry" : "audit entries"}
                     </p>
                   </div>
                 </div>
@@ -1084,11 +1095,19 @@ function ProductDetailPage() {
                   let percentage = 0;
                   const total = feedbackData?.totalReviews || 0;
                   if (total > 0 && feedbackData?.reviews) {
-                    const count = feedbackData.reviews.filter((r: any) => r.rating === stars).length;
+                    const count = feedbackData.reviews.filter(
+                      (r: any) => r.rating === stars,
+                    ).length;
                     percentage = Math.round((count / total) * 100);
                   } else {
                     // Seed mock percentages for display if empty
-                    const mockPercentages: Record<number, number> = { 5: 75, 4: 18, 3: 5, 2: 2, 1: 0 };
+                    const mockPercentages: Record<number, number> = {
+                      5: 75,
+                      4: 18,
+                      3: 5,
+                      2: 2,
+                      1: 0,
+                    };
                     percentage = mockPercentages[stars];
                   }
 
@@ -1130,7 +1149,8 @@ function ProductDetailPage() {
                     <div className="flex items-center gap-1.5">
                       {Array.from({ length: 5 }).map((_, idx) => {
                         const starVal = idx + 1;
-                        const isActive = hoverRating !== null ? starVal <= hoverRating : starVal <= newRating;
+                        const isActive =
+                          hoverRating !== null ? starVal <= hoverRating : starVal <= newRating;
                         return (
                           <button
                             key={idx}
@@ -1142,7 +1162,9 @@ function ProductDetailPage() {
                           >
                             <Star
                               className={`h-7 w-7 transition-colors duration-200 ${
-                                isActive ? "fill-accent text-accent drop-shadow-glow" : "text-muted-foreground/40"
+                                isActive
+                                  ? "fill-accent text-accent drop-shadow-glow"
+                                  : "text-muted-foreground/40"
                               }`}
                             />
                           </button>
@@ -1191,12 +1213,19 @@ function ProductDetailPage() {
                     <ShieldCheck className="h-6 w-6 animate-pulse" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-foreground">TELEMETRY ACCESS RESTRICTED</h4>
+                    <h4 className="text-sm font-bold text-foreground">
+                      TELEMETRY ACCESS RESTRICTED
+                    </h4>
                     <p className="text-xs text-muted-foreground max-w-xs mt-1 leading-relaxed">
-                      Please sign in to write reviews, calibrate device diagnostics, and submit telemetry feedback.
+                      Please sign in to write reviews, calibrate device diagnostics, and submit
+                      telemetry feedback.
                     </p>
                   </div>
-                  <Button asChild size="sm" className="rounded-xl font-bold bg-primary hover:bg-primary/95 text-primary-foreground px-5 h-9">
+                  <Button
+                    asChild
+                    size="sm"
+                    className="rounded-xl font-bold bg-primary hover:bg-primary/95 text-primary-foreground px-5 h-9"
+                  >
                     <Link to="/auth" search={{ redirect: `/products/${id}` }}>
                       Sign In to Review
                     </Link>
@@ -1267,7 +1296,9 @@ function ProductDetailPage() {
                             <Star
                               key={idx}
                               className={`h-3.5 w-3.5 ${
-                                idx < rev.rating ? "fill-accent text-accent" : "text-muted-foreground/20"
+                                idx < rev.rating
+                                  ? "fill-accent text-accent"
+                                  : "text-muted-foreground/20"
                               }`}
                             />
                           ))}
@@ -1288,7 +1319,9 @@ function ProductDetailPage() {
                   <Star className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">NO USABILITY RECORDS AVAILABLE</p>
+                  <p className="text-xs font-bold text-foreground">
+                    NO USABILITY RECORDS AVAILABLE
+                  </p>
                   <p className="text-[10px] text-muted-foreground/80 mt-0.5">
                     This unit has not received user validation calibration logs yet.
                   </p>

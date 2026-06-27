@@ -87,7 +87,9 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
 
   // Extract dynamic categories and brands from devices
   const categoriesList = useMemo(() => {
-    return Array.from(new Set(devices.map((d: any) => d.peripheralType).filter(Boolean))).sort() as string[];
+    return Array.from(
+      new Set(devices.map((d: any) => d.peripheralType).filter(Boolean)),
+    ).sort() as string[];
   }, [devices]);
 
   const brandsList = useMemo(() => {

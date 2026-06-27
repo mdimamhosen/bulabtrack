@@ -46,7 +46,6 @@ function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   // Stripe temporarily disabled — only COD available
   // const [paymentMethod, setPaymentMethod] = useState<"cod" | "stripe">("cod");
-  const paymentMethod = "cod";
   const {
     register,
     handleSubmit,
@@ -109,7 +108,7 @@ function CheckoutPage() {
     setLoading(true);
     const orderId = crypto.randomUUID();
     const orderNumber = generateOrderNumber();
-    
+
     // Save order in Pending state first
     const { error } = await supabase.from("orders").insert({
       id: orderId,
@@ -131,7 +130,7 @@ function CheckoutPage() {
       unit_price: i.price,
       quantity: i.quantity,
     }));
-    
+
     const { error: liErr } = await supabase.from("order_items").insert(lineItems);
     if (liErr) {
       setLoading(false);

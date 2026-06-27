@@ -728,7 +728,10 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
   const maintenance = devices.filter((d: any) => d.status === "Under Maintenance").length;
   const inUse = devices.filter((d: any) => d.status === "In Use").length;
   const damaged = devices.filter((d: any) => d.status === "Damaged").length;
-  const grandValue = devices.reduce((s: number, d: any) => s + Number(d.price) * (d.quantity ?? 1), 0);
+  const grandValue = devices.reduce(
+    (s: number, d: any) => s + Number(d.price) * (d.quantity ?? 1),
+    0,
+  );
 
   const byCategory = Object.entries(
     (devices as any[]).reduce((acc: Record<string, number>, d: any) => {
@@ -737,10 +740,12 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
     }, {}),
   ).map(([name, value]) => ({ name, value: value as number }));
 
-  const byStatus = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"].map((s: string) => ({
-    name: s,
-    count: devices.filter((d: any) => d.status === s).length,
-  }));
+  const byStatus = ["Available", "In Use", "Under Maintenance", "Damaged", "Disposed"].map(
+    (s: string) => ({
+      name: s,
+      count: devices.filter((d: any) => d.status === s).length,
+    }),
+  );
 
   const deviceMonthly = Array.from({ length: 6 }).map((_, idx: number) => {
     const d = new Date();

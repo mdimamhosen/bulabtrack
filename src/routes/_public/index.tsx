@@ -313,23 +313,28 @@ const storageBins = Array.from({ length: 24 }).map((_, i) => {
 
   const keyboards = ["Apex Pro Mech", "Logitech G915", "Keychron Q1", "Dell QuietKey"];
   const mice = ["G Pro X Superlight", "Razer DeathAdder", "MX Master 3S", "HP OEM Wired"];
-  const displays = ["Dell 27\" 4K", "ASUS ROG 24\"", "LG UltraWide 34\"", "HP ProDisplay 22\""];
-  const audio = ["Razer BlackShark V2", "Corsair Virtuoso", "Audio-Technica M50x", "Standard USB Headset"];
+  const displays = ['Dell 27" 4K', 'ASUS ROG 24"', 'LG UltraWide 34"', 'HP ProDisplay 22"'];
+  const audio = [
+    "Razer BlackShark V2",
+    "Corsair Virtuoso",
+    "Audio-Technica M50x",
+    "Standard USB Headset",
+  ];
 
   return {
     name: `BIN-${id}`,
     status,
     keyboard: keyboards[i % keyboards.length],
-    keyboardHealth: 80 + (i * 7) % 21,
+    keyboardHealth: 80 + ((i * 7) % 21),
     mouse: mice[i % mice.length],
-    mouseHealth: 75 + (i * 9) % 26,
+    mouseHealth: 75 + ((i * 9) % 26),
     display: displays[i % displays.length],
-    displayHealth: 90 + (i * 3) % 11,
+    displayHealth: 90 + ((i * 3) % 11),
     audio: audio[i % audio.length],
-    audioHealth: 85 + (i * 5) % 16,
-    uptime: (98.5 + (i * 0.1) % 1.5).toFixed(2) + "%",
-    temp: (20.5 + (i * 0.3) % 4.0).toFixed(1) + "°C",
-    lastAudit: `${(1 + i % 5)} hours ago`,
+    audioHealth: 85 + ((i * 5) % 16),
+    uptime: (98.5 + ((i * 0.1) % 1.5)).toFixed(2) + "%",
+    temp: (20.5 + ((i * 0.3) % 4.0)).toFixed(1) + "°C",
+    lastAudit: `${1 + (i % 5)} hours ago`,
   };
 });
 
@@ -360,7 +365,7 @@ function PlexusCanvas() {
       vy: number;
       radius: number;
     }[] = [];
-    
+
     const particleCount = Math.min(50, Math.floor(width / 25));
     for (let i = 0; i < particleCount; i++) {
       particles.push({
@@ -392,7 +397,7 @@ function PlexusCanvas() {
       // Draw connections
       for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
-        
+
         // Move particle
         p1.x += p1.vx;
         p1.y += p1.vy;
@@ -448,14 +453,15 @@ function PlexusCanvas() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full pointer-events-none z-0" />;
+  return (
+    <canvas ref={canvasRef} className="absolute inset-0 h-full w-full pointer-events-none z-0" />
+  );
 }
 
 function HomePage() {
   const { add } = useCart();
   const [videoOpen, setVideoOpen] = useState(false);
   const [activeFlowStep, setActiveFlowStep] = useState<number>(0);
-
 
   // States for SECTION: Interactive Laboratory Simulator
   const [activeStation, setActiveStation] = useState<any>(storageBins[0]);
@@ -484,7 +490,9 @@ function HomePage() {
   const [rgbEnabled, setRgbEnabled] = useState(true);
 
   // States for SECTION 2: Real-time Telemetry Dashboard
-  const [telemetryWarehouse, setTelemetryWarehouse] = useState<"Warehouse Alpha" | "Warehouse Beta" | "Warehouse Gamma">("Warehouse Alpha");
+  const [telemetryWarehouse, setTelemetryWarehouse] = useState<
+    "Warehouse Alpha" | "Warehouse Beta" | "Warehouse Gamma"
+  >("Warehouse Alpha");
   const [telemetryChartData, setTelemetryChartData] = useState<
     { time: string; keystrokes: number; clicks: number }[]
   >([]);
@@ -542,10 +550,18 @@ function HomePage() {
           time: "Just now",
           keystrokes:
             Math.floor(Math.random() * 60) +
-            (telemetryWarehouse === "Warehouse Alpha" ? 50 : telemetryWarehouse === "Warehouse Beta" ? 30 : 20),
+            (telemetryWarehouse === "Warehouse Alpha"
+              ? 50
+              : telemetryWarehouse === "Warehouse Beta"
+                ? 30
+                : 20),
           clicks:
             Math.floor(Math.random() * 35) +
-            (telemetryWarehouse === "Warehouse Alpha" ? 25 : telemetryWarehouse === "Warehouse Beta" ? 15 : 10),
+            (telemetryWarehouse === "Warehouse Alpha"
+              ? 25
+              : telemetryWarehouse === "Warehouse Beta"
+                ? 15
+                : 10),
         });
         // Rename time fields for clean visual labels
         return next.map((item, idx) => ({
@@ -664,10 +680,10 @@ function HomePage() {
               type="video/mp4"
             />
           </video>
-          
+
           <div className="aurora-bg absolute inset-0 opacity-20" />
           <div className="ai-grid absolute inset-0 opacity-40" />
-          
+
           <PlexusCanvas />
 
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/45 to-background" />
@@ -697,7 +713,8 @@ function HomePage() {
 
               <p className="mt-6 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg leading-relaxed">
                 Catalog, monitor telemetry, schedule maintenance, and manage premium warehouse
-                peripheral assets. Built for storage hubs, logistics centers, and fulfillment facilities.
+                peripheral assets. Built for storage hubs, logistics centers, and fulfillment
+                facilities.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -1067,8 +1084,8 @@ function HomePage() {
                   Logistics Telemetry & Live Warehouse Pulse
                 </h2>
                 <p className="mt-4 text-muted-foreground leading-relaxed">
-                  Every peripheral tracked via LabTrack streams utilization updates. View link status,
-                  connection rates, and check logs in real time.
+                  Every peripheral tracked via LabTrack streams utilization updates. View link
+                  status, connection rates, and check logs in real time.
                 </p>
               </div>
 
@@ -1107,7 +1124,11 @@ function HomePage() {
                 <div className="liquid-card p-4 rounded-xl text-center">
                   <p className="text-xs text-muted-foreground">Active Inputs</p>
                   <p className="text-xl font-black text-accent mt-1 animate-pulse">
-                    {telemetryWarehouse === "Warehouse Alpha" ? "92%" : telemetryWarehouse === "Warehouse Beta" ? "88%" : "100%"}
+                    {telemetryWarehouse === "Warehouse Alpha"
+                      ? "92%"
+                      : telemetryWarehouse === "Warehouse Beta"
+                        ? "88%"
+                        : "100%"}
                   </p>
                 </div>
                 <div className="liquid-card p-4 rounded-xl text-center">
@@ -1224,7 +1245,8 @@ function HomePage() {
               Interactive Warehouse Simulator
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Click on any of the 24 storage bins in Warehouse Alpha to check peripheral status, connectivity metrics, and trigger diagnostic routines.
+              Click on any of the 24 storage bins in Warehouse Alpha to check peripheral status,
+              connectivity metrics, and trigger diagnostic routines.
             </p>
           </div>
 
@@ -1236,10 +1258,18 @@ function HomePage() {
                   Warehouse Alpha Rack Layout (Bin Arrays)
                 </span>
                 <div className="flex flex-wrap gap-3 text-[10px] font-bold text-muted-foreground">
-                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-success" /> Online</div>
-                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-primary" /> In Use</div>
-                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-warning" /> Maintenance</div>
-                  <div className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" /> Alert</div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2.5 w-2.5 rounded-full bg-success" /> Online
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2.5 w-2.5 rounded-full bg-primary" /> In Use
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2.5 w-2.5 rounded-full bg-warning" /> Maintenance
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" /> Alert
+                  </div>
                 </div>
               </div>
 
@@ -1269,7 +1299,9 @@ function HomePage() {
                       <span className="text-[10px] font-bold tracking-wider text-muted-foreground font-mono">
                         {station.name}
                       </span>
-                      <span className={`h-2.5 w-2.5 rounded-full ${statusColors[station.status]}`} />
+                      <span
+                        className={`h-2.5 w-2.5 rounded-full ${statusColors[station.status]}`}
+                      />
                     </button>
                   );
                 })}
@@ -1402,15 +1434,21 @@ function HomePage() {
               <div className="mt-6 pt-6 border-t border-border/10 space-y-3 text-xs">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Ambient Temp:</span>
-                  <span className="font-semibold text-foreground font-mono">{activeStation.temp}</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {activeStation.temp}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Uptime Rate:</span>
-                  <span className="font-semibold text-foreground font-mono">{activeStation.uptime}</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {activeStation.uptime}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Serial Audit:</span>
-                  <span className="font-semibold text-foreground font-mono">{activeStation.lastAudit}</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {activeStation.lastAudit}
+                  </span>
                 </div>
               </div>
 
@@ -1437,8 +1475,6 @@ function HomePage() {
           </div>
         </div>
       </section>
-
-
 
       {/* ================= SECTION 3: INTERACTIVE WORKSTATION BUILDER ================= */}
       <section className="relative py-24 border-b border-border/20">
@@ -1881,7 +1917,9 @@ function HomePage() {
                     RESOLVED
                   </span>
                   <h3 className="text-lg font-bold mt-3">Sensor Cleaning Cycle</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Warehouse Alpha — Bin 12 to 24</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Warehouse Alpha — Bin 12 to 24
+                  </p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
                     Optoelectronic sensors cleared of dust. Scrollwheel encoders checked and
                     calibrated for zero drag.
@@ -1932,10 +1970,12 @@ function HomePage() {
                     AI PREDICTIVE WARNING
                   </span>
                   <h3 className="text-lg font-bold mt-3">Battery Exhaustion Alert</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Warehouse Gamma — Bin 08 Scanner</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Warehouse Gamma — Bin 08 Scanner
+                  </p>
                   <p className="text-xs text-muted-foreground/80 mt-3 leading-relaxed">
-                    Scanner telemetry registers voltage drop below 1.15V. Replacement scheduled before
-                    next warehouse audit.
+                    Scanner telemetry registers voltage drop below 1.15V. Replacement scheduled
+                    before next warehouse audit.
                   </p>
                   <div className="mt-4 text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Warning triggered 1 hour ago
@@ -1963,7 +2003,8 @@ function HomePage() {
               Automated Requisition & Supply Flow
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Click on any stage in our directed logistics graph to inspect real-time SLA metrics, compliance gates, and inventory workflows.
+              Click on any stage in our directed logistics graph to inspect real-time SLA metrics,
+              compliance gates, and inventory workflows.
             </p>
           </div>
 
@@ -1972,7 +2013,10 @@ function HomePage() {
             <div className="liquid-card rounded-3xl p-8 border-border/60 overflow-x-auto">
               <div className="flex items-center justify-between min-w-[900px] gap-4 py-6 relative">
                 {/* Connecting SVG Path Line Behind Nodes */}
-                <svg className="absolute inset-0 h-full w-full pointer-events-none -z-10" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  className="absolute inset-0 h-full w-full pointer-events-none -z-10"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <defs>
                     <linearGradient id="flow-line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="var(--color-primary)" />
@@ -1991,11 +2035,36 @@ function HomePage() {
                 </svg>
 
                 {[
-                  { title: "1. Requisition Ingest", desc: "SLA Ticket Parsing", metric: "1.2 min SLA", status: "Active" },
-                  { title: "2. Security & SLA Gate", desc: "Role Check & Sign", metric: "FIPS 140-3 Check", status: "Secured" },
-                  { title: "3. Bin Allocation", desc: "Optimal Storage Rack", metric: "99.98% Precision", status: "Ready" },
-                  { title: "4. Payment Gate", desc: "Stripe & Invoicing", metric: "Real-time Sync", status: "Enabled" },
-                  { title: "5. Dispatch Transit", desc: "Logistics Routing", metric: "24h Turnaround", status: "Shipping" },
+                  {
+                    title: "1. Requisition Ingest",
+                    desc: "SLA Ticket Parsing",
+                    metric: "1.2 min SLA",
+                    status: "Active",
+                  },
+                  {
+                    title: "2. Security & SLA Gate",
+                    desc: "Role Check & Sign",
+                    metric: "FIPS 140-3 Check",
+                    status: "Secured",
+                  },
+                  {
+                    title: "3. Bin Allocation",
+                    desc: "Optimal Storage Rack",
+                    metric: "99.98% Precision",
+                    status: "Ready",
+                  },
+                  {
+                    title: "4. Payment Gate",
+                    desc: "Stripe & Invoicing",
+                    metric: "Real-time Sync",
+                    status: "Enabled",
+                  },
+                  {
+                    title: "5. Dispatch Transit",
+                    desc: "Logistics Routing",
+                    metric: "24h Turnaround",
+                    status: "Shipping",
+                  },
                 ].map((step, idx) => {
                   const isActive = activeFlowStep === idx;
                   return (
@@ -2011,16 +2080,27 @@ function HomePage() {
                           : "border-border bg-zinc-950/80 hover:border-primary/40 hover:bg-card/30"
                       }`}
                     >
-                      <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-xs mb-3 ${
-                        isActive ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-muted-foreground"
-                      }`}>
+                      <div
+                        className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-xs mb-3 ${
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow"
+                            : "bg-secondary text-muted-foreground"
+                        }`}
+                      >
                         {idx + 1}
                       </div>
                       <h4 className="text-xs font-bold text-foreground">{step.title}</h4>
-                      <p className="text-[10px] text-muted-foreground mt-1 truncate w-full">{step.desc}</p>
-                      <Badge variant="outline" className={`mt-3 text-[8px] font-bold py-0.5 ${
-                        isActive ? "border-primary/40 text-primary bg-primary/5" : "border-border text-muted-foreground"
-                      }`}>
+                      <p className="text-[10px] text-muted-foreground mt-1 truncate w-full">
+                        {step.desc}
+                      </p>
+                      <Badge
+                        variant="outline"
+                        className={`mt-3 text-[8px] font-bold py-0.5 ${
+                          isActive
+                            ? "border-primary/40 text-primary bg-primary/5"
+                            : "border-border text-muted-foreground"
+                        }`}
+                      >
                         {step.metric}
                       </Badge>
                     </button>
@@ -2042,34 +2122,60 @@ function HomePage() {
                 {[
                   {
                     title: "Requisition Submission & Ticket Ingestion",
-                    details: "Incoming hardware checkouts are fed directly into our centralized telemetry database. AI automatically parses the brand, category, and target location. If stock levels are healthy, the requisition status updates to Pending, reserving the matching serial from the rack.",
-                    subMetrics: [["SLA speed", "1.2 min avg"], ["Automation Rate", "98.5%"], ["System State", "Synchronized"]],
-                    compliance: "NIST SP 800 compliant metadata collection."
+                    details:
+                      "Incoming hardware checkouts are fed directly into our centralized telemetry database. AI automatically parses the brand, category, and target location. If stock levels are healthy, the requisition status updates to Pending, reserving the matching serial from the rack.",
+                    subMetrics: [
+                      ["SLA speed", "1.2 min avg"],
+                      ["Automation Rate", "98.5%"],
+                      ["System State", "Synchronized"],
+                    ],
+                    compliance: "NIST SP 800 compliant metadata collection.",
                   },
                   {
                     title: "Role Auditing & Security Clearance Gate",
-                    details: "Every check-out undergoes strict role-based capability vetting. Requisitions for staff require standard validation, while high-value assets (such as 5K monitors) trigger secondary approval alerts to the Admin panel. Security hashes are stored on our encrypted audit trails.",
-                    subMetrics: [["Vetting protocol", "FIPS 140-3"], ["Authorization Gate", "Role Context check"], ["Alert threshold", "> $200"]],
-                    compliance: "RBAC (Role Based Access Control) enforces granular data segregation."
+                    details:
+                      "Every check-out undergoes strict role-based capability vetting. Requisitions for staff require standard validation, while high-value assets (such as 5K monitors) trigger secondary approval alerts to the Admin panel. Security hashes are stored on our encrypted audit trails.",
+                    subMetrics: [
+                      ["Vetting protocol", "FIPS 140-3"],
+                      ["Authorization Gate", "Role Context check"],
+                      ["Alert threshold", "> $200"],
+                    ],
+                    compliance:
+                      "RBAC (Role Based Access Control) enforces granular data segregation.",
                   },
                   {
                     title: "Optimal Bin Storage Allocation",
-                    details: "The system allocates reserve items by matching inventory categories to the closest Fulfillment Center Bin. Serial number scanning ensures that the oldest available inventory is checked out first (FIFO policy) to manage hardware warranty cycles effectively.",
-                    subMetrics: [["Shelf Accuracy", "99.98%"], ["Serial Tracking", "Mandatory"], ["LED Rack Guide", "Active on BIN-X"]],
-                    compliance: "Live serial mapping prevents inventory discrepancies."
+                    details:
+                      "The system allocates reserve items by matching inventory categories to the closest Fulfillment Center Bin. Serial number scanning ensures that the oldest available inventory is checked out first (FIFO policy) to manage hardware warranty cycles effectively.",
+                    subMetrics: [
+                      ["Shelf Accuracy", "99.98%"],
+                      ["Serial Tracking", "Mandatory"],
+                      ["LED Rack Guide", "Active on BIN-X"],
+                    ],
+                    compliance: "Live serial mapping prevents inventory discrepancies.",
                   },
                   {
                     title: "Stripe Payments & Procurement Invoicing",
-                    details: "Out-of-pocket checkouts trigger an instant Stripe payment route. Our webhook listener monitors the Stripe API for successful invoice clearance, automatically upgrading the tracking status to Confirmed and generating order dispatch tickets without human intervention.",
-                    subMetrics: [["Payment processing", "Secure Stripe SDK"], ["Webhook Sync", "150ms latency"], ["Invoice generation", "PDF automated"]],
-                    compliance: "PCI-DSS Level 1 secure payment environment."
+                    details:
+                      "Out-of-pocket checkouts trigger an instant Stripe payment route. Our webhook listener monitors the Stripe API for successful invoice clearance, automatically upgrading the tracking status to Confirmed and generating order dispatch tickets without human intervention.",
+                    subMetrics: [
+                      ["Payment processing", "Secure Stripe SDK"],
+                      ["Webhook Sync", "150ms latency"],
+                      ["Invoice generation", "PDF automated"],
+                    ],
+                    compliance: "PCI-DSS Level 1 secure payment environment.",
                   },
                   {
                     title: "Fulfillment Packing & Logistics Transit Route",
-                    details: "Orders are safely packed inside ruggedized, anti-static container units. Barcodes are printed dynamically matching our graph-based tracking database. Once the transit provider triggers the scanner, a live status signal is sent, transitioning the order to Shipped.",
-                    subMetrics: [["Carrier options", "FedEx / DHL / DPD"], ["Dispatch latency", "< 24 hours"], ["Transit Status", "Active nodes"]],
-                    compliance: "Real-time transit updates mapped on visual DAG graph."
-                  }
+                    details:
+                      "Orders are safely packed inside ruggedized, anti-static container units. Barcodes are printed dynamically matching our graph-based tracking database. Once the transit provider triggers the scanner, a live status signal is sent, transitioning the order to Shipped.",
+                    subMetrics: [
+                      ["Carrier options", "FedEx / DHL / DPD"],
+                      ["Dispatch latency", "< 24 hours"],
+                      ["Transit Status", "Active nodes"],
+                    ],
+                    compliance: "Real-time transit updates mapped on visual DAG graph.",
+                  },
                 ].map((info, idx) => {
                   if (activeFlowStep !== idx) return null;
                   return (
@@ -2078,12 +2184,15 @@ function HomePage() {
                         <Badge className="bg-primary/20 text-primary border-none px-2.5 py-0.5 text-[9px] uppercase font-bold">
                           Step {idx + 1} Workflow
                         </Badge>
-                        <h3 className="text-xl font-extrabold text-foreground mt-2">{info.title}</h3>
+                        <h3 className="text-xl font-extrabold text-foreground mt-2">
+                          {info.title}
+                        </h3>
                         <p className="text-xs text-muted-foreground leading-relaxed mt-4">
                           {info.details}
                         </p>
                         <p className="text-[10px] text-zinc-500 font-mono mt-6 flex items-center gap-1.5">
-                          <ShieldCheck className="h-4 w-4 text-emerald-400" /> Compliance: {info.compliance}
+                          <ShieldCheck className="h-4 w-4 text-emerald-400" /> Compliance:{" "}
+                          {info.compliance}
                         </p>
                       </div>
                       <div className="grid gap-3 bg-black/30 border border-border/40 p-5 rounded-2xl h-fit">
@@ -2091,7 +2200,10 @@ function HomePage() {
                           SLA Performance & Auditing
                         </h4>
                         {info.subMetrics.map(([lbl, val]) => (
-                          <div key={lbl} className="flex justify-between items-center text-xs py-1 border-b border-border/10 last:border-0">
+                          <div
+                            key={lbl}
+                            className="flex justify-between items-center text-xs py-1 border-b border-border/10 last:border-0"
+                          >
                             <span className="text-muted-foreground">{lbl}</span>
                             <span className="font-bold text-foreground font-mono">{val}</span>
                           </div>
@@ -2121,7 +2233,8 @@ function HomePage() {
               Peripheral Blueprint Explorer
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              Hover over the technical blueprint hotspots to explore mechanical keyboard and tracking mouse logistics specifications.
+              Hover over the technical blueprint hotspots to explore mechanical keyboard and
+              tracking mouse logistics specifications.
             </p>
           </div>
 
@@ -2131,18 +2244,34 @@ function HomePage() {
               <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
                 <Keyboard className="h-5 w-5 text-primary" /> Industrial Mechanical Keyboard
               </h3>
-              <p className="text-xs text-muted-foreground mb-6">Interactive parts schematic and warehouse serial count.</p>
-              
+              <p className="text-xs text-muted-foreground mb-6">
+                Interactive parts schematic and warehouse serial count.
+              </p>
+
               <div className="relative aspect-[16/10] border border-border/40 rounded-2xl bg-black/50 p-4 flex flex-col items-center justify-center">
                 {/* SVG Blueprint Draw */}
-                <svg className="w-4/5 h-auto text-primary/30" viewBox="0 0 200 100" fill="none" stroke="currentColor" strokeWidth="0.7">
+                <svg
+                  className="w-4/5 h-auto text-primary/30"
+                  viewBox="0 0 200 100"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.7"
+                >
                   <rect x="10" y="20" width="180" height="60" rx="6" />
                   <line x1="20" y1="30" x2="180" y2="30" />
                   <line x1="20" y1="42" x2="180" y2="42" />
                   <line x1="20" y1="54" x2="180" y2="54" />
                   <line x1="20" y1="66" x2="180" y2="66" />
                   {/* Spacebar */}
-                  <rect x="55" y="68" width="90" height="8" rx="2" fill="currentColor" fillOpacity="0.05" />
+                  <rect
+                    x="55"
+                    y="68"
+                    width="90"
+                    height="8"
+                    rx="2"
+                    fill="currentColor"
+                    fillOpacity="0.05"
+                  />
                   {/* Hotspots visual pointers */}
                   <circle cx="35" cy="36" r="3" className="stroke-accent animate-ping" />
                   <circle cx="100" cy="72" r="3" className="stroke-accent animate-ping" />
@@ -2154,11 +2283,18 @@ function HomePage() {
                 <div className="absolute top-[32%] left-[22%] group/hs">
                   <span className="relative flex h-5 w-5 cursor-pointer">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">S</span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">
+                      S
+                    </span>
                   </span>
                   <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
-                    <p className="font-extrabold text-foreground text-xs text-primary">Hot-Swap Switches</p>
-                    <p className="mt-1 leading-relaxed">Cherry MX Red & Gateron Brown tactiles. Active stock: <span className="font-bold text-foreground">185 units</span> across Rack 02.</p>
+                    <p className="font-extrabold text-foreground text-xs text-primary">
+                      Hot-Swap Switches
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Cherry MX Red & Gateron Brown tactiles. Active stock:{" "}
+                      <span className="font-bold text-foreground">185 units</span> across Rack 02.
+                    </p>
                   </div>
                 </div>
 
@@ -2166,11 +2302,19 @@ function HomePage() {
                 <div className="absolute top-[48%] left-[72%] group/hs">
                   <span className="relative flex h-5 w-5 cursor-pointer">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">K</span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">
+                      K
+                    </span>
                   </span>
                   <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
-                    <p className="font-extrabold text-foreground text-xs text-primary">PBT Doubleshot Deck</p>
-                    <p className="mt-1 leading-relaxed">Non-wear doubleshot legends. Bulk replenishment index: <span className="font-bold text-foreground">30 packs</span> reserved in Bin 15.</p>
+                    <p className="font-extrabold text-foreground text-xs text-primary">
+                      PBT Doubleshot Deck
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Non-wear doubleshot legends. Bulk replenishment index:{" "}
+                      <span className="font-bold text-foreground">30 packs</span> reserved in Bin
+                      15.
+                    </p>
                   </div>
                 </div>
 
@@ -2178,11 +2322,18 @@ function HomePage() {
                 <div className="absolute top-[68%] left-[50%] group/hs">
                   <span className="relative flex h-5 w-5 cursor-pointer">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-accent/20 border border-accent flex items-center justify-center font-mono text-[8px] font-bold text-accent hover:bg-accent hover:text-accent-foreground transition-all">C</span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-accent/20 border border-accent flex items-center justify-center font-mono text-[8px] font-bold text-accent hover:bg-accent hover:text-accent-foreground transition-all">
+                      C
+                    </span>
                   </span>
                   <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-accent/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
-                    <p className="font-extrabold text-foreground text-xs text-accent">Telemetry Controller</p>
-                    <p className="mt-1 leading-relaxed">Runs dynamic link check and calibration sweeps. Average response sync: <span className="font-bold text-foreground">0.8ms</span>.</p>
+                    <p className="font-extrabold text-foreground text-xs text-accent">
+                      Telemetry Controller
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Runs dynamic link check and calibration sweeps. Average response sync:{" "}
+                      <span className="font-bold text-foreground">0.8ms</span>.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2193,14 +2344,30 @@ function HomePage() {
               <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
                 <Mouse className="h-5 w-5 text-accent" /> High-Precision Tracking Mouse
               </h3>
-              <p className="text-xs text-muted-foreground mb-6">Interactive parts schematic and sensor telemetry metrics.</p>
+              <p className="text-xs text-muted-foreground mb-6">
+                Interactive parts schematic and sensor telemetry metrics.
+              </p>
 
               <div className="relative aspect-[16/10] border border-border/40 rounded-2xl bg-black/50 p-4 flex flex-col items-center justify-center">
                 {/* SVG Blueprint Draw */}
-                <svg className="w-1/3 h-auto text-accent/30" viewBox="0 0 100 150" fill="none" stroke="currentColor" strokeWidth="0.8">
+                <svg
+                  className="w-1/3 h-auto text-accent/30"
+                  viewBox="0 0 100 150"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.8"
+                >
                   <rect x="15" y="10" width="70" height="130" rx="35" />
                   <line x1="50" y1="10" x2="50" y2="60" />
-                  <rect x="42" y="25" width="16" height="25" rx="3" fill="currentColor" fillOpacity="0.05" />
+                  <rect
+                    x="42"
+                    y="25"
+                    width="16"
+                    height="25"
+                    rx="3"
+                    fill="currentColor"
+                    fillOpacity="0.05"
+                  />
                   <circle cx="50" cy="90" r="10" strokeDasharray="3 3" />
                   {/* Hotspots visual pointers */}
                   <circle cx="50" cy="37" r="3" className="stroke-primary animate-ping" />
@@ -2213,11 +2380,18 @@ function HomePage() {
                 <div className="absolute top-[22%] left-[50%] group/hs -translate-x-1/2">
                   <span className="relative flex h-5 w-5 cursor-pointer">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-accent/20 border border-accent flex items-center justify-center font-mono text-[8px] font-bold text-accent hover:bg-accent hover:text-accent-foreground transition-all">W</span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-accent/20 border border-accent flex items-center justify-center font-mono text-[8px] font-bold text-accent hover:bg-accent hover:text-accent-foreground transition-all">
+                      W
+                    </span>
                   </span>
                   <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-accent/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
-                    <p className="font-extrabold text-foreground text-xs text-accent">Optical Scroll Encoder</p>
-                    <p className="mt-1 leading-relaxed">Precision scrollwheel mapped for fast scrolling. Calibration interval: <span className="font-bold text-foreground">6 months</span>.</p>
+                    <p className="font-extrabold text-foreground text-xs text-accent">
+                      Optical Scroll Encoder
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Precision scrollwheel mapped for fast scrolling. Calibration interval:{" "}
+                      <span className="font-bold text-foreground">6 months</span>.
+                    </p>
                   </div>
                 </div>
 
@@ -2225,11 +2399,18 @@ function HomePage() {
                 <div className="absolute top-[60%] left-[50%] group/hs -translate-x-1/2">
                   <span className="relative flex h-5 w-5 cursor-pointer">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">S</span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">
+                      S
+                    </span>
                   </span>
                   <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
-                    <p className="font-extrabold text-foreground text-xs text-primary">8K Hero Tracker Sensor</p>
-                    <p className="mt-1 leading-relaxed">Tracks on glass surfaces. Active warehouse checkout count: <span className="font-bold text-foreground">112 units</span> checked in.</p>
+                    <p className="font-extrabold text-foreground text-xs text-primary">
+                      8K Hero Tracker Sensor
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Tracks on glass surfaces. Active warehouse checkout count:{" "}
+                      <span className="font-bold text-foreground">112 units</span> checked in.
+                    </p>
                   </div>
                 </div>
 
@@ -2237,11 +2418,18 @@ function HomePage() {
                 <div className="absolute top-[43%] left-[30%] group/hs">
                   <span className="relative flex h-5 w-5 cursor-pointer">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">G</span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-primary/20 border border-primary flex items-center justify-center font-mono text-[8px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all">
+                      G
+                    </span>
                   </span>
                   <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover/hs:block w-48 bg-zinc-950/95 border border-primary/35 rounded-xl p-3 text-[10px] text-zinc-300 shadow-xl z-20 backdrop-blur">
-                    <p className="font-extrabold text-foreground text-xs text-primary">Ergonomic Grips</p>
-                    <p className="mt-1 leading-relaxed">Textured industrial shell. Replaced during preventative maintenance if wear score exceeds <span className="font-bold text-foreground">75%</span>.</p>
+                    <p className="font-extrabold text-foreground text-xs text-primary">
+                      Ergonomic Grips
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Textured industrial shell. Replaced during preventative maintenance if wear
+                      score exceeds <span className="font-bold text-foreground">75%</span>.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2261,25 +2449,33 @@ function HomePage() {
             {/* Details Panel */}
             <div className="space-y-6">
               <div>
-                <Badge variant="outline" className="border-success/40 bg-success/5 text-success mb-3">
+                <Badge
+                  variant="outline"
+                  className="border-success/40 bg-success/5 text-success mb-3"
+                >
                   Logistics Network Live
                 </Badge>
                 <h2 className="text-4xl font-extrabold tracking-tight">
                   Active Dispatch Operations
                 </h2>
                 <p className="mt-4 text-muted-foreground leading-relaxed">
-                  Our unified logistics network delivers peripherals on-demand. Watch live dispatches stream from Fulfillment Hub Alpha to regional warehouse stations.
+                  Our unified logistics network delivers peripherals on-demand. Watch live
+                  dispatches stream from Fulfillment Hub Alpha to regional warehouse stations.
                 </p>
               </div>
 
               {/* Transit Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl border border-border bg-card/20">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Today's Dispatches</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Today's Dispatches
+                  </p>
                   <p className="text-2xl font-black text-primary mt-1">1,480 units</p>
                 </div>
                 <div className="p-4 rounded-xl border border-border bg-card/20">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">On-Time rate</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    On-Time rate
+                  </p>
                   <p className="text-2xl font-black text-success mt-1">99.88%</p>
                 </div>
               </div>
@@ -2293,40 +2489,156 @@ function HomePage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
                   </span>
-                  <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">Fulfillment Hub Alpha Feed</span>
+                  <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+                    Fulfillment Hub Alpha Feed
+                  </span>
                 </div>
-                <Badge variant="outline" className="text-[8px] font-bold text-emerald-400 border-emerald-400/20 bg-emerald-400/5">AUTO ROUTING ACTIVE</Badge>
+                <Badge
+                  variant="outline"
+                  className="text-[8px] font-bold text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
+                >
+                  AUTO ROUTING ACTIVE
+                </Badge>
               </div>
 
               {/* Map SVG */}
               <svg className="w-full h-full text-zinc-800" viewBox="0 0 500 250" fill="none">
-                <circle cx="250" cy="125" r="16" className="fill-primary/20 stroke-primary" strokeWidth="2" />
-                <text x="250" y="102" textAnchor="middle" className="fill-foreground font-bold text-[9px]">Hub Alpha</text>
-                
+                <circle
+                  cx="250"
+                  cy="125"
+                  r="16"
+                  className="fill-primary/20 stroke-primary"
+                  strokeWidth="2"
+                />
+                <text
+                  x="250"
+                  y="102"
+                  textAnchor="middle"
+                  className="fill-foreground font-bold text-[9px]"
+                >
+                  Hub Alpha
+                </text>
+
                 {/* Branches to Hubs */}
                 {/* 1. Boston */}
-                <path d="M 250 125 Q 170 60 120 70" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
-                <circle cx="120" cy="70" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
-                <circle cx="120" cy="70" r="12" className="stroke-primary/20 animate-pulse" strokeWidth="1.5" />
-                <text x="120" y="54" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Boston Dock A</text>
+                <path
+                  d="M 250 125 Q 170 60 120 70"
+                  stroke="var(--color-border)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5 4"
+                />
+                <circle
+                  cx="120"
+                  cy="70"
+                  r="6"
+                  className="fill-zinc-900 stroke-zinc-700"
+                  strokeWidth="1.5"
+                />
+                <circle
+                  cx="120"
+                  cy="70"
+                  r="12"
+                  className="stroke-primary/20 animate-pulse"
+                  strokeWidth="1.5"
+                />
+                <text
+                  x="120"
+                  y="54"
+                  textAnchor="middle"
+                  className="fill-muted-foreground font-bold text-[8px]"
+                >
+                  Boston Dock A
+                </text>
 
                 {/* 2. Malibu */}
-                <path d="M 250 125 Q 380 70 420 90" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
-                <circle cx="420" cy="90" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
-                <circle cx="420" cy="90" r="12" className="stroke-accent/20 animate-pulse" strokeWidth="1.5" />
-                <text x="420" y="74" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Malibu Logistics</text>
+                <path
+                  d="M 250 125 Q 380 70 420 90"
+                  stroke="var(--color-border)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5 4"
+                />
+                <circle
+                  cx="420"
+                  cy="90"
+                  r="6"
+                  className="fill-zinc-900 stroke-zinc-700"
+                  strokeWidth="1.5"
+                />
+                <circle
+                  cx="420"
+                  cy="90"
+                  r="12"
+                  className="stroke-accent/20 animate-pulse"
+                  strokeWidth="1.5"
+                />
+                <text
+                  x="420"
+                  y="74"
+                  textAnchor="middle"
+                  className="fill-muted-foreground font-bold text-[8px]"
+                >
+                  Malibu Logistics
+                </text>
 
                 {/* 3. Austin */}
-                <path d="M 250 125 Q 350 190 380 200" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
-                <circle cx="380" cy="200" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
-                <circle cx="380" cy="200" r="12" className="stroke-success/20 animate-pulse" strokeWidth="1.5" />
-                <text x="380" y="216" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Austin Storage</text>
+                <path
+                  d="M 250 125 Q 350 190 380 200"
+                  stroke="var(--color-border)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5 4"
+                />
+                <circle
+                  cx="380"
+                  cy="200"
+                  r="6"
+                  className="fill-zinc-900 stroke-zinc-700"
+                  strokeWidth="1.5"
+                />
+                <circle
+                  cx="380"
+                  cy="200"
+                  r="12"
+                  className="stroke-success/20 animate-pulse"
+                  strokeWidth="1.5"
+                />
+                <text
+                  x="380"
+                  y="216"
+                  textAnchor="middle"
+                  className="fill-muted-foreground font-bold text-[8px]"
+                >
+                  Austin Storage
+                </text>
 
                 {/* 4. Seattle */}
-                <path d="M 250 125 Q 150 180 80 160" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="5 4" />
-                <circle cx="80" cy="160" r="6" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
-                <circle cx="80" cy="160" r="12" className="stroke-primary/20 animate-pulse" strokeWidth="1.5" />
-                <text x="80" y="146" textAnchor="middle" className="fill-muted-foreground font-bold text-[8px]">Seattle Hub</text>
+                <path
+                  d="M 250 125 Q 150 180 80 160"
+                  stroke="var(--color-border)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5 4"
+                />
+                <circle
+                  cx="80"
+                  cy="160"
+                  r="6"
+                  className="fill-zinc-900 stroke-zinc-700"
+                  strokeWidth="1.5"
+                />
+                <circle
+                  cx="80"
+                  cy="160"
+                  r="12"
+                  className="stroke-primary/20 animate-pulse"
+                  strokeWidth="1.5"
+                />
+                <text
+                  x="80"
+                  y="146"
+                  textAnchor="middle"
+                  className="fill-muted-foreground font-bold text-[8px]"
+                >
+                  Seattle Hub
+                </text>
 
                 {/* Pulsing delivery nodes traveling along paths */}
                 <circle cx="210" cy="100" r="3" className="fill-primary animate-pulse" />
@@ -2351,8 +2663,8 @@ function HomePage() {
                 Design Showcases in Fulfillment Centers
               </h2>
               <p className="mt-3 text-muted-foreground max-w-2xl">
-                Explore modern warehouse hubs and fulfillment centers globally optimized using LabTrack's
-                inventory layouts.
+                Explore modern warehouse hubs and fulfillment centers globally optimized using
+                LabTrack's inventory layouts.
               </p>
             </div>
             <div className="flex gap-2">

@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ClipboardList, Package, Truck, Check, HelpCircle, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  ClipboardList,
+  Package,
+  Truck,
+  Check,
+  HelpCircle,
+  XCircle,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Node {
@@ -11,12 +19,42 @@ interface Node {
 }
 
 const NODES: Node[] = [
-  { id: "Pending", label: "Pending", detail: "Awaiting validation or payment confirmation.", icon: ClipboardList },
-  { id: "Confirmed", label: "Confirmed", detail: "Order approved, items reserved in stock.", icon: CheckCircle2 },
-  { id: "Processing", label: "Processing", detail: "Stock allocated, items packaged for transit.", icon: Package },
-  { id: "Shipped", label: "Shipped", detail: "Dispatched from warehouse and in transit.", icon: Truck },
-  { id: "Delivered", label: "Delivered", detail: "Successfully arrived and logged at destination.", icon: Check },
-  { id: "Cancelled", label: "Cancelled", detail: "Order cancelled and items returned to stock.", icon: XCircle },
+  {
+    id: "Pending",
+    label: "Pending",
+    detail: "Awaiting validation or payment confirmation.",
+    icon: ClipboardList,
+  },
+  {
+    id: "Confirmed",
+    label: "Confirmed",
+    detail: "Order approved, items reserved in stock.",
+    icon: CheckCircle2,
+  },
+  {
+    id: "Processing",
+    label: "Processing",
+    detail: "Stock allocated, items packaged for transit.",
+    icon: Package,
+  },
+  {
+    id: "Shipped",
+    label: "Shipped",
+    detail: "Dispatched from warehouse and in transit.",
+    icon: Truck,
+  },
+  {
+    id: "Delivered",
+    label: "Delivered",
+    detail: "Successfully arrived and logged at destination.",
+    icon: Check,
+  },
+  {
+    id: "Cancelled",
+    label: "Cancelled",
+    detail: "Order cancelled and items returned to stock.",
+    icon: XCircle,
+  },
 ];
 
 const ADJACENCY_LIST: Record<string, string[]> = {
@@ -51,7 +89,7 @@ function getStatusPath(targetStatus: string): string[] {
 
 export function OrderGraphTracker({ currentStatus = "Pending" }: { currentStatus: string }) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(
-    NODES.find((n) => n.id === currentStatus) || NODES[0]
+    NODES.find((n) => n.id === currentStatus) || NODES[0],
   );
 
   // Compute active path using BFS graph algorithm
@@ -81,7 +119,8 @@ export function OrderGraphTracker({ currentStatus = "Pending" }: { currentStatus
           <HelpCircle className="h-3.5 w-3.5 text-primary" /> Order Flow Graph Tracker
         </h4>
         <p className="text-[10px] text-muted-foreground mt-0.5">
-          Dynamic directed graph showing fulfillment transitions computed via BFS. Click a node to view state details.
+          Dynamic directed graph showing fulfillment transitions computed via BFS. Click a node to
+          view state details.
         </p>
       </div>
 
@@ -118,7 +157,7 @@ export function OrderGraphTracker({ currentStatus = "Pending" }: { currentStatus
           {Object.entries(ADJACENCY_LIST).map(([from, toNodes]) => {
             const fromIndex = getStandardIndex(from);
             const fromCoord = getCoordinates(from, fromIndex);
-            
+
             return toNodes.map((to) => {
               const toIndex = getStandardIndex(to);
               const toCoord = getCoordinates(to, toIndex);
@@ -237,13 +276,15 @@ export function OrderGraphTracker({ currentStatus = "Pending" }: { currentStatus
         >
           <div className="flex items-center justify-between">
             <span className="font-bold text-foreground flex items-center gap-1.5 capitalize">
-              <span className={`h-2 w-2 rounded-full ${
-                selectedNode.id === "Cancelled" 
-                  ? "bg-destructive" 
-                  : activePath.includes(selectedNode.id) 
-                    ? "bg-success" 
-                    : "bg-muted-foreground"
-              }`} />
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  selectedNode.id === "Cancelled"
+                    ? "bg-destructive"
+                    : activePath.includes(selectedNode.id)
+                      ? "bg-success"
+                      : "bg-muted-foreground"
+                }`}
+              />
               {selectedNode.label} Status Node
             </span>
             {selectedNode.id === currentStatus && (
@@ -252,9 +293,7 @@ export function OrderGraphTracker({ currentStatus = "Pending" }: { currentStatus
               </Badge>
             )}
           </div>
-          <p className="text-muted-foreground mt-1 leading-relaxed">
-            {selectedNode.detail}
-          </p>
+          <p className="text-muted-foreground mt-1 leading-relaxed">{selectedNode.detail}</p>
         </motion.div>
       )}
     </div>

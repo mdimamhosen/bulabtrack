@@ -24,7 +24,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
       message: z.string().min(1),
       chatHistory: z.array(ChatMessageSchema),
       clientApiKey: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data, context }) => {
     await connectDB();
@@ -59,7 +59,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
       }
     }
 
-    const userRole = dbUser ? (dbUser.role || "customer") : "customer"; // "admin" | "staff" | "customer"
+    const userRole = dbUser ? dbUser.role || "customer" : "customer"; // "admin" | "staff" | "customer"
     const userName = dbUser ? dbUser.name : "Guest";
 
     // 2. Determine Gemini API Key and Model
@@ -70,7 +70,8 @@ export const askLabTalk = createServerFn({ method: "POST" })
     if (!apiKey) {
       return {
         success: false,
-        error: "Gemini API Key is missing. Please set GEMINI_API_KEY in your .env or configure it in the AI Settings.",
+        error:
+          "Gemini API Key is missing. Please set GEMINI_API_KEY in your .env or configure it in the AI Settings.",
         noApiKey: true,
       };
     }
@@ -78,7 +79,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
     // 3. RAG Retrieval phase
     // Retrieve device catalog (available to all roles)
     const devices = await DeviceModel.find({});
-    
+
     // Retrieve reviews (available to all roles to answer details about feedback)
     const reviews = await ReviewModel.find({});
 
@@ -90,7 +91,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
     if (userRole === "admin" || userRole === "staff") {
       // Admins and staff can view all orders
       orders = await OrderModel.find({}).sort({ created_at: -1 }).limit(50);
-      
+
       // Retrieve order items matching these orders
       const orderIds = orders.map((o) => o._id);
       orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
@@ -101,7 +102,9 @@ export const askLabTalk = createServerFn({ method: "POST" })
       }
     } else {
       // Customers can ONLY see their own orders
-      orders = userEmail ? await OrderModel.find({ email: userEmail }).sort({ created_at: -1 }) : [];
+      orders = userEmail
+        ? await OrderModel.find({ email: userEmail }).sort({ created_at: -1 })
+        : [];
       const orderIds = orders.map((o) => o._id);
       orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
     }
@@ -125,7 +128,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
     } else {
       devices.forEach((d) => {
         contextLines.push(
-          `- Name: ${d.name} | Brand: ${d.brand} | Model: ${d.model} | Category: ${d.category} | Price: $${d.price} | Stock Qty: ${d.quantity} | Status: ${d.status} | Location: ${d.location || "N/A"} | Supplier: ${d.supplier || "N/A"} | Serial: ${d.serial_number}`
+          `- Name: ${d.name} | Brand: ${d.brand} | Model: ${d.model} | Category: ${d.category} | Price: $${d.price} | Stock Qty: ${d.quantity} | Status: ${d.status} | Location: ${d.location || "N/A"} | Supplier: ${d.supplier || "N/A"} | Serial: ${d.serial_number}`,
         );
       });
     }
@@ -139,7 +142,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
         const device = devices.find((d) => d._id === r.device_id);
         const deviceName = device ? device.name : "Unknown Device";
         contextLines.push(
-          `- Device: ${deviceName} | Rated by: ${r.user_name} | Rating: ${r.rating}/5 stars | Comment: "${r.comment}"`
+          `- Device: ${deviceName} | Rated by: ${r.user_name} | Rating: ${r.rating}/5 stars | Comment: "${r.comment}"`,
         );
       });
     }
@@ -147,7 +150,11 @@ export const askLabTalk = createServerFn({ method: "POST" })
 
     contextLines.push("=== ORDERS ===");
     if (orders.length === 0) {
-      contextLines.push(userRole === "customer" ? "You have not placed any orders." : "No orders found in database.");
+      contextLines.push(
+        userRole === "customer"
+          ? "You have not placed any orders."
+          : "No orders found in database.",
+      );
     } else {
       orders.forEach((o) => {
         const items = orderItems
@@ -155,7 +162,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
           .map((item) => `${item.device_name} (Qty: ${item.quantity} @ $${item.unit_price}/ea)`)
           .join(", ");
         contextLines.push(
-          `- Order #: ${o.order_number} | Customer: ${o.customer_name} (${o.email}) | Total: $${o.total} | Status: ${o.status} | Placed: ${o.created_at?.toISOString() || "N/A"} | Items: [${items}]`
+          `- Order #: ${o.order_number} | Customer: ${o.customer_name} (${o.email}) | Total: $${o.total} | Status: ${o.status} | Placed: ${o.created_at?.toISOString() || "N/A"} | Items: [${items}]`,
         );
       });
     }
@@ -168,7 +175,7 @@ export const askLabTalk = createServerFn({ method: "POST" })
       } else {
         auditLogs.forEach((log) => {
           contextLines.push(
-            `- Action: ${log.action} | Details: ${log.details || "N/A"} | Date: ${log.created_at?.toISOString() || "N/A"}`
+            `- Action: ${log.action} | Details: ${log.details || "N/A"} | Date: ${log.created_at?.toISOString() || "N/A"}`,
           );
         });
       }
@@ -194,7 +201,7 @@ Provide answers in clear, modern markdown format. Use bullet points, bolding, an
 
     // 6. Build Gemini contents structure
     const apiContents = [...data.chatHistory];
-    
+
     // Enrich the final user message with the retrieved database context
     const enrichedUserMessage = `Here is the current database state context to answer my question:
 ---
@@ -227,7 +234,7 @@ Question: ${data.message}`;
               maxOutputTokens: 2048,
             },
           }),
-        }
+        },
       );
 
       if (!response.ok) {

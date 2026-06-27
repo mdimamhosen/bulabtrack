@@ -28,7 +28,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     }
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string }; 
+      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string };
       return next({
         context: {
           userId: decoded.sub,
@@ -38,7 +38,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     } catch (err) {
       throw new Error("Unauthorized: Invalid token");
     }
-  }
+  },
 );
 
 export const optionalSupabaseAuth = createMiddleware({ type: "function" }).server(
@@ -76,7 +76,7 @@ export const optionalSupabaseAuth = createMiddleware({ type: "function" }).serve
     }
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string }; 
+      const decoded = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: string };
       return next({
         context: {
           userId: decoded.sub as string | undefined,
@@ -91,5 +91,5 @@ export const optionalSupabaseAuth = createMiddleware({ type: "function" }).serve
         },
       });
     }
-  }
+  },
 );

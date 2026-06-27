@@ -1,4 +1,9 @@
-import { executeDbAction, executeDbRpc, executeAuthAction, saveUploadedFileServer } from "@/lib/api/database.functions";
+import {
+  executeDbAction,
+  executeDbRpc,
+  executeAuthAction,
+  saveUploadedFileServer,
+} from "@/lib/api/database.functions";
 import { toast } from "sonner";
 
 const STORAGE_KEY = "sb-xvnoorzxozuticwyappx-auth-token";
@@ -12,7 +17,7 @@ function decodeJwt(token: string) {
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
     return JSON.parse(jsonPayload);
   } catch (e) {
