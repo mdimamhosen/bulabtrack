@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { useCart } from "@/lib/cart";
 
 type Message = {
   role: "user" | "model";
@@ -204,6 +205,7 @@ function MiniMarkdown({ content }: { content: string }) {
 }
 
 export function FloatingChatbot() {
+  const { items, clear } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== "undefined") {
@@ -300,6 +302,12 @@ export function FloatingChatbot() {
           message: textToSend,
           chatHistory,
           clientApiKey: apiKey || undefined,
+          cartItems: items.map((i) => ({
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+          })),
         },
       });
 
@@ -316,6 +324,10 @@ export function FloatingChatbot() {
         ]);
       } else {
         setMessages((prev) => [...prev, { role: "model", text: result.answer || "No response." }]);
+        if (result.orderCreated) {
+          clear();
+          toast.success("Order placed successfully via chat!");
+        }
       }
     } catch (error: any) {
       setMessages((prev) => [
@@ -353,7 +365,7 @@ export function FloatingChatbot() {
                 <h4 className="text-sm font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent flex items-center gap-1">
                   LabTalk AI <Sparkles className="h-3 w-3 text-accent animate-pulse" />
                 </h4>
-                <p className="text-[9px] text-muted-foreground">Connected to bulabtrack database</p>
+                <p className="text-[9px] text-muted-foreground">Live inventory &amp; order data</p>
               </div>
             </div>
             <div className="flex items-center gap-1">

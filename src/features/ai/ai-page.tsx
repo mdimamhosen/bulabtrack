@@ -23,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { useCart } from "@/lib/cart";
 
 type Message = {
   role: "user" | "model";
@@ -241,6 +242,7 @@ function parseInlineMarkdown(text: string) {
 }
 
 export function AiAssistantPage({ roleBase }: { roleBase: string }) {
+  const { items, clear } = useCart();
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("labtalk_assistant_history");
@@ -359,6 +361,12 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
           message: textToSend,
           chatHistory,
           clientApiKey: apiKey || undefined,
+          cartItems: items.map((i) => ({
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+          })),
         },
       });
 
@@ -379,6 +387,10 @@ export function AiAssistantPage({ roleBase }: { roleBase: string }) {
           ...prev,
           { role: "model", text: result.answer || "No response text generated." },
         ]);
+        if (result.orderCreated) {
+          clear();
+          toast.success("Order placed successfully via chat!");
+        }
         if (result.stats) {
           console.log("RAG Index Query Success:", result.stats);
         }

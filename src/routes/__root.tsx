@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/theme";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleProvider } from "@/lib/role-context";
 import { FloatingChatbot } from "@/components/layout/floating-chatbot";
+import { CartProvider } from "@/lib/cart";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -136,9 +137,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <RoleProvider>
         <ThemeProvider>
-          <Outlet />
-          <FloatingChatbot />
-          <Toaster richColors position="top-right" />
+          <CartProvider>
+            <Outlet />
+            <FloatingChatbot />
+            <Toaster richColors position="top-right" />
+          </CartProvider>
         </ThemeProvider>
       </RoleProvider>
     </QueryClientProvider>

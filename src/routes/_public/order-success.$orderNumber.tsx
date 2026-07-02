@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { useEffect } from "react";
-// import { confirmStripeOrder } from "@/lib/api/stripe.functions"; // Stripe temporarily disabled
 import { OrderGraphTracker } from "@/components/order-graph-tracker";
 import { z } from "zod";
 
@@ -23,11 +22,7 @@ export const Route = createFileRoute("/_public/order-success/$orderNumber")({
 
 function OrderSuccessPage() {
   const { orderNumber } = useParams({ from: "/_public/order-success/$orderNumber" });
-  // Stripe search params disabled temporarily
-  // const { status, session_id } = Route.useSearch();
   const { count, clear } = useCart();
-  // const [verifying, setVerifying] = useState(!!session_id); // Stripe disabled
-  // const verificationInitiated = useRef(false); // Stripe disabled
 
   // Query order details dynamically from MongoDB
   const {
@@ -46,40 +41,13 @@ function OrderSuccessPage() {
     },
   });
 
-  // COD order: just clear cart on arrival
   useEffect(() => {
     if (count > 0) {
       clear();
     }
-    // Stripe verification temporarily disabled
-    /*
-    if (status === "success" && session_id) {
-      if (verificationInitiated.current) return;
-      verificationInitiated.current = true;
-      setVerifying(true);
-      confirmStripeOrder({ data: { orderNumber, sessionId: session_id } })
-        .then((res) => {
-          setVerifying(false);
-          if (res.success) {
-            toast.success("Payment verified! Order confirmed.");
-            if (count > 0) clear();
-            refetch();
-          } else {
-            toast.error(res.error || "Payment verification failed.");
-          }
-        })
-        .catch(() => {
-          setVerifying(false);
-          toast.error("Error connecting to stripe verification service.");
-        });
-    } else {
-      if (count > 0) clear();
-    }
-    */
-  }, []);
+  }, [count, clear]);
 
-  const paymentMethod = "Cash on Delivery"; // Stripe disabled
-  // const paymentMethod = order?.notes?.includes("stripe") || session_id ? "Credit Card (Stripe)" : "Cash on Delivery";
+  const paymentMethod = "Cash on Delivery";
   const displayStatus = order?.status || "Pending";
 
   return (

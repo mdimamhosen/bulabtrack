@@ -216,6 +216,17 @@ export const executeDbAction = createServerFn({ method: "POST" })
           return obj;
         });
 
+        if (tableName === "order_items") {
+          for (const doc of docsWithIds) {
+            if (doc.device_id && doc.quantity) {
+              await DeviceModel.updateOne(
+                { _id: doc.device_id },
+                { $inc: { quantity: -Number(doc.quantity) } }
+              );
+            }
+          }
+        }
+
         const isSingle = operations.some((o) => o.type === "single");
         return {
           data: Array.isArray(rawData) && !isSingle ? responseData : responseData[0],
@@ -512,6 +523,26 @@ export const seedDatabaseServer = createServerFn({ method: "POST" }).handler(asy
 
     // Delete all users except admin 'mdimam.cse9.bu@gmail.com'
     await UserModel.deleteMany({ email: { $ne: "mdimam.cse9.bu@gmail.com" } });
+
+    // Ensure the admin user exists and has the password '123456'
+    const adminEmail = "mdimam.cse9.bu@gmail.com";
+    const adminPassword = "123456";
+    const hashedAdminPwd = hashPassword(adminPassword);
+
+    await UserModel.updateOne(
+      { email: adminEmail },
+      {
+        $set: {
+          name: "Admin User",
+          password: hashedAdminPwd,
+          role: "admin",
+          status: "active",
+          needs_password_change: false,
+          has_changed_password: true,
+        },
+      },
+      { upsert: true }
+    );
 
     // Hash a default password
     const hashedPwd = hashPassword("password123");

@@ -55,8 +55,10 @@ import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenti
 import { Route as AuthenticatedStaffDevicesIndexRouteImport } from './routes/_authenticated/staff/devices.index'
 import { Route as AuthenticatedAdminDevicesIndexRouteImport } from './routes/_authenticated/admin/devices.index'
 import { Route as AuthenticatedAppDevicesIndexRouteImport } from './routes/_authenticated/_app/devices.index'
+import { Route as AuthenticatedStaffDevicesNewRouteImport } from './routes/_authenticated/staff/devices.new'
 import { Route as AuthenticatedAdminDevicesNewRouteImport } from './routes/_authenticated/admin/devices.new'
 import { Route as AuthenticatedAppDevicesNewRouteImport } from './routes/_authenticated/_app/devices.new'
+import { Route as AuthenticatedStaffDevicesIdEditRouteImport } from './routes/_authenticated/staff/devices.$id.edit'
 import { Route as AuthenticatedAdminDevicesIdEditRouteImport } from './routes/_authenticated/admin/devices.$id.edit'
 import { Route as AuthenticatedAppDevicesIdEditRouteImport } from './routes/_authenticated/_app/devices.$id.edit'
 
@@ -309,6 +311,12 @@ const AuthenticatedAppDevicesIndexRoute =
     path: '/devices/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedStaffDevicesNewRoute =
+  AuthenticatedStaffDevicesNewRouteImport.update({
+    id: '/devices/new',
+    path: '/devices/new',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
 const AuthenticatedAdminDevicesNewRoute =
   AuthenticatedAdminDevicesNewRouteImport.update({
     id: '/devices/new',
@@ -320,6 +328,12 @@ const AuthenticatedAppDevicesNewRoute =
     id: '/devices/new',
     path: '/devices/new',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedStaffDevicesIdEditRoute =
+  AuthenticatedStaffDevicesIdEditRouteImport.update({
+    id: '/devices/$id/edit',
+    path: '/devices/$id/edit',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
 const AuthenticatedAdminDevicesIdEditRoute =
   AuthenticatedAdminDevicesIdEditRouteImport.update({
@@ -377,11 +391,13 @@ export interface FileRoutesByFullPath {
   '/products/': typeof PublicProductsIndexRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/admin/devices/new': typeof AuthenticatedAdminDevicesNewRoute
+  '/staff/devices/new': typeof AuthenticatedStaffDevicesNewRoute
   '/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/admin/devices/': typeof AuthenticatedAdminDevicesIndexRoute
   '/staff/devices/': typeof AuthenticatedStaffDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
   '/admin/devices/$id/edit': typeof AuthenticatedAdminDevicesIdEditRoute
+  '/staff/devices/$id/edit': typeof AuthenticatedStaffDevicesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -425,11 +441,13 @@ export interface FileRoutesByTo {
   '/products': typeof PublicProductsIndexRoute
   '/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/admin/devices/new': typeof AuthenticatedAdminDevicesNewRoute
+  '/staff/devices/new': typeof AuthenticatedStaffDevicesNewRoute
   '/devices': typeof AuthenticatedAppDevicesIndexRoute
   '/admin/devices': typeof AuthenticatedAdminDevicesIndexRoute
   '/staff/devices': typeof AuthenticatedStaffDevicesIndexRoute
   '/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
   '/admin/devices/$id/edit': typeof AuthenticatedAdminDevicesIdEditRoute
+  '/staff/devices/$id/edit': typeof AuthenticatedStaffDevicesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -478,11 +496,13 @@ export interface FileRoutesById {
   '/_public/products/': typeof PublicProductsIndexRoute
   '/_authenticated/_app/devices/new': typeof AuthenticatedAppDevicesNewRoute
   '/_authenticated/admin/devices/new': typeof AuthenticatedAdminDevicesNewRoute
+  '/_authenticated/staff/devices/new': typeof AuthenticatedStaffDevicesNewRoute
   '/_authenticated/_app/devices/': typeof AuthenticatedAppDevicesIndexRoute
   '/_authenticated/admin/devices/': typeof AuthenticatedAdminDevicesIndexRoute
   '/_authenticated/staff/devices/': typeof AuthenticatedStaffDevicesIndexRoute
   '/_authenticated/_app/devices/$id/edit': typeof AuthenticatedAppDevicesIdEditRoute
   '/_authenticated/admin/devices/$id/edit': typeof AuthenticatedAdminDevicesIdEditRoute
+  '/_authenticated/staff/devices/$id/edit': typeof AuthenticatedStaffDevicesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -529,11 +549,13 @@ export interface FileRouteTypes {
     | '/products/'
     | '/devices/new'
     | '/admin/devices/new'
+    | '/staff/devices/new'
     | '/devices/'
     | '/admin/devices/'
     | '/staff/devices/'
     | '/devices/$id/edit'
     | '/admin/devices/$id/edit'
+    | '/staff/devices/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -577,11 +599,13 @@ export interface FileRouteTypes {
     | '/products'
     | '/devices/new'
     | '/admin/devices/new'
+    | '/staff/devices/new'
     | '/devices'
     | '/admin/devices'
     | '/staff/devices'
     | '/devices/$id/edit'
     | '/admin/devices/$id/edit'
+    | '/staff/devices/$id/edit'
   id:
     | '__root__'
     | '/_authenticated'
@@ -629,11 +653,13 @@ export interface FileRouteTypes {
     | '/_public/products/'
     | '/_authenticated/_app/devices/new'
     | '/_authenticated/admin/devices/new'
+    | '/_authenticated/staff/devices/new'
     | '/_authenticated/_app/devices/'
     | '/_authenticated/admin/devices/'
     | '/_authenticated/staff/devices/'
     | '/_authenticated/_app/devices/$id/edit'
     | '/_authenticated/admin/devices/$id/edit'
+    | '/_authenticated/staff/devices/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -966,6 +992,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDevicesIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/staff/devices/new': {
+      id: '/_authenticated/staff/devices/new'
+      path: '/devices/new'
+      fullPath: '/staff/devices/new'
+      preLoaderRoute: typeof AuthenticatedStaffDevicesNewRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
     '/_authenticated/admin/devices/new': {
       id: '/_authenticated/admin/devices/new'
       path: '/devices/new'
@@ -979,6 +1012,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/devices/new'
       preLoaderRoute: typeof AuthenticatedAppDevicesNewRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/staff/devices/$id/edit': {
+      id: '/_authenticated/staff/devices/$id/edit'
+      path: '/devices/$id/edit'
+      fullPath: '/staff/devices/$id/edit'
+      preLoaderRoute: typeof AuthenticatedStaffDevicesIdEditRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
     }
     '/_authenticated/admin/devices/$id/edit': {
       id: '/_authenticated/admin/devices/$id/edit'
@@ -1056,7 +1096,9 @@ interface AuthenticatedStaffRouteRouteChildren {
   AuthenticatedStaffOrdersRoute: typeof AuthenticatedStaffOrdersRoute
   AuthenticatedStaffReportsRoute: typeof AuthenticatedStaffReportsRoute
   AuthenticatedStaffSettingsRoute: typeof AuthenticatedStaffSettingsRoute
+  AuthenticatedStaffDevicesNewRoute: typeof AuthenticatedStaffDevicesNewRoute
   AuthenticatedStaffDevicesIndexRoute: typeof AuthenticatedStaffDevicesIndexRoute
+  AuthenticatedStaffDevicesIdEditRoute: typeof AuthenticatedStaffDevicesIdEditRoute
 }
 
 const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
@@ -1067,7 +1109,9 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
     AuthenticatedStaffOrdersRoute: AuthenticatedStaffOrdersRoute,
     AuthenticatedStaffReportsRoute: AuthenticatedStaffReportsRoute,
     AuthenticatedStaffSettingsRoute: AuthenticatedStaffSettingsRoute,
+    AuthenticatedStaffDevicesNewRoute: AuthenticatedStaffDevicesNewRoute,
     AuthenticatedStaffDevicesIndexRoute: AuthenticatedStaffDevicesIndexRoute,
+    AuthenticatedStaffDevicesIdEditRoute: AuthenticatedStaffDevicesIdEditRoute,
   }
 
 const AuthenticatedStaffRouteRouteWithChildren =

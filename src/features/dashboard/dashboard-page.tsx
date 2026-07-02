@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRole } from "@/lib/role-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -87,7 +87,7 @@ const ORDER_STATUSES = [
 
 export function DashboardPage({ roleBase }: { roleBase: string }) {
   const qc = useQueryClient();
-  const { role, profile: ctxProfile, userId } = useRole();
+  const { profile: ctxProfile, userId } = useRole();
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -107,12 +107,13 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
     },
   });
 
+  const isCustomerView = roleBase === "/customer";
+
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
-    queryKey: ["dashboard-orders", userEmail, role],
+    queryKey: ["dashboard-orders", userEmail, roleBase],
     queryFn: async () => {
       let query = supabase.from("orders").select("*").order("created_at", { ascending: false });
-      const isCustomer = role !== "admin" && role !== "staff";
-      if (isCustomer && userEmail) {
+      if (isCustomerView && userEmail) {
         query = query.eq("email", userEmail);
       }
       const { data, error } = await query;
@@ -131,6 +132,18 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
         .from("order_items")
         .select("*")
         .eq("order_id", selectedOrder.id);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // Query ALL order items for real-time stock/sales calculations
+  const { data: allOrderItems = [], isLoading: orderItemsLoading } = useQuery({
+    queryKey: ["dashboard-all-order-items"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("order_items")
+        .select("*");
       if (error) throw error;
       return data ?? [];
     },
@@ -181,7 +194,7 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
     }
   };
 
-  const dashboardLoading = devicesLoading || ordersLoading;
+  const dashboardLoading = devicesLoading || ordersLoading || orderItemsLoading;
 
   const topCustomers = useMemo(() => {
     const map = new Map<
@@ -207,12 +220,59 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
       .slice(0, 5);
   }, [orders]);
 
+  const lowStockDevices = useMemo(() => {
+    return devices.filter((d: any) => d.status === "Available" && (d.quantity ?? 0) <= 5);
+  }, [devices]);
+
+  useEffect(() => {
+    if (lowStockDevices.length > 0) {
+      toast.warning(`Low Stock Warning: ${lowStockDevices.length} items are running low on stock!`, {
+        description: lowStockDevices.map((d: any) => `${d.name} (${d.quantity} remaining)`).join(", "),
+        duration: 8000,
+      });
+    }
+  }, [lowStockDevices.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const stockTrackingData = useMemo(() => {
+    return devices.map((d: any) => {
+      const sold = allOrderItems
+        .filter((item: any) => item.device_id === d.id)
+        .reduce((sum: number, item: any) => sum + (item.quantity ?? 0), 0);
+      const remaining = d.quantity ?? 0;
+      const total = sold + remaining;
+      const value = remaining * Number(d.price);
+      return {
+        id: d.id,
+        name: d.name,
+        brand: d.brand,
+        category: d.category,
+        price: Number(d.price),
+        sold,
+        remaining,
+        total,
+        value,
+      };
+    });
+  }, [devices, allOrderItems]);
+
+  const categoryManagementBreakdown = useMemo(() => {
+    const cats: Record<string, { uniqueProducts: number; totalStock: number; totalValue: number }> = {};
+    devices.forEach((d: any) => {
+      const cat = d.category || "Uncategorized";
+      if (!cats[cat]) {
+        cats[cat] = { uniqueProducts: 0, totalStock: 0, totalValue: 0 };
+      }
+      cats[cat].uniqueProducts += 1;
+      cats[cat].totalStock += d.quantity ?? 0;
+      cats[cat].totalValue += (d.quantity ?? 0) * Number(d.price);
+    });
+    return Object.entries(cats).map(([name, data]) => ({ name, ...data }));
+  }, [devices]);
+
   // ----------------------------------------------------
   // CUSTOMER DASHBOARD VIEW
   // ----------------------------------------------------
-  const isCustomer = role !== "admin" && role !== "staff";
-
-  if (isCustomer) {
+  if (isCustomerView) {
     const myOrders = orders.filter((o: any) => o.email.toLowerCase() === userEmail.toLowerCase());
     const myOrderCount = myOrders.length;
     const myTotalSpend = myOrders
@@ -719,6 +779,8 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
     );
   }
 
+
+
   // ----------------------------------------------------
   // ADMIN/STAFF DASHBOARD VIEW
   // ----------------------------------------------------
@@ -833,6 +895,36 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
           </Link>
         </div>
       </div>
+      {/* Low Stock Alerts Banner */}
+      {lowStockDevices.length > 0 && (
+        <Card className="border-destructive/30 bg-destructive/5 text-destructive-foreground liquid-card overflow-hidden">
+          <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-destructive/10 rounded-xl text-destructive shrink-0 mt-0.5 animate-pulse">
+                <ShieldAlert className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground">Critical Low Stock Warning</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  The following items are running low on stock (5 or fewer remaining) and require restocking.
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {lowStockDevices.map((d: any) => (
+                    <Badge key={d.id} variant="outline" className="border-destructive/30 bg-destructive/10 text-destructive text-[10px] font-bold px-2 py-0.5 rounded-lg">
+                      {d.name} ({d.quantity} remaining)
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <Link to={`${roleBase}/devices` as never}>
+              <Button size="sm" variant="outline" className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 text-xs shrink-0 cursor-pointer">
+                Manage Inventory
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 max-w-[580px] rounded-xl border border-border bg-card/65 p-1">
@@ -1061,6 +1153,100 @@ export function DashboardPage({ roleBase }: { roleBase: string }) {
                     </Badge>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            {/* Real-Time Stock Tracker Table */}
+            <Card className="lg:col-span-2 liquid-card border-border/55">
+              <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/10">
+                <div>
+                  <CardTitle className="text-base font-bold text-foreground">Real-Time Stock Tracker</CardTitle>
+                  <CardDescription className="text-xs">
+                    Track sold units, remaining quantity, and total stock value in real time.
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-primary/20 text-primary font-bold px-2 py-0.5 rounded-lg bg-primary/5">
+                  Live Stock
+                </Badge>
+              </CardHeader>
+              <CardContent className="p-0 overflow-x-auto max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
+                {stockTrackingData.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+                    <PackageX className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">No inventory items available to track.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-border/40 bg-secondary/15 text-[10px] text-muted-foreground font-bold uppercase sticky top-0 z-10">
+                        <th className="px-4 py-3 bg-card/90 backdrop-blur-sm">Product</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm text-accent font-bold">Sold</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm text-success font-bold">Remaining</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm">Total</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stockTrackingData.map((s) => {
+                        const lowStock = s.remaining <= 5;
+                        return (
+                          <tr key={s.id} className="border-b border-border/25 last:border-0 hover:bg-secondary/15 transition-colors">
+                            <td className="px-4 py-2.5">
+                              <span className="font-semibold text-foreground text-xs">{s.name}</span>
+                              <span className="block text-[9px] text-muted-foreground font-mono">{s.brand} • {s.category}</span>
+                            </td>
+                            <td className="px-4 py-2.5 text-right font-bold text-accent font-mono text-xs">{s.sold}</td>
+                            <td className="px-4 py-2.5 text-right font-mono">
+                              <span className={`font-bold px-2 py-0.5 rounded-md text-xs ${lowStock ? "bg-destructive/15 text-destructive animate-pulse" : "text-success bg-success/15"}`}>
+                                {s.remaining}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2.5 text-right font-mono text-muted-foreground text-xs">{s.total}</td>
+                            <td className="px-4 py-2.5 text-right font-semibold font-mono text-xs">${s.value.toFixed(2)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Category Management Breakdown List */}
+            <Card className="liquid-card border-border/55">
+              <CardHeader className="pb-3 border-b border-border/10">
+                <CardTitle className="text-base font-bold text-foreground">Category Inventory Breakdown</CardTitle>
+                <CardDescription className="text-xs">
+                  Inventory summary structured by product categories.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 overflow-y-auto max-h-[350px] scrollbar-thin">
+                {categoryManagementBreakdown.length === 0 ? (
+                  <p className="text-xs text-muted-foreground p-6 text-center">No categories found.</p>
+                ) : (
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-border/40 bg-secondary/15 text-[10px] text-muted-foreground font-bold uppercase sticky top-0 z-10">
+                        <th className="px-4 py-3 bg-card/90 backdrop-blur-sm">Category</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm">Products</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm">Total Qty</th>
+                        <th className="px-4 py-3 text-right bg-card/90 backdrop-blur-sm">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categoryManagementBreakdown.map((c) => (
+                        <tr key={c.name} className="border-b border-border/20 last:border-0 hover:bg-secondary/10 transition-colors">
+                          <td className="px-4 py-2.5 font-semibold text-foreground">{c.name}</td>
+                          <td className="px-4 py-2.5 text-right font-mono">{c.uniqueProducts}</td>
+                          <td className="px-4 py-2.5 text-right font-mono font-semibold text-primary">{c.totalStock}</td>
+                          <td className="px-4 py-2.5 text-right font-mono font-bold text-success">${c.totalValue.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </CardContent>
             </Card>
           </div>

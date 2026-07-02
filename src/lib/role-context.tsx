@@ -13,6 +13,7 @@ type RoleContextValue = {
   profile: Profile | null;
   loading: boolean;
   userId: string | null;
+  isLoggedIn: boolean;
   setProfile: React.Dispatch<React.SetStateAction<Profile | null>>;
   refresh: () => Promise<void>;
 };
@@ -52,10 +53,31 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refresh();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      refresh();
+      if (session) {
+        if (typeof window !== "undefined") {
+          (window as any).__user_logged_in__ = true;
+          localStorage.setItem("isLoggedIn", "true");
+        }
+      } else {
+        if (typeof window !== "undefined") {
+          (window as any).__user_logged_in__ = false;
+          localStorage.setItem("isLoggedIn", "false");
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
+  const isLoggedIn = !!userId;
+
   return (
-    <RoleContext.Provider value={{ role, profile, loading, userId, setProfile, refresh }}>
+    <RoleContext.Provider value={{ role, profile, loading, userId, isLoggedIn, setProfile, refresh }}>
       {children}
     </RoleContext.Provider>
   );

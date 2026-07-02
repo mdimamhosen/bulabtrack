@@ -57,7 +57,7 @@ const STATUSES = ["Available", "In Use", "Under Maintenance", "Damaged", "Dispos
 export function DevicesPage({ roleBase }: { roleBase: string }) {
   const qc = useQueryClient();
   const { role } = useRole();
-  const isAdmin = role === "admin";
+  const isAdminOrStaff = role === "admin" || role === "staff";
 
   // Filter and Layout States
   const [q, setQ] = useState("");
@@ -299,7 +299,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
           <Button variant="outline" size="sm" onClick={exportCsv} className="rounded-xl">
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
-          {isAdmin && (
+          {isAdminOrStaff && (
             <Link to={`${roleBase}/devices/new` as never}>
               <Button
                 size="sm"
@@ -661,7 +661,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                             </div>
 
                             {/* Edit / Delete triggers */}
-                            {isAdmin && (
+                            {isAdminOrStaff && (
                               <div className="flex gap-1 shrink-0">
                                 <Link to={`${roleBase}/devices/${p.id}/edit` as never}>
                                   <Button
@@ -749,7 +749,7 @@ export function DevicesPage({ roleBase }: { roleBase: string }) {
                           ${(Number(d.price) * (d.quantity ?? 1)).toFixed(2)}
                         </TableCell>
                         <TableCell>
-                          {isAdmin && (
+                          {isAdminOrStaff && (
                             <div className="flex gap-1 justify-end">
                               <Link to={`${roleBase}/devices/${d.id}/edit` as never}>
                                 <Button

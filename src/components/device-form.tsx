@@ -1,12 +1,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { saveUploadedFileServer } from "@/lib/api/database.functions";
 import {
   deviceSchema,
   type DeviceForm,
   INTERFACES,
   STATUSES,
-  CATEGORIES,
 } from "@/lib/device-schema";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +36,96 @@ export function DeviceFormFields({
   onSubmit: (v: DeviceForm) => void;
   submitLabel: string;
 }) {
+  const defaultCategory = defaultValues?.category ?? "Input Device";
+  const isDefaultStandard = defaultCategory === "Input Device" || defaultCategory === "Output Device";
+
+  const [isCustomCategory, setIsCustomCategory] = useState(!isDefaultStandard);
+  const [customCategoryValue, setCustomCategoryValue] = useState(!isDefaultStandard ? defaultCategory : "");
+
+  const { data: devices = [] } = useQuery({
+    queryKey: ["device-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("devices").select("category");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const existingCategories = useMemo(() => {
+    const cats = new Set<string>();
+    cats.add("Input Device");
+    cats.add("Output Device");
+    devices.forEach((d: any) => {
+      if (d.category) {
+        cats.add(d.category);
+      }
+    });
+    return Array.from(cats);
+  }, [devices]);
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const toastId = toast.loading("Uploading image...");
+
+    try {
+      const cloudName = "drxkgsnhy";
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "ml_default");
+
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.secure_url) {
+          form.setValue("image_url", data.secure_url);
+          toast.success("Image uploaded to Cloudinary successfully!", { id: toastId });
+          setUploadingImage(false);
+          return;
+        }
+      }
+
+      console.warn("Cloudinary upload failed, trying local fallback...");
+      
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result as string;
+        try {
+          const res = await saveUploadedFileServer({
+            data: {
+              filePath: file.name,
+              base64Data,
+            },
+          });
+
+          if (res.data?.path) {
+            form.setValue("image_url", window.location.origin + res.data.path);
+            toast.success("Image uploaded to local storage (Cloudinary fallback)!", { id: toastId });
+          } else {
+            toast.error(res.error?.message || "Failed to upload image.", { id: toastId });
+          }
+        } catch (err: any) {
+          toast.error(err.message || "Failed to upload image.", { id: toastId });
+        } finally {
+          setUploadingImage(false);
+        }
+      };
+      reader.readAsDataURL(file);
+
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed.", { id: toastId });
+      setUploadingImage(false);
+    }
+  };
+
   const form = useForm<DeviceForm>({
     resolver: zodResolver(deviceSchema),
     defaultValues: {
@@ -81,20 +174,42 @@ export function DeviceFormFields({
           </Field>
           <Field label="Category" error={err.category?.message}>
             <Select
-              value={form.watch("category")}
-              onValueChange={(v) => form.setValue("category", v as DeviceForm["category"])}
+              value={isCustomCategory ? "__custom__" : form.watch("category")}
+              onValueChange={(v) => {
+                if (v === "__custom__") {
+                  setIsCustomCategory(true);
+                  form.setValue("category", customCategoryValue || "");
+                } else {
+                  setIsCustomCategory(false);
+                  form.setValue("category", v);
+                }
+              }}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((c) => (
+                {existingCategories.map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
                   </SelectItem>
                 ))}
+                <SelectItem value="__custom__" className="text-amber-500 font-semibold">
+                  + Add custom category...
+                </SelectItem>
               </SelectContent>
             </Select>
+            {isCustomCategory && (
+              <Input
+                placeholder="Enter custom category name"
+                value={customCategoryValue}
+                onChange={(e) => {
+                  setCustomCategoryValue(e.target.value);
+                  form.setValue("category", e.target.value);
+                }}
+                className="mt-2"
+              />
+            )}
           </Field>
           <Field label="Interface" error={err.interface?.message}>
             <Select
@@ -180,6 +295,16 @@ export function DeviceFormFields({
                   <p className="text-[11px] text-muted-foreground mt-1">
                     Paste a direct link to an image (starting with http:// or https://)
                   </p>
+                  <div className="mt-3">
+                    <Label className="text-[10px] uppercase text-muted-foreground block mb-1">Or upload image file</Label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="cursor-pointer text-xs"
+                    />
+                  </div>
                 </div>
               </div>
             </Field>

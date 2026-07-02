@@ -1,15 +1,38 @@
 import mongoose from "mongoose";
 import crypto from "node:crypto";
 
+let connectPromise: Promise<typeof mongoose> | null = null;
+
+const connectOptions = {
+  serverSelectionTimeoutMS: 10_000,
+  bufferCommands: false,
+} as const;
+
 export async function connectDB() {
-  if (mongoose.connection.readyState >= 1) return;
+  if (mongoose.connection.readyState === 1) return;
+
+  if (mongoose.connection.readyState === 2 && connectPromise) {
+    await connectPromise;
+    return;
+  }
+
+  if (mongoose.connection.readyState === 3) {
+    await mongoose.disconnect();
+  }
+
   const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/bulabtrack";
+  const maskedUri = uri.replace(/:([^@]+)@/, ":******@");
+  console.log(`Connecting to MongoDB at URI: ${maskedUri}`);
+
+  connectPromise = mongoose.connect(uri, connectOptions);
   try {
-    await mongoose.connect(uri);
-    console.log("Connected to MongoDB via Mongoose");
+    await connectPromise;
+    console.log(`Connected to MongoDB successfully: ${maskedUri}`);
   } catch (error) {
     console.error("Failed to connect to MongoDB", error);
     throw error;
+  } finally {
+    connectPromise = null;
   }
 }
 

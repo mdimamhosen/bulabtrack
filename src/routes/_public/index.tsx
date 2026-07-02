@@ -43,6 +43,7 @@ import { useCart } from "@/lib/cart";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 import { HomepageSkeleton } from "@/components/page-skeletons";
+import heroVideo from "@/assets/a_c_e_c_e_b_fmp_.mp4";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -769,12 +770,16 @@ function HomePage() {
             >
               {/* Glass container with floating layout */}
               <div className="liquid-card animate-float-slow relative overflow-hidden rounded-[2.5rem] p-3 border-primary/20 shadow-glow">
-                <img
-                  src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200"
-                  alt="Premium warehouse storage workspace"
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="aspect-[16/11] w-full rounded-[2rem] object-cover filter brightness-[0.85] contrast-[1.05]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent rounded-[2.5rem]" />
+                >
+                  <source src={heroVideo} type="video/mp4" />
+                </video>
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent rounded-[2.5rem] pointer-events-none" />
               </div>
 
               {/* Live Status Overlay Card */}

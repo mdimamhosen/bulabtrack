@@ -24,45 +24,19 @@ export const askLabTalk = createServerFn({ method: "POST" })
       message: z.string().min(1),
       chatHistory: z.array(ChatMessageSchema),
       clientApiKey: z.string().optional(),
+      cartItems: z
+        .array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            price: z.number(),
+            quantity: z.number(),
+          }),
+        )
+        .optional(),
     }),
   )
   .handler(async ({ data, context }) => {
-    await connectDB();
-    const userId = context?.userId;
-
-    // 1. Fetch current user from MongoDB if authenticated
-    let dbUser = null;
-    if (userId) {
-      dbUser = await UserModel.findById(userId);
-    }
-
-    let userEmail = dbUser ? dbUser.email : null;
-
-    // Extract email from current message or chat history if unauthenticated
-    if (!userEmail) {
-      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-      const emailMatch = data.message.match(emailRegex);
-      if (emailMatch) {
-        userEmail = emailMatch[0].toLowerCase().trim();
-      } else if (data.chatHistory && data.chatHistory.length > 0) {
-        for (let i = data.chatHistory.length - 1; i >= 0; i--) {
-          const hist = data.chatHistory[i];
-          if (hist.role === "user" && hist.parts) {
-            const text = hist.parts.map((p) => p.text).join(" ");
-            const match = text.match(emailRegex);
-            if (match) {
-              userEmail = match[0].toLowerCase().trim();
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    const userRole = dbUser ? dbUser.role || "customer" : "customer"; // "admin" | "staff" | "customer"
-    const userName = dbUser ? dbUser.name : "Guest";
-
-    // 2. Determine Gemini API Key and Model
     const serverApiKey = process.env.GEMINI_API_KEY;
     const apiKey = serverApiKey || data.clientApiKey;
     const geminiModel = process.env.GEMINI_MODEL || "gemini-1.5-flash";
@@ -76,40 +50,122 @@ export const askLabTalk = createServerFn({ method: "POST" })
       };
     }
 
-    // 3. RAG Retrieval phase
-    // Retrieve device catalog (available to all roles)
-    const devices = await DeviceModel.find({});
-
-    // Retrieve reviews (available to all roles to answer details about feedback)
-    const reviews = await ReviewModel.find({});
-
+    let devices: Awaited<ReturnType<typeof DeviceModel.find>>;
+    let reviews: Awaited<ReturnType<typeof ReviewModel.find>>;
     let orders: any[] = [];
     let orderItems: any[] = [];
     let auditLogs: any[] = [];
+    let dbUser = null;
 
-    // Role-based retrieval logic
-    if (userRole === "admin" || userRole === "staff") {
-      // Admins and staff can view all orders
-      orders = await OrderModel.find({}).sort({ created_at: -1 }).limit(50);
+    try {
+      await connectDB();
+      const userId = context?.userId;
 
-      // Retrieve order items matching these orders
-      const orderIds = orders.map((o) => o._id);
-      orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
-
-      if (userRole === "admin") {
-        // Admins can also see system audit logs
-        auditLogs = await AuditLogModel.find({}).sort({ created_at: -1 }).limit(20);
+      if (userId) {
+        dbUser = await UserModel.findById(userId);
       }
-    } else {
-      // Customers can ONLY see their own orders
-      orders = userEmail
-        ? await OrderModel.find({ email: userEmail }).sort({ created_at: -1 })
-        : [];
-      const orderIds = orders.map((o) => o._id);
-      orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
-    }
 
-    // 4. Construct RAG Context string
+      let userEmail = dbUser ? dbUser.email : null;
+
+      if (!userEmail) {
+        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+        const emailMatch = data.message.match(emailRegex);
+        if (emailMatch) {
+          userEmail = emailMatch[0].toLowerCase().trim();
+        } else if (data.chatHistory && data.chatHistory.length > 0) {
+          for (let i = data.chatHistory.length - 1; i >= 0; i--) {
+            const hist = data.chatHistory[i];
+            if (hist.role === "user" && hist.parts) {
+              const text = hist.parts.map((p) => p.text).join(" ");
+              const match = text.match(emailRegex);
+              if (match) {
+                userEmail = match[0].toLowerCase().trim();
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      const userRole = dbUser ? dbUser.role || "customer" : "customer";
+      const userName = dbUser ? dbUser.name : "Guest";
+
+      devices = await DeviceModel.find({});
+      reviews = await ReviewModel.find({});
+
+      if (userRole === "admin" || userRole === "staff") {
+        orders = await OrderModel.find({}).sort({ created_at: -1 }).limit(50);
+        const orderIds = orders.map((o) => o._id);
+        orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
+
+        if (userRole === "admin") {
+          auditLogs = await AuditLogModel.find({}).sort({ created_at: -1 }).limit(20);
+        }
+      } else {
+        orders = userEmail
+          ? await OrderModel.find({ email: userEmail }).sort({ created_at: -1 })
+          : [];
+        const orderIds = orders.map((o) => o._id);
+        orderItems = await OrderItemModel.find({ order_id: { $in: orderIds } });
+      }
+
+      // userName, userEmail, userRole used below — assign to outer scope via block below
+      return await generateLabTalkReply({
+        data,
+        apiKey,
+        geminiModel,
+        devices,
+        reviews,
+        orders,
+        orderItems,
+        auditLogs,
+        userName,
+        userEmail,
+        userRole,
+        cartItems: data.cartItems,
+      });
+    } catch (dbError: any) {
+      console.error("LabTalk database error:", dbError);
+      const hint = process.env.MONGODB_URI?.includes("mongodb.net")
+        ? " If you use MongoDB Atlas, add your current IP under Network Access in the Atlas dashboard."
+        : " Check that MongoDB is running and MONGODB_URI is correct.";
+      return {
+        success: false,
+        error: `Could not reach the database: ${dbError.message || "connection failed"}.${hint}`,
+      };
+    }
+  });
+
+async function generateLabTalkReply({
+  data,
+  apiKey,
+  geminiModel,
+  devices,
+  reviews,
+  orders,
+  orderItems,
+  auditLogs,
+  userName,
+  userEmail,
+  userRole,
+  cartItems,
+}: {
+  data: {
+    message: string;
+    chatHistory: Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>;
+  };
+  apiKey: string;
+  geminiModel: string;
+  devices: any[];
+  reviews: any[];
+  orders: any[];
+  orderItems: any[];
+  auditLogs: any[];
+  userName: string;
+  userEmail: string | null;
+  userRole: string;
+  cartItems?: Array<{ id: string; name: string; price: number; quantity: number }>;
+}) {
     const contextLines: string[] = [];
 
     contextLines.push("=== SYSTEM DATE ===");
@@ -120,6 +176,16 @@ export const askLabTalk = createServerFn({ method: "POST" })
     contextLines.push(`Name: ${userName}`);
     contextLines.push(`Email: ${userEmail}`);
     contextLines.push(`Role: ${userRole}`);
+    contextLines.push("");
+
+    contextLines.push("=== USER CURRENT SHOPPING CART ===");
+    if (!cartItems || cartItems.length === 0) {
+      contextLines.push("User's shopping cart is currently empty.");
+    } else {
+      cartItems.forEach((i) => {
+        contextLines.push(`- ${i.name} (ID: ${i.id}) | Qty: ${i.quantity} | Price: $${i.price}/ea`);
+      });
+    }
     contextLines.push("");
 
     contextLines.push("=== INVENTORY DEVICES ===");
@@ -197,7 +263,29 @@ IMPORTANT ACCESS CONTROL RULES:
 - Admin and staff can see all orders and administrative data.
 - Do not mention the word "RAG", "context text", "provided context", or "JSON database" to the user. Speak naturally as if you have direct access to the database.
 
-Provide answers in clear, modern markdown format. Use bullet points, bolding, and tables where appropriate to present information beautifully.`;
+Provide answers in clear, modern markdown format. Use bullet points, bolding, and tables where appropriate to present information beautifully.
+
+=== ONLINE ORDERING & CASH ON DELIVERY (COD) ===
+- You have direct integration to place Cash on Delivery (COD) orders for the user.
+- The user's active cart items are listed under 'USER CURRENT SHOPPING CART'.
+- If the user wants to buy, purchase, order, or checkout:
+  1. Check if their shopping cart is empty. If it is empty, tell them: "Your cart is empty. Please add items to your cart before checking out."
+  2. If they have items, verify if you have all of the following details:
+     - Full Name
+     - Email Address
+     - Phone Number
+     - Shipping Address (must include Street and City)
+     If any of these details are missing, politely ask the user to provide them (you can ask for multiple missing details or ask for them one-by-one, e.g., "To place your cash on delivery order, please provide your Full Name, Email Address, Phone Number, and Shipping Address.").
+  3. Once they have provided all 4 required details:
+     - Full Name (name)
+     - Email Address (email)
+     - Phone Number (phone)
+     - Shipping Address (address and city)
+     You MUST generate the following exact command tag on a new line at the very end of your response:
+     \`[PLACE_ORDER: name=<Name>|email=<Email>|phone=<Phone>|address=<Address>|city=<City>]\`
+     - Keep the tag strictly in this format, replacing bracketed text with the actual values. For \`<City>\`, extract or infer the city name from their address. If you can't determine it, use their address or default to 'Online/Other'.
+     - Ensure the tag is placed at the very end of your response.
+     - Tell the user their Cash on Delivery order is being submitted.`;
 
     // 6. Build Gemini contents structure
     const apiContents = [...data.chatHistory];
@@ -257,9 +345,76 @@ Question: ${data.message}`;
         };
       }
 
+      let orderPlacedResult: { success: boolean; orderNumber?: string; error?: string } | null = null;
+      let cleanAnswer = generatedText;
+
+      const orderTagRegex = /\[PLACE_ORDER:\s*name=(.*?)\|email=(.*?)\|phone=(.*?)\|address=(.*?)\|city=(.*?)\]/;
+      const match = generatedText.match(orderTagRegex);
+      if (match) {
+        const [_, customerName, email, phone, address, city] = match;
+
+        // Clean up response text by stripping out the backend command tag
+        cleanAnswer = generatedText.replace(orderTagRegex, "").trim();
+
+        if (cartItems && cartItems.length > 0) {
+          try {
+            await connectDB();
+            const orderId = crypto.randomUUID();
+            const t = Date.now().toString(36).toUpperCase();
+            const r = Math.random().toString(36).slice(2, 6).toUpperCase();
+            const orderNumber = `LAB-${t}-${r}`;
+            const subtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
+
+            // Create the order
+            await OrderModel.create({
+              _id: orderId,
+              order_number: orderNumber,
+              customer_name: customerName.trim(),
+              email: email.trim().toLowerCase(),
+              phone: phone.trim(),
+              address: address.trim(),
+              city: city.trim(),
+              postal_code: "",
+              notes: "[Placed via AI Assistant]",
+              total: subtotal,
+              status: "Pending",
+              created_at: new Date(),
+              updated_at: new Date(),
+            });
+
+            // Create order items
+            const lineItems = cartItems.map((item) => ({
+              _id: crypto.randomUUID(),
+              order_id: orderId,
+              device_id: item.id || null,
+              device_name: item.name,
+              unit_price: item.price,
+              quantity: item.quantity,
+              created_at: new Date(),
+            }));
+
+            await OrderItemModel.insertMany(lineItems);
+
+            orderPlacedResult = { success: true, orderNumber };
+
+            // Append order placement success feedback
+            cleanAnswer += `\n\n🎉 **Order Placed Successfully!**\nYour order number is **${orderNumber}**. You have chosen **Cash on Delivery**. We will contact you at ${phone.trim()} to confirm shipment details.`;
+          } catch (err: any) {
+            console.error("Failed to place order from AI chatbot:", err);
+            orderPlacedResult = { success: false, error: err.message };
+            cleanAnswer += `\n\n❌ **Error placing order**: ${err.message}. Please try again or checkout manually.`;
+          }
+        } else {
+          orderPlacedResult = { success: false, error: "Cart is empty" };
+          cleanAnswer += `\n\n❌ **Error placing order**: Your cart is empty. Please add items to your cart first.`;
+        }
+      }
+
       return {
         success: true,
-        answer: generatedText,
+        answer: cleanAnswer,
+        orderCreated: orderPlacedResult?.success ?? false,
+        orderNumber: orderPlacedResult?.orderNumber ?? null,
         stats: {
           devicesCount: devices.length,
           ordersCount: orders.length,
@@ -274,4 +429,4 @@ Question: ${data.message}`;
         error: e.message || "An error occurred while connecting to the Gemini API.",
       };
     }
-  });
+}

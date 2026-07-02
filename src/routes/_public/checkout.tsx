@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { Truck, Lock, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-// import { createStripeCheckoutSession } from "@/lib/api/stripe.functions"; // Stripe temporarily disabled
+import { createStripeCheckoutSession } from "@/lib/api/stripe.functions";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,12 +44,12 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
   const [loading, setLoading] = useState(false);
-  // Stripe temporarily disabled — only COD available
-  // const [paymentMethod, setPaymentMethod] = useState<"cod" | "stripe">("cod");
+  const paymentMethod = "cod";
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -57,7 +57,9 @@ function CheckoutPage() {
     // Try to pre-fill from authenticated user if logged in
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
-        setValue("email", user.email || "");
+        const formData: Partial<FormData> = {
+          email: user.email || "",
+        };
 
         // Try to fetch profile details
         const { data: profile } = await supabase
@@ -67,9 +69,9 @@ function CheckoutPage() {
           .maybeSingle();
 
         if (profile) {
-          setValue("customer_name", profile.name || "");
+          formData.customer_name = profile.name || "";
           if (profile.phone) {
-            setValue("phone", profile.phone);
+            formData.phone = profile.phone;
           }
         }
 
@@ -82,15 +84,18 @@ function CheckoutPage() {
 
         if (lastOrders && lastOrders.length > 0) {
           const lastOrder = lastOrders[0];
-          setValue("customer_name", lastOrder.customer_name || "");
-          setValue("phone", lastOrder.phone || "");
-          setValue("address", lastOrder.address || "");
-          setValue("city", lastOrder.city || "");
-          setValue("postal_code", lastOrder.postal_code || "");
+          formData.customer_name = lastOrder.customer_name || formData.customer_name || "";
+          formData.phone = lastOrder.phone || formData.phone || "";
+          formData.address = lastOrder.address || "";
+          formData.city = lastOrder.city || "";
+          formData.postal_code = lastOrder.postal_code || "";
         }
+
+        // Use reset to reliably populate all fields at once
+        reset(formData);
       }
     });
-  }, [setValue]);
+  }, [reset]);
 
   if (items.length === 0) {
     return (
@@ -137,46 +142,10 @@ function CheckoutPage() {
       return toast.error(liErr.message);
     }
 
-    // Stripe temporarily disabled — all orders are COD
-    /*
-    if (paymentMethod === "stripe") {
-      try {
-        const stripeItems = items.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-        }));
-        const res = await createStripeCheckoutSession({
-          data: {
-            orderNumber,
-            total: subtotal,
-            customerName: data.customer_name,
-            email: data.email,
-            phone: data.phone,
-            address: data.address,
-            city: data.city,
-            postalCode: data.postal_code || "",
-            items: stripeItems,
-            origin: window.location.origin,
-          },
-        });
-        if (res.url) {
-          window.location.href = res.url;
-        } else {
-          throw new Error("Failed to generate payment session URL.");
-        }
-      } catch (e: any) {
-        setLoading(false);
-        toast.error(e.message || "Stripe payment initialization failed.");
-      }
-    } else {
-    */
     setLoading(false);
     clear();
     toast.success("Order placed successfully (Cash on Delivery)!");
     navigate({ to: "/order-success/$orderNumber", params: { orderNumber } });
-    // } // end stripe else block
   };
 
   return (
@@ -227,25 +196,17 @@ function CheckoutPage() {
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold">Payment method</h2>
-              {/* Stripe payment temporarily disabled — only COD available */}
               <div className="mt-4">
-                <div className="flex items-start gap-3 rounded-lg border-2 border-primary bg-primary/5 p-4">
+                <div className="flex items-start gap-3 rounded-2xl border-2 border-primary bg-primary/5 p-4">
                   <Truck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <div className="font-semibold">Cash on Delivery</div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Pay with cash when your order arrives. Online card payment coming soon.
+                    <div className="font-semibold text-sm">Cash on Delivery</div>
+                    <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
+                      Pay with cash when your package is delivered to your door. Online card payment coming soon.
                     </p>
                   </div>
                 </div>
               </div>
-              {/*
-              STRIPE PAYMENT OPTION — commented out temporarily
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label ...>COD</label>
-                <label ...>Stripe Card</label>
-              </div>
-              */}
             </CardContent>
           </Card>
 

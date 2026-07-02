@@ -79,12 +79,12 @@ function AuthPage() {
       </div>
       <div className="grid min-h-screen lg:grid-cols-2">
         <div className="hidden flex-col justify-between p-12 lg:flex">
-          <div className="flex items-center gap-2 text-foreground">
+          <Link href="/"><div className="flex items-center gap-2 text-foreground">
             <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Boxes className="h-5 w-5" />
             </div>
             <span className="text-lg font-semibold tracking-tight">LabTrack</span>
-          </div>
+          </div></Link>
           <div className="max-w-md">
             <h1 className="text-5xl font-bold tracking-tight">
               Manage every <span className="gradient-text">peripheral</span> in your lab.

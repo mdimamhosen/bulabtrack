@@ -4,7 +4,7 @@ export const deviceSchema = z.object({
   name: z.string().trim().min(1, "Name required").max(120),
   brand: z.string().trim().min(1, "Brand required").max(80),
   model: z.string().trim().min(1, "Model required").max(80),
-  category: z.enum(["Input Device", "Output Device"]),
+  category: z.string().trim().min(1, "Category required").max(80),
   price: z.coerce.number().min(0, "Price cannot be negative"),
   quantity: z.coerce.number().int().min(1, "Quantity must be at least 1"),
   interface: z.string().trim().min(1, "Interface required").max(40),

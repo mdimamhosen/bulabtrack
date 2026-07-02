@@ -100,7 +100,7 @@ export function enhanceProductWithNanoBanana(p: any) {
     nameLower.includes("dock") ||
     nameLower.includes("link");
 
-  let peripheralType = "Accessory";
+  let peripheralType = p.category || "Accessory";
   let images = [p.image_url];
   let tags: string[] = ["Industrial-Grade", "High Bandwidth", "Gold-Plated Pins"];
   let specsList: [string, string][] = [
