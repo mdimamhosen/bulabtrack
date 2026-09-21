@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Md. Imam Hosen is a backend and AI engineer building scalable systems, AI-powered products, RAG applications, and modern full-stack experiences." />
+    <meta property="og:title" content="Md. Imam Hosen | Digital Architecture Portfolio" />
+    <meta property="og:description" content="Architectural digital portfolio of Md. Imam Hosen, backend and AI engineer." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://github.com/mdimamhosen" />
+    <meta property="og:image" content="assets/svg/architectural-mark.svg" />
+    <title>Md. Imam Hosen — Digital Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div id="architectural-cursor" aria-hidden="true">
+      <span class="cursor-dot"></span>
+      <span class="cursor-ring"></span>
+      <span class="cursor-label"></span>
+    </div>
+
+    <div class="site-controls" aria-label="Display controls">
+      <button id="blueprint-toggle" class="control-btn" aria-pressed="false">BLUEPRINT</button>
+      <button id="theme-toggle" class="control-btn" aria-pressed="false">DAY / NIGHT</button>
+      <button id="plan-toggle" class="control-btn" aria-expanded="false" aria-controls="floor-plan-overlay">FLOOR PLAN</button>
+    </div>
+
+    <aside class="mini-plan" aria-label="Current room indicator">
+      <svg viewBox="0 0 130 178" role="img" aria-label="Architectural floor plan indicator">
+        <rect x="3" y="3" width="124" height="172" class="plan-outline" />
+        <rect data-room-highlight="rooftop" x="8" y="8" width="114" height="24" />
+        <rect data-room-highlight="about" x="8" y="36" width="54" height="26" />
+        <rect data-room-highlight="office" x="66" y="36" width="56" height="26" />
+        <rect data-room-highlight="gallery" x="8" y="66" width="114" height="26" />
+        <rect data-room-highlight="engine" x="8" y="96" width="114" height="26" />
+        <rect data-room-highlight="library" x="8" y="126" width="114" height="22" />
+        <rect data-room-highlight="contact" x="8" y="152" width="114" height="18" />
+      </svg>
+    </aside>
+
+    <div id="floor-plan-overlay" class="floor-plan-overlay" hidden>
+      <button class="overlay-close" aria-label="Close floor plan">✕</button>
+      <div class="overlay-content">
+        <p class="mono-label">FLOOR PLAN / DIGITAL RESIDENCE</p>
+        <nav aria-label="Floor plan navigation">
+          <ul>
+            <li><button data-target="hero">01 ENTRANCE</button></li>
+            <li><button data-target="gallery">02 GALLERY</button></li>
+            <li><button data-target="office">03 OFFICE</button></li>
+            <li><button data-target="engine">04 ENGINE ROOM</button></li>
+            <li><button data-target="library">05 LIBRARY</button></li>
+            <li><button data-target="about">06 LIVING SPACE</button></li>
+            <li><button data-target="rooftop">07 ROOFTOP</button></li>
+            <li><button data-target="contact">08 EXIT</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div id="arrival" class="arrival" role="dialog" aria-labelledby="arrival-title" aria-modal="true">
+      <div class="arrival-panels" aria-hidden="true">
+        <span></span><span></span>
+      </div>
+      <div class="arrival-content">
+        <p class="mono-label">PRIVATE RESIDENCE</p>
+        <h1 id="arrival-title">IMAM HOSEN<br />DIGITAL ARCHITECTURE</h1>
+        <p class="mono-label">SECTION A / ELEVATION 01 / 2026</p>
+        <button id="enter-site" class="enter-btn" data-cursor="OPEN">ENTER</button>
+        <button id="skip-intro" class="text-btn">Skip intro</button>
+      </div>
+    </div>
+
+    <main id="main-content">
+      <header id="hero" class="room room-hero" data-room="entrance">
+        <div class="room-light"></div>
+        <p class="mono-label">FRONT HOUSE / NORTH WING / 12.40m</p>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h2><span>MD.</span><span>IMAM</span><span>HOSEN</span></h2>
+            <p class="hero-role">BACKEND ENGINEER / AI ENGINEER / FULL STACK DEVELOPER</p>
+            <p class="hero-desc">I design and build backend systems, AI-powered products, and modern digital experiences.</p>
+          </div>
+          <div class="hero-svg-wrap" aria-label="Architectural house facade illustration">
+            <svg id="facade-svg" viewBox="0 0 640 420" role="img" aria-label="House facade blueprint">
+              <g class="stroke-layer">
+                <rect x="20" y="24" width="600" height="372" />
+                <line x1="20" y1="110" x2="620" y2="110" />
+                <line x1="20" y1="260" x2="620" y2="260" />
+                <line x1="220" y1="110" x2="220" y2="260" />
+                <line x1="420" y1="110" x2="420" y2="260" />
+                <rect x="60" y="140" width="120" height="90" />
+                <rect x="250" y="140" width="140" height="90" />
+                <rect x="460" y="140" width="120" height="90" />
+                <rect x="280" y="280" width="80" height="100" />
+                <line x1="90" y1="24" x2="90" y2="396" class="measure" />
+                <text x="96" y="58">ELEVATION A</text>
+                <text x="454" y="48">23.0m</text>
+              </g>
+              <g class="window-glow">
+                <rect x="64" y="144" width="112" height="82" />
+                <rect x="254" y="144" width="132" height="82" />
+                <rect x="464" y="144" width="112" height="82" />
+              </g>
+              <g class="plant-silhouette">
+                <path d="M40 392 C70 340, 85 340, 95 392 Z" />
+                <path d="M555 392 C575 336, 600 340, 615 392 Z" />
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="signature-transform" aria-hidden="true">
+          <div class="transform-stage facade active">HOUSE FACADE</div>
+          <div class="transform-stage floor">FLOOR PLAN</div>
+          <div class="transform-stage room">INTERIOR ROOM</div>
+          <div class="transform-stage gallery">GALLERY</div>
+        </div>
+      </header>
+
+      <section id="gallery" class="room room-gallery" data-room="gallery">
+        <div class="room-light"></div>
+        <p class="mono-label">ROOM 01 / GALLERY / SELECTED WORK</p>
+        <h2>GALLERY<br />SELECTED WORK</h2>
+        <div class="project-installations">
+          <article class="project" data-cursor="VIEW">
+            <header><h3>CLIENTSERVE AI</h3><p>AI / AUTOMATION / RAG</p></header>
+            <svg viewBox="0 0 240 220" role="img" aria-label="ClientServe architecture flow">
+              <g><text x="96" y="24">USER</text><text x="106" y="64">AI</text><text x="100" y="104">RAG</text><text x="78" y="144">AUTOMATION</text><text x="92" y="184">RESULT</text></g>
+              <path d="M120 30 L120 50 M120 70 L120 90 M120 110 L120 130 M120 150 L120 170" />
+            </svg>
+          </article>
+          <article class="project" data-cursor="VIEW">
+            <header><h3>COHOST</h3><p>SAAS / REAL-TIME / MARKETPLACE</p></header>
+            <svg viewBox="0 0 240 220" role="img" aria-label="CoHost architecture flow">
+              <g><text x="98" y="24">HOST</text><text x="92" y="64">LISTING</text><text x="90" y="104">BOOKING</text><text x="90" y="144">PAYMENT</text><text x="96" y="184">GUEST</text></g>
+              <path d="M120 30 L120 50 M120 70 L120 90 M120 110 L120 130 M120 150 L120 170" />
+            </svg>
+          </article>
+          <article class="project" data-cursor="VIEW">
+            <header><h3>COURTHELP</h3><p>LEGALTECH / PAYMENTS / PLATFORM</p></header>
+            <svg viewBox="0 0 240 220" role="img" aria-label="CourtHelp architecture flow">
+              <g><text x="80" y="24">CONSUMER</text><text x="102" y="64">CASE</text><text x="86" y="104">ATTORNEY</text><text x="90" y="144">PAYMENT</text><text x="76" y="184">RESOLUTION</text></g>
+              <path d="M120 30 L120 50 M120 70 L120 90 M120 110 L120 130 M120 150 L120 170" />
+            </svg>
+          </article>
+          <article class="project" data-cursor="VIEW">
+            <header><h3>BABEL FORGE</h3><p>REAL-TIME / CLOUD / COLLABORATION</p></header>
+            <svg viewBox="0 0 240 220" role="img" aria-label="Babel Forge architecture flow">
+              <g><text x="102" y="24">AUTH</text><text x="98" y="64">CLOUD</text><text x="96" y="104">SOCKET</text><text x="68" y="144">COLLABORATION</text></g>
+              <path d="M120 30 L120 50 M120 70 L120 90 M120 110 L120 130" />
+            </svg>
+          </article>
+        </div>
+      </section>
+
+      <section id="office" class="room room-office" data-room="office">
+        <div class="room-light"></div>
+        <p class="mono-label">ROOM 02 / OFFICE / SECTION B</p>
+        <h2>OFFICE<br />EXPERIENCE</h2>
+        <div class="timeline-wrap">
+          <div class="beam" aria-hidden="true"></div>
+          <ul>
+            <li><span>01</span>BACKEND ENGINEERING</li>
+            <li><span>02</span>SYSTEM DESIGN</li>
+            <li><span>03</span>FULL STACK DEVELOPMENT</li>
+            <li><span>04</span>AI SYSTEMS</li>
+            <li><span>05</span>RAG</li>
+            <li><span>06</span>AGENTIC WORKFLOWS</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="engine" class="room room-engine" data-room="engine">
+        <div class="room-light"></div>
+        <p class="mono-label">ROOM 03 / ENGINE ROOM / MODULE 07</p>
+        <h2>ENGINE ROOM</h2>
+        <div class="engine-grid">
+          <svg id="engine-svg" viewBox="0 0 760 360" role="img" aria-label="Backend orchestration architecture diagram">
+            <g class="nodes">
+              <rect x="40" y="155" width="90" height="44" rx="4" /><text x="73" y="183">USER</text>
+              <rect x="160" y="155" width="70" height="44" rx="4" /><text x="183" y="183">API</text>
+              <rect x="260" y="150" width="160" height="54" rx="4" /><text x="302" y="182">ORCHESTRATOR</text>
+              <rect x="460" y="40" width="110" height="44" rx="4" /><text x="492" y="67">MODEL</text>
+              <rect x="460" y="120" width="90" height="44" rx="4" /><text x="490" y="148">RAG</text>
+              <rect x="580" y="120" width="90" height="44" rx="4" /><text x="608" y="148">TOOLS</text>
+              <rect x="700" y="120" width="90" height="44" rx="4" transform="translate(-120 0)" /><text x="608" y="148" class="hidden"></text>
+              <rect x="580" y="210" width="90" height="44" rx="4" /><text x="600" y="238">MEMORY</text>
+              <rect x="460" y="280" width="90" height="44" rx="4" /><text x="488" y="308">ACTION</text>
+              <rect x="580" y="280" width="90" height="44" rx="4" /><text x="607" y="308">RESULT</text>
+            </g>
+            <g class="links">
+              <path d="M130 177 H160" />
+              <path d="M230 177 H260" />
+              <path d="M420 177 H460" />
+              <path d="M340 150 V84 H460" />
+              <path d="M340 204 V142 H460" />
+              <path d="M550 142 H580" />
+              <path d="M625 164 V210" />
+              <path d="M505 164 V280" />
+              <path d="M550 302 H580" />
+            </g>
+            <circle id="data-packet" cx="130" cy="177" r="5" />
+          </svg>
+          <div class="intelligence-layer">
+            <h3>INTELLIGENCE LAYER</h3>
+            <ul>
+              <li>MODEL</li><li>RETRIEVAL</li><li>MEMORY</li><li>TOOLS</li><li>ORCHESTRATION</li><li>EVALUATION</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="library" class="room room-library" data-room="library">
+        <div class="room-light"></div>
+        <p class="mono-label">ROOM 04 / LIBRARY / MATERIAL WOOD+PAPER</p>
+        <h2>LIBRARY<br />TECHNOLOGY</h2>
+        <div class="shelf" role="list">
+          <div class="stack-group"><h3>BACKEND</h3><button role="listitem" class="tech-book">Node.js</button><button role="listitem" class="tech-book">NestJS</button><button role="listitem" class="tech-book">Express</button></div>
+          <div class="stack-group"><h3>FRONTEND</h3><button role="listitem" class="tech-book">Next.js</button><button role="listitem" class="tech-book">React</button><button role="listitem" class="tech-book">TypeScript</button></div>
+          <div class="stack-group"><h3>DATABASE</h3><button role="listitem" class="tech-book">PostgreSQL</button><button role="listitem" class="tech-book">Prisma</button><button role="listitem" class="tech-book">MongoDB</button><button role="listitem" class="tech-book">Redis</button></div>
+          <div class="stack-group"><h3>INFRASTRUCTURE</h3><button role="listitem" class="tech-book">Docker</button><button role="listitem" class="tech-book">BullMQ</button><button role="listitem" class="tech-book">Socket.IO</button></div>
+          <div class="stack-group"><h3>AI + PAYMENTS</h3><button role="listitem" class="tech-book">OpenAI</button><button role="listitem" class="tech-book">LangChain</button><button role="listitem" class="tech-book">LangGraph</button><button role="listitem" class="tech-book">RAG</button><button role="listitem" class="tech-book">Stripe</button></div>
+        </div>
+      </section>
+
+      <section id="about" class="room room-about" data-room="about">
+        <div class="room-light"></div>
+        <p class="mono-label">ROOM 05 / LIVING SPACE / QUIET LIGHT</p>
+        <h2>ABOUT</h2>
+        <p class="about-statement">I BUILD SYSTEMS<br />THAT CONNECT<br />PEOPLE,<br />DATA,<br />AND INTELLIGENCE.</p>
+        <p class="about-copy">Md. Imam Hosen is a backend and full-stack engineer focused on scalable systems, AI-powered applications, and reliable product architecture that stays clear, maintainable, and useful.</p>
+        <ul class="principles">
+          <li><span>01</span>SIMPLICITY</li>
+          <li><span>02</span>SYSTEM THINKING</li>
+          <li><span>03</span>AUTOMATION</li>
+          <li><span>04</span>RELIABILITY</li>
+          <li><span>05</span>CONTINUOUS IMPROVEMENT</li>
+        </ul>
+      </section>
+
+      <section id="rooftop" class="room room-rooftop" data-room="rooftop">
+        <div class="room-light"></div>
+        <p class="mono-label">ROOFTOP / FUTURE LAYER / OPEN SKY</p>
+        <h2>ROOFTOP<br />THE NEXT LAYER</h2>
+        <svg id="rooftop-svg" viewBox="0 0 760 340" role="img" aria-label="Future AI network architecture">
+          <g>
+            <circle cx="120" cy="180" r="30" /><text x="95" y="186">AGENTS</text>
+            <circle cx="270" cy="80" r="26" /><text x="254" y="86">RAG</text>
+            <circle cx="430" cy="180" r="34" /><text x="382" y="186">AUTOMATION</text>
+            <circle cx="590" cy="92" r="32" /><text x="548" y="98">MULTI-MODAL</text>
+            <circle cx="680" cy="228" r="38" /><text x="632" y="234">INTELLIGENT</text>
+            <path d="M150 170 L245 95 L396 170 L560 105 L648 210" />
+          </g>
+        </svg>
+      </section>
+
+      <section id="contact" class="room room-contact" data-room="contact">
+        <div class="room-light"></div>
+        <p class="mono-label">FRONT DOOR / EXIT / RETURN</p>
+        <h2>LET'S BUILD<br />SOMETHING<br />USEFUL.</h2>
+        <button id="contact-door" class="door" data-cursor="OPEN" aria-expanded="false" aria-controls="contact-links">
+          <span class="door-panel"></span>
+          <span class="door-text">LEAVE A NOTE</span>
+        </button>
+        <div id="contact-links" class="contact-links" hidden>
+          <a href="https://github.com/mdimamhosen" target="_blank" rel="noreferrer">GITHUB</a>
+          <a href="https://www.linkedin.com/in/mdimam02/" target="_blank" rel="noreferrer">LINKEDIN</a>
+          <span>EMAIL — AVAILABLE ON REQUEST</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-mark">
+      <img src="assets/svg/architectural-mark.svg" alt="Architectural mark" />
+      <p class="mono-label">MD. IMAM HOSEN / DIGITAL ARCHITECTURE HOUSE</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
